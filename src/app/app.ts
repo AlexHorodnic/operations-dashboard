@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { ThemeService } from './core/services/theme.service';
+import { VercelAnalyticsService } from './core/services/vercel-analytics.service';
 import { CommandPalette } from './shared/ui/command-palette/command-palette';
 
 @Component({
@@ -13,6 +14,7 @@ import { CommandPalette } from './shared/ui/command-palette/command-palette';
 })
 export class App {
   private readonly router = inject(Router);
+  private readonly analytics = inject(VercelAnalyticsService);
   protected readonly theme = inject(ThemeService);
   protected readonly commandOpen = signal(false);
   protected readonly currentPath = signal(this.router.url);
@@ -28,6 +30,7 @@ export class App {
   });
 
   constructor() {
+    this.analytics.initialize();
     this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe((event) => {
       this.currentPath.set(event.urlAfterRedirects);
     });

@@ -7,10 +7,23 @@
     <span class="timestamp">{{ filteredTasks().length }} active work items</span>
   </div>
 
+  <div class="workflow-kpi-grid" aria-label="Workflow summary">
+    @for (kpi of workflowKpis(); track kpi.label) {
+      <article [class]="'workflow-kpi workflow-kpi--' + kpi.tone">
+        <span>{{ kpi.label }}</span>
+        <strong>{{ kpi.value }}</strong>
+        <p>{{ kpi.detail }}</p>
+      </article>
+    }
+  </div>
+
   <article class="panel workflow-filters">
-    <label>
+    <label class="workflow-search">
       <span>Search</span>
-      <input type="search" placeholder="Task, account, or work type" [ngModel]="query()" (ngModelChange)="query.set($event)" />
+      <div>
+        <i aria-hidden="true">/</i>
+        <input type="search" placeholder="Task, account, or work type" [ngModel]="query()" (ngModelChange)="query.set($event)" />
+      </div>
     </label>
     <label>
       <span>Owner</span>
@@ -28,7 +41,22 @@
         }
       </select>
     </label>
+    <button class="row-action" type="button" (click)="clearFilters()" [disabled]="!hasActiveFilters()">Clear filters</button>
+    @if (hasActiveFilters()) {
+      <div class="filter-chips" aria-label="Active workflow filters">
+        @if (owner() !== 'All') {
+          <button type="button" (click)="owner.set('All')" aria-label="Clear owner filter">Owner: {{ owner() }} x</button>
+        }
+        @if (priority() !== 'All') {
+          <button type="button" (click)="priority.set('All')" aria-label="Clear priority filter">Priority: {{ priority() }} x</button>
+        }
+      </div>
+    }
   </article>
+
+  @if (actionMessage()) {
+    <p class="export-feedback" aria-live="polite">{{ actionMessage() }}</p>
+  }
 
   @if (loading()) {
     <section class="loading-grid" aria-label="Loading workflow queue">
@@ -41,24 +69,51 @@
   } @else {
     <div class="kanban-board">
       @for (status of statuses; track status) {
-        <section class="kanban-column">
+        <section
+          [class]="columnClass(status)"
+          [class.is-drop-target]="dragOverStatus() === status"
+          (dragover)="dragOver(status, $event)"
+          (dragleave)="dragOverStatus.set(null)"
+          (drop)="dropTask(status, $event)"
+        >
           <header>
-            <h3>{{ status }}</h3>
-            <span>{{ tasksForStatus(status).length }}</span>
+            <div>
+              <h3>{{ status }}</h3>
+              <p>{{ tasksForStatus(status).length }} items</p>
+            </div>
           </header>
           <div class="kanban-list">
             @for (task of tasksForStatus(status); track task.id) {
-              <article class="task-card">
+              <article
+                class="task-card workflow-card"
+                [class.is-urgent]="task.isUrgent"
+                draggable="true"
+                (dragstart)="dragStart(task, $event)"
+                (dragend)="endDrag()"
+              >
                 <div class="task-card__top">
                   <app-badge [tone]="priorityTone(task.priority)">{{ task.priority }}</app-badge>
-                  <span>{{ task.type }}</span>
+                  <span class="task-type">{{ task.type }}</span>
                 </div>
                 <h3>{{ task.title }}</h3>
-                <p>{{ task.customer }}</p>
+                <p class="task-account"><span aria-hidden="true">Co</span>{{ task.customer }}</p>
+                <p class="task-detail">{{ task.detail }}</p>
+                @if (task.blockedReason) {
+                  <p class="blocked-reason">{{ task.blockedReason }}</p>
+                }
                 <div class="task-card__meta">
                   <span class="avatar-mini">{{ task.owner.slice(0, 1) }}</span>
-                  <span>{{ task.owner }}</span>
-                  <time>{{ task.dueDate | date: 'MMM d' }}</time>
+                  <span><span aria-hidden="true">Ow</span>{{ task.owner }}</span>
+                  <time [class.is-overdue]="task.isOverdue"><span aria-hidden="true">Due</span>{{ task.dueDate | date: 'MMM d' }}</time>
+                </div>
+                <div class="task-card__footer">
+                  <span>{{ task.update }}</span>
+                  <span>{{ task.comments }} comments</span>
+                </div>
+                <div class="task-actions" aria-label="Task quick actions">
+                  <button type="button" (click)="runQuickAction('open', task)" [attr.aria-label]="'Open ' + task.title">Open</button>
+                  <button type="button" (click)="runQuickAction('assign', task)" [attr.aria-label]="'Assign ' + task.title">Assign</button>
+                  <button type="button" [attr.aria-label]="'More actions for ' + task.title">...</button>
                 </div>
               </article>
             } @empty {

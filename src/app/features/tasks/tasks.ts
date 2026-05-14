@@ -7,6 +7,25 @@ import { OperationTask, TaskPriority, TaskStatus } from '../../models/dashboard.
 import { Badge } from '../../shared/badge/badge';
 import { EmptyState } from '../../shared/empty-state/empty-state';
 
+interface TaskMeta {
+  comments: number;
+  update: string;
+  detail: string;
+  blockedReason?: string;
+}
+
+interface WorkflowTask extends OperationTask, TaskMeta {
+  isOverdue: boolean;
+  isUrgent: boolean;
+}
+
+interface WorkflowKpi {
+  label: string;
+  value: string;
+  detail: string;
+  tone: 'neutral' | 'warning' | 'danger' | 'success';
+}
+
 @Component({
   selector: 'app-tasks',
   imports: [CommonModule, FormsModule, Badge, EmptyState],
@@ -15,27 +34,75 @@ import { EmptyState } from '../../shared/empty-state/empty-state';
 export class Tasks {
   private readonly data = inject(DashboardDataService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly today = new Date('2026-05-14T00:00:00');
+  private readonly taskMeta = new Map<number, TaskMeta>([
+    [1, { comments: 4, update: 'Updated 2m ago', detail: 'Waiting on workspace admin' }],
+    [2, { comments: 8, update: 'Escalated 18m ago', detail: 'Finance sync blocked', blockedReason: 'Waiting on finance approval' }],
+    [3, { comments: 2, update: 'Updated 1h ago', detail: 'Draft packet in review' }],
+    [4, { comments: 3, update: 'Updated 34m ago', detail: 'Mapping review in progress' }],
+    [5, { comments: 1, update: 'Closed yesterday', detail: 'Migration accepted by customer' }],
+    [6, { comments: 5, update: 'Updated 45m ago', detail: 'Retention risk review queued' }],
+    [7, { comments: 2, update: 'Updated 3h ago', detail: 'Security team requested documents' }],
+    [8, { comments: 1, update: 'Completed 2d ago', detail: 'Expansion seats provisioned' }],
+    [9, { comments: 3, update: 'Updated 26m ago', detail: 'Admin handoff waiting on customer' }],
+    [10, { comments: 6, update: 'Blocked 1h ago', detail: 'Renewal memo waiting on CSM', blockedReason: 'Missing executive sponsor notes' }],
+  ]);
 
   readonly loading = signal(true);
   readonly tasks = signal<OperationTask[]>([]);
   readonly query = signal('');
   readonly owner = signal('All');
   readonly priority = signal<TaskPriority | 'All'>('All');
+  readonly dragTaskId = signal<number | null>(null);
+  readonly dragOverStatus = signal<TaskStatus | null>(null);
+  readonly actionMessage = signal('');
   readonly statuses: TaskStatus[] = ['Queued', 'In progress', 'Blocked', 'Done'];
   readonly priorities: (TaskPriority | 'All')[] = ['All', 'Critical', 'High', 'Medium', 'Low'];
   readonly owners = computed(() => ['All', ...Array.from(new Set(this.tasks().map((task) => task.owner)))]);
+
+  readonly workflowTasks = computed<WorkflowTask[]>(() =>
+    this.tasks().map((task) => {
+      const dueDate = new Date(`${task.dueDate}T00:00:00`);
+      const meta = this.taskMeta.get(task.id) ?? { comments: 0, update: 'Updated recently', detail: 'No recent update' };
+      return {
+        ...task,
+        ...meta,
+        isOverdue: task.status !== 'Done' && dueDate < this.today,
+        isUrgent: task.priority === 'Critical' || (task.status !== 'Done' && dueDate < this.today),
+      };
+    }),
+  );
 
   readonly filteredTasks = computed(() => {
     const query = this.query().trim().toLowerCase();
     const owner = this.owner();
     const priority = this.priority();
 
-    return this.tasks().filter((task) => {
+    return this.workflowTasks().filter((task) => {
       const matchesQuery = `${task.title} ${task.customer} ${task.type}`.toLowerCase().includes(query);
       const matchesOwner = owner === 'All' || task.owner === owner;
       const matchesPriority = priority === 'All' || task.priority === priority;
       return matchesQuery && matchesOwner && matchesPriority;
     });
+  });
+
+  readonly hasActiveFilters = computed(() => !!this.query().trim() || this.owner() !== 'All' || this.priority() !== 'All');
+  readonly workflowKpis = computed<WorkflowKpi[]>(() => {
+    const tasks = this.workflowTasks();
+    const total = tasks.length || 1;
+    const active = tasks.filter((task) => task.status !== 'Done').length;
+    const blocked = tasks.filter((task) => task.status === 'Blocked').length;
+    const slaRisk = tasks.filter((task) => task.isUrgent).length;
+    const done = tasks.filter((task) => task.status === 'Done').length;
+    const completionRate = Math.round((done / total) * 100);
+
+    return [
+      { label: 'Active work items', value: String(active), detail: 'Across open lanes', tone: 'neutral' },
+      { label: 'Blocked items', value: String(blocked), detail: 'Need intervention', tone: blocked ? 'danger' : 'success' },
+      { label: 'SLA risk', value: String(slaRisk), detail: 'Critical or past due', tone: slaRisk ? 'warning' : 'success' },
+      { label: 'Completion rate', value: `${completionRate}%`, detail: 'Closed in current cycle', tone: 'success' },
+      { label: 'Avg. resolution', value: '2.8d', detail: 'Rolling 14-day average', tone: 'neutral' },
+    ];
   });
 
   constructor() {
@@ -45,8 +112,14 @@ export class Tasks {
     });
   }
 
-  tasksForStatus(status: TaskStatus): OperationTask[] {
+  tasksForStatus(status: TaskStatus): WorkflowTask[] {
     return this.filteredTasks().filter((task) => task.status === status);
+  }
+
+  clearFilters(): void {
+    this.query.set('');
+    this.owner.set('All');
+    this.priority.set('All');
   }
 
   priorityTone(priority: TaskPriority): 'danger' | 'warning' | 'accent' | 'neutral' {
@@ -60,5 +133,44 @@ export class Tasks {
       return 'accent';
     }
     return 'neutral';
+  }
+
+  columnClass(status: TaskStatus): string {
+    return `kanban-column kanban-column--${status.toLowerCase().replaceAll(' ', '-')}`;
+  }
+
+  dragStart(task: WorkflowTask, event: DragEvent): void {
+    this.dragTaskId.set(task.id);
+    event.dataTransfer?.setData('text/plain', String(task.id));
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+    }
+  }
+
+  dragOver(status: TaskStatus, event: DragEvent): void {
+    event.preventDefault();
+    this.dragOverStatus.set(status);
+  }
+
+  dropTask(status: TaskStatus, event: DragEvent): void {
+    event.preventDefault();
+    const taskId = this.dragTaskId() ?? Number(event.dataTransfer?.getData('text/plain'));
+    if (!taskId) {
+      return;
+    }
+
+    this.tasks.update((tasks) => tasks.map((task) => (task.id === taskId ? { ...task, status } : task)));
+    this.dragTaskId.set(null);
+    this.dragOverStatus.set(null);
+  }
+
+  endDrag(): void {
+    this.dragTaskId.set(null);
+    this.dragOverStatus.set(null);
+  }
+
+  runQuickAction(action: 'open' | 'assign', task: WorkflowTask): void {
+    this.actionMessage.set(action === 'open' ? `Opened ${task.title}` : `Assignment flow opened for ${task.title}`);
+    window.setTimeout(() => this.actionMessage.set(''), 2200);
   }
 }

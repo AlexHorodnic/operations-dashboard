@@ -15,7 +15,7 @@
       </div>
       <div class="panel-actions">
         <button class="text-button" type="button" (click)="load(true)">Simulate error</button>
-        <button class="text-button" type="button">Add account</button>
+        <button class="text-button" type="button" (click)="openAddAccount()">Add account</button>
       </div>
     </div>
 
@@ -45,7 +45,19 @@
     @if (selectedCount()) {
       <div class="bulk-toolbar">
         <strong>{{ selectedCount() }} selected</strong>
-        <button class="row-action" type="button">Assign owner</button>
+        @if (assignmentOpen()) {
+          <label class="bulk-assignment">
+            <span>Owner</span>
+            <select [ngModel]="selectedOwner()" (ngModelChange)="selectedOwner.set($event)">
+              @for (owner of ownerOptions; track owner) {
+                <option [ngValue]="owner">{{ owner }}</option>
+              }
+            </select>
+          </label>
+          <button class="row-action" type="button" (click)="assignOwner()">Apply</button>
+        } @else {
+          <button class="row-action" type="button" (click)="openAssignment()">Assign owner</button>
+        }
         <button
           class="row-action"
           type="button"
@@ -169,4 +181,89 @@
       </div>
     </section>
   }
+</app-drawer>
+
+<app-drawer [open]="addAccountOpen()" title="Add account" eyebrow="Account directory" (closed)="closeAddAccount()">
+  <form class="account-form" (ngSubmit)="createAccount()">
+    <div class="form-grid">
+      <label>
+        <span>Name</span>
+        <input type="text" required placeholder="Jordan Lee" [ngModel]="accountDraft().name" name="name" (ngModelChange)="updateAccountDraft('name', $event)" />
+      </label>
+      <label>
+        <span>Email</span>
+        <input type="email" required placeholder="jordan@company.com" [ngModel]="accountDraft().email" name="email" (ngModelChange)="updateAccountDraft('email', $event)" />
+      </label>
+      <label>
+        <span>Company</span>
+        <input type="text" required placeholder="Acme Supply" [ngModel]="accountDraft().company" name="company" (ngModelChange)="updateAccountDraft('company', $event)" />
+      </label>
+      <label>
+        <span>Phone</span>
+        <input type="tel" placeholder="+1 555 0100" [ngModel]="accountDraft().phone" name="phone" (ngModelChange)="updateAccountDraft('phone', $event)" />
+      </label>
+      <label>
+        <span>Plan</span>
+        <select [ngModel]="accountDraft().plan" name="plan" (ngModelChange)="updateAccountDraft('plan', $event)">
+          @for (option of plans.slice(1); track option) {
+            <option [ngValue]="option">{{ option }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        <span>Status</span>
+        <select [ngModel]="accountDraft().status" name="status" (ngModelChange)="updateAccountDraft('status', $event)">
+          @for (option of statuses.slice(1); track option) {
+            <option [ngValue]="option">{{ option }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        <span>Owner</span>
+        <select [ngModel]="accountDraft().owner" name="owner" (ngModelChange)="updateAccountDraft('owner', $event)">
+          @for (owner of ownerOptions; track owner) {
+            <option [ngValue]="owner">{{ owner }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        <span>Region</span>
+        <select [ngModel]="accountDraft().region" name="region" (ngModelChange)="updateAccountDraft('region', $event)">
+          @for (region of regionOptions; track region) {
+            <option [ngValue]="region">{{ region }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        <span>Revenue</span>
+        <input type="number" min="0" [ngModel]="accountDraft().revenue" name="revenue" (ngModelChange)="updateAccountDraft('revenue', $event)" />
+      </label>
+      <label>
+        <span>Seats</span>
+        <input type="number" min="1" [ngModel]="accountDraft().seats" name="seats" (ngModelChange)="updateAccountDraft('seats', $event)" />
+      </label>
+      <label>
+        <span>Health score</span>
+        <input type="number" min="0" max="100" [ngModel]="accountDraft().healthScore" name="healthScore" (ngModelChange)="updateAccountDraft('healthScore', $event)" />
+      </label>
+      <label>
+        <span>Renewal date</span>
+        <input type="date" [ngModel]="accountDraft().renewalDate" name="renewalDate" (ngModelChange)="updateAccountDraft('renewalDate', $event)" />
+      </label>
+    </div>
+
+    <label class="form-field-full">
+      <span>Notes</span>
+      <textarea rows="4" placeholder="Add onboarding context or renewal notes" [ngModel]="accountDraft().notes" name="notes" (ngModelChange)="updateAccountDraft('notes', $event)"></textarea>
+    </label>
+
+    @if (accountDraftError()) {
+      <p class="form-error" aria-live="polite">{{ accountDraftError() }}</p>
+    }
+
+    <footer class="drawer-actions">
+      <button class="row-action" type="button" (click)="closeAddAccount()">Cancel</button>
+      <button class="text-button" type="submit">Create account</button>
+    </footer>
+  </form>
 </app-drawer>

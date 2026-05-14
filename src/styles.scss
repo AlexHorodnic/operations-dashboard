@@ -62,7 +62,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -771,7 +772,8 @@ select:focus-visible {
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   min-height: 2.15rem;
   border: 1px solid var(--border);
@@ -779,6 +781,12 @@ select {
   background: #0c1015;
   color: var(--text);
   padding: 0 0.6rem;
+}
+
+textarea {
+  min-height: 6rem;
+  padding: 0.6rem;
+  resize: vertical;
 }
 
 input[type="checkbox"] {
@@ -806,6 +814,19 @@ input[type="checkbox"] {
   color: var(--green);
   font-size: 0.76rem;
   font-weight: 600;
+}
+
+.bulk-assignment {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.bulk-assignment select {
+  width: 7.5rem;
+  min-height: 1.9rem;
 }
 
 .bulk-toolbar,
@@ -957,23 +978,24 @@ tbody tr:hover .row-action {
 }
 
 .badge--warning {
-  background: rgb(243 201 105 / 14%);
+  background: rgb(229 186 88 / 15%);
   color: var(--amber);
 }
 
 .badge--danger {
-  background: rgb(255 122 112 / 14%);
+  border: 1px solid rgb(255 127 115 / 26%);
+  background: rgb(255 127 115 / 16%);
   color: var(--coral);
 }
 
 .badge--accent {
-  background: rgb(121 167 255 / 14%);
+  background: rgb(128 168 255 / 15%);
   color: var(--blue);
 }
 
 .badge--neutral {
-  background: rgb(157 168 183 / 14%);
-  color: #cbd3de;
+  background: rgb(157 168 183 / 11%);
+  color: var(--muted);
 }
 
 .task-card:hover {
@@ -981,10 +1003,54 @@ tbody tr:hover .row-action {
   box-shadow: var(--shadow-raised);
 }
 
+.workflow-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.workflow-kpi {
+  border: 1px solid var(--border);
+  border-radius: 0.625rem;
+  background: var(--surface-card);
+  box-shadow: var(--shadow);
+  padding: 1rem;
+}
+
+.workflow-kpi span {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.workflow-kpi strong {
+  display: block;
+  margin: 0.45rem 0 0.25rem;
+  font-size: 1.35rem;
+}
+
+.workflow-kpi p {
+  color: var(--faint);
+  font-size: 0.76rem;
+}
+
+.workflow-kpi--warning {
+  border-color: rgb(229 186 88 / 24%);
+}
+
+.workflow-kpi--danger {
+  border-color: rgb(255 127 115 / 26%);
+}
+
+.workflow-kpi--success {
+  border-color: rgb(116 214 154 / 22%);
+}
+
 .workflow-filters {
   display: grid;
-  grid-template-columns: minmax(18rem, 1fr) repeat(2, minmax(10rem, 14rem));
+  grid-template-columns: minmax(18rem, 1fr) repeat(2, minmax(10rem, 13rem)) auto;
   gap: var(--space-4);
+  align-items: end;
   margin-bottom: var(--space-5);
 }
 
@@ -996,6 +1062,46 @@ tbody tr:hover .row-action {
   font-size: 0.76rem;
 }
 
+.workflow-search div {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 0.38rem;
+  background: #0c1015;
+  padding: 0 0.6rem;
+}
+
+.workflow-search i {
+  color: var(--faint);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.workflow-search input {
+  min-height: 2.15rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  outline: 0;
+}
+
+.filter-chips {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-chips button {
+  border: 1px solid rgb(106 166 255 / 26%);
+  border-radius: 999px;
+  background: rgb(106 166 255 / 10%);
+  color: var(--text);
+  padding: 0.25rem 0.55rem;
+  font-size: 0.74rem;
+}
+
 .kanban-board {
   display: grid;
   grid-template-columns: repeat(4, minmax(15rem, 1fr));
@@ -1005,10 +1111,44 @@ tbody tr:hover .row-action {
 }
 
 .kanban-column {
+  position: relative;
   min-width: 15rem;
   border: 1px solid var(--border);
   border-radius: 0.625rem;
   background: color-mix(in srgb, var(--surface-card) 92%, var(--surface-2));
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.kanban-column::before {
+  display: block;
+  height: 0.18rem;
+  border-radius: 0.625rem 0.625rem 0 0;
+  background: var(--accent);
+  content: "";
+}
+
+.kanban-column--queued::before {
+  background: var(--blue);
+}
+
+.kanban-column--in-progress::before {
+  background: var(--amber);
+}
+
+.kanban-column--blocked::before {
+  background: var(--coral);
+}
+
+.kanban-column--done::before {
+  background: var(--green);
+}
+
+.kanban-column.is-drop-target {
+  border-color: rgb(106 166 255 / 48%);
+  background: color-mix(in srgb, var(--surface-card) 84%, var(--surface-2));
 }
 
 .kanban-column header {
@@ -1023,6 +1163,7 @@ tbody tr:hover .row-action {
   font-size: 0.86rem;
 }
 
+.kanban-column header p,
 .kanban-column header span {
   color: var(--muted);
   font-size: 0.76rem;
@@ -1050,19 +1191,124 @@ tbody tr:hover .row-action {
   border: 1px dashed var(--border);
   border-radius: 0.45rem;
   color: var(--faint);
-  padding: 0.85rem;
+  min-height: 9rem;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
   text-align: center;
+}
+
+.workflow-card {
+  position: relative;
+  cursor: grab;
+}
+
+.workflow-card:active {
+  cursor: grabbing;
+}
+
+.workflow-card:hover,
+.workflow-card:focus-within {
+  transform: translateY(-2px);
+}
+
+.workflow-card.is-urgent {
+  border-color: rgb(255 127 115 / 24%);
 }
 
 .task-card h3 {
   margin: 0.85rem 0 0.28rem;
-  font-size: 0.92rem;
+  font-size: 0.95rem;
+  line-height: 1.3;
 }
 
 .task-card__meta {
-  margin-top: 1rem;
+  margin-top: 0.95rem;
   color: var(--muted);
   font-size: 0.78rem;
+}
+
+.task-type {
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.task-account,
+.task-detail,
+.blocked-reason,
+.task-card__footer {
+  margin-top: 0.45rem;
+  font-size: 0.78rem;
+}
+
+.task-account {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.task-account span,
+.task-card__meta span span,
+.task-card__meta time span {
+  margin-right: 0.35rem;
+  color: var(--faint);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.task-detail {
+  color: var(--muted);
+}
+
+.blocked-reason {
+  border: 1px solid rgb(255 127 115 / 22%);
+  border-radius: 0.4rem;
+  background: rgb(255 127 115 / 8%);
+  color: var(--coral);
+  padding: 0.45rem 0.5rem;
+}
+
+.is-overdue {
+  color: var(--coral);
+}
+
+.task-card__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--faint);
+}
+
+.task-actions {
+  position: absolute;
+  right: 0.65rem;
+  bottom: 0.65rem;
+  display: flex;
+  gap: 0.25rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease;
+}
+
+.workflow-card:hover .task-actions,
+.workflow-card:focus-within .task-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.task-actions button {
+  border: 1px solid var(--border);
+  border-radius: 0.32rem;
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 0.22rem 0.42rem;
+  font-size: 0.7rem;
+}
+
+.task-actions button:hover,
+.task-actions button:focus-visible {
+  border-color: rgb(106 166 255 / 42%);
 }
 
 .chart-shell--bars .chart-axis,
@@ -1217,6 +1463,42 @@ tbody tr:hover .row-action {
 .drawer-section h3 {
   margin-bottom: 0.45rem;
   font-size: 0.9rem;
+}
+
+.account-form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.account-form label,
+.form-field-full {
+  display: grid;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.form-error {
+  border: 1px solid rgb(255 127 115 / 28%);
+  border-radius: 0.45rem;
+  background: rgb(255 127 115 / 10%);
+  color: var(--coral);
+  padding: 0.65rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.drawer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
 }
 
 .command-palette {
@@ -1387,12 +1669,13 @@ tbody tr:hover .row-action {
   .overview-grid,
   .analytics-grid,
   .loading-grid,
-  .comparison-grid {
+  .comparison-grid,
+  .workflow-kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .kanban-board {
-    grid-template-columns: repeat(4, 15rem);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1424,8 +1707,18 @@ tbody tr:hover .row-action {
   .analytics-grid,
   .loading-grid,
   .comparison-grid,
+  .workflow-kpi-grid,
   .workflow-filters {
     grid-template-columns: 1fr;
+  }
+
+  .kanban-board {
+    grid-template-columns: 1fr;
+    overflow-x: visible;
+  }
+
+  .kanban-column {
+    min-width: 0;
   }
 
   .brand strong {
@@ -1478,6 +1771,10 @@ tbody tr:hover .row-action {
   }
 
   .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
     grid-template-columns: 1fr;
   }
 

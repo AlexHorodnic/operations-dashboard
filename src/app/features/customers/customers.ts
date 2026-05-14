@@ -12,6 +12,22 @@ import { exportCsv } from '../../shared/utils/csv-export';
 type SortKey = 'name' | 'company' | 'plan' | 'status' | 'revenue' | 'lastActivity' | 'healthScore';
 type SortDirection = 'asc' | 'desc';
 
+interface AccountDraft {
+  name: string;
+  email: string;
+  company: string;
+  plan: CustomerPlan;
+  status: CustomerStatus;
+  revenue: number;
+  owner: string;
+  region: string;
+  phone: string;
+  seats: number;
+  healthScore: number;
+  renewalDate: string;
+  notes: string;
+}
+
 @Component({
   selector: 'app-customers',
   imports: [CommonModule, FormsModule, Badge, EmptyState, Drawer],
@@ -34,9 +50,16 @@ export class Customers {
   readonly pageSize = 6;
   readonly selectedCustomer = signal<Customer | null>(null);
   readonly exportMessage = signal('');
+  readonly assignmentOpen = signal(false);
+  readonly selectedOwner = signal('Avery');
+  readonly addAccountOpen = signal(false);
+  readonly accountDraft = signal<AccountDraft>(this.createAccountDraft());
+  readonly accountDraftError = signal('');
 
   readonly statuses: (CustomerStatus | 'All')[] = ['All', 'Active', 'At risk', 'Paused'];
   readonly plans: (CustomerPlan | 'All')[] = ['All', 'Starter', 'Growth', 'Enterprise'];
+  readonly ownerOptions = ['Avery', 'Mina', 'Sam', 'Iris', 'Leo'];
+  readonly regionOptions = ['North America', 'EMEA', 'APAC', 'LATAM'];
 
   readonly filteredCustomers = computed(() => {
     const query = this.search().trim().toLowerCase();
@@ -136,6 +159,25 @@ export class Customers {
 
   clearSelection(): void {
     this.selectedIds.set(new Set());
+    this.assignmentOpen.set(false);
+  }
+
+  openAssignment(): void {
+    this.assignmentOpen.set(true);
+  }
+
+  assignOwner(): void {
+    const selectedIds = this.selectedIds();
+    const owner = this.selectedOwner();
+
+    if (!selectedIds.size) {
+      return;
+    }
+
+    this.customers.set(this.data.updateCustomerOwners([...selectedIds], owner));
+    this.exportMessage.set(`${selectedIds.size} account${selectedIds.size === 1 ? '' : 's'} assigned to ${owner}`);
+    this.assignmentOpen.set(false);
+    window.setTimeout(() => this.exportMessage.set(''), 2400);
   }
 
   exportAccounts(): void {
@@ -174,6 +216,59 @@ export class Customers {
     this.selectedCustomer.set(customer);
   }
 
+  openAddAccount(): void {
+    this.accountDraft.set(this.createAccountDraft());
+    this.accountDraftError.set('');
+    this.addAccountOpen.set(true);
+  }
+
+  closeAddAccount(): void {
+    this.addAccountOpen.set(false);
+    this.accountDraftError.set('');
+  }
+
+  updateAccountDraft(key: keyof AccountDraft, value: string | number): void {
+    this.accountDraft.update((draft) => ({ ...draft, [key]: value }));
+  }
+
+  createAccount(): void {
+    const draft = this.accountDraft();
+    if (!draft.name.trim() || !draft.email.trim() || !draft.company.trim()) {
+      this.accountDraftError.set('Name, email, and company are required.');
+      return;
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+    const customer: Customer = {
+      id: this.nextCustomerId(),
+      name: draft.name.trim(),
+      email: draft.email.trim(),
+      company: draft.company.trim(),
+      plan: draft.plan,
+      status: draft.status,
+      revenue: Number(draft.revenue) || 0,
+      lastActivity: today,
+      phone: draft.phone.trim() || 'Not provided',
+      owner: draft.owner,
+      region: draft.region,
+      seats: Number(draft.seats) || 1,
+      createdAt: today,
+      renewalDate: draft.renewalDate || today,
+      healthScore: Math.max(0, Math.min(100, Number(draft.healthScore) || 75)),
+      notes: draft.notes.trim() || 'New account created from the account directory.',
+      recentActivity: ['Account created manually', `Owner assigned to ${draft.owner}`],
+    };
+
+    this.customers.set(this.data.addCustomer(customer));
+    this.exportMessage.set(`${customer.company} added`);
+    this.addAccountOpen.set(false);
+    this.status.set('All');
+    this.plan.set('All');
+    this.search.set('');
+    this.page.set(1);
+    window.setTimeout(() => this.exportMessage.set(''), 2400);
+  }
+
   statusTone(status: CustomerStatus): 'success' | 'warning' | 'neutral' {
     if (status === 'Active') {
       return 'success';
@@ -195,5 +290,27 @@ export class Customers {
     }
 
     return String(left).localeCompare(String(right)) * modifier;
+  }
+
+  private nextCustomerId(): number {
+    return Math.max(...this.customers().map((customer) => customer.id), 0) + 1;
+  }
+
+  private createAccountDraft(): AccountDraft {
+    return {
+      name: '',
+      email: '',
+      company: '',
+      plan: 'Growth',
+      status: 'Active',
+      revenue: 0,
+      owner: 'Avery',
+      region: 'North America',
+      phone: '',
+      seats: 10,
+      healthScore: 75,
+      renewalDate: '2026-12-31',
+      notes: '',
+    };
   }
 }
