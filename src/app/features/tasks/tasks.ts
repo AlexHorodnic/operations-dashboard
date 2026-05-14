@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -28,7 +29,7 @@ interface WorkflowKpi {
 
 @Component({
   selector: 'app-tasks',
-  imports: [CommonModule, FormsModule, Badge, EmptyState],
+  imports: [CommonModule, FormsModule, DragDropModule, Badge, EmptyState],
   templateUrl: './tasks.html',
 })
 export class Tasks {
@@ -53,7 +54,6 @@ export class Tasks {
   readonly query = signal('');
   readonly owner = signal('All');
   readonly priority = signal<TaskPriority | 'All'>('All');
-  readonly dragTaskId = signal<number | null>(null);
   readonly dragOverStatus = signal<TaskStatus | null>(null);
   readonly actionMessage = signal('');
   readonly statuses: TaskStatus[] = ['Queued', 'In progress', 'Blocked', 'Done'];
@@ -139,38 +139,52 @@ export class Tasks {
     return `kanban-column kanban-column--${status.toLowerCase().replaceAll(' ', '-')}`;
   }
 
-  dragStart(task: WorkflowTask, event: DragEvent): void {
-    this.dragTaskId.set(task.id);
-    event.dataTransfer?.setData('text/plain', String(task.id));
-    if (event.dataTransfer) {
-      event.dataTransfer.effectAllowed = 'move';
-    }
+  dragStart(task: WorkflowTask): void {
+    this.dragOverStatus.set(task.status);
   }
 
-  dragOver(status: TaskStatus, event: DragEvent): void {
-    event.preventDefault();
-    this.dragOverStatus.set(status);
-  }
-
-  dropTask(status: TaskStatus, event: DragEvent): void {
-    event.preventDefault();
-    const taskId = this.dragTaskId() ?? Number(event.dataTransfer?.getData('text/plain'));
-    if (!taskId) {
+  dropTask(status: TaskStatus, event: CdkDragDrop<WorkflowTask[]>): void {
+    const task = event.item.data as WorkflowTask | undefined;
+    if (!task) {
       return;
     }
 
-    this.tasks.update((tasks) => tasks.map((task) => (task.id === taskId ? { ...task, status } : task)));
-    this.dragTaskId.set(null);
+    const targetTasks = event.container.data.filter((item) => item.id !== task.id);
+    targetTasks.splice(event.currentIndex, 0, { ...task, status });
+    const orderedTargetIds = targetTasks.map((item) => item.id);
+
+    if (event.previousContainer === event.container) {
+      const reorderedTasks = [...event.container.data];
+      moveItemInArray(reorderedTasks, event.previousIndex, event.currentIndex);
+      this.reorderStatus(status, reorderedTasks.map((item) => item.id));
+    } else {
+      this.tasks.update((tasks) => tasks.map((item) => (item.id === task.id ? { ...item, status } : item)));
+      this.reorderStatus(status, orderedTargetIds);
+    }
+
     this.dragOverStatus.set(null);
   }
 
   endDrag(): void {
-    this.dragTaskId.set(null);
     this.dragOverStatus.set(null);
   }
 
   runQuickAction(action: 'open' | 'assign', task: WorkflowTask): void {
     this.actionMessage.set(action === 'open' ? `Opened ${task.title}` : `Assignment flow opened for ${task.title}`);
     window.setTimeout(() => this.actionMessage.set(''), 2200);
+  }
+
+  private reorderStatus(status: TaskStatus, orderedIds: readonly number[]): void {
+    this.tasks.update((tasks) => {
+      const byId = new Map(tasks.map((task) => [task.id, task]));
+      const orderedSet = new Set(orderedIds);
+      const reordered = orderedIds
+        .map((id) => byId.get(id))
+        .filter((task): task is OperationTask => !!task);
+      const remainingInStatus = tasks.filter((task) => task.status === status && !orderedSet.has(task.id));
+      const otherTasks = tasks.filter((task) => task.status !== status);
+
+      return [...otherTasks, ...reordered, ...remainingInStatus];
+    });
   }
 }

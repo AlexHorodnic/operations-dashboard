@@ -67,14 +67,11 @@
   } @else if (!filteredTasks().length) {
     <app-empty-state title="No workflow items found" message="Adjust owner, priority, or search filters to find matching operational work." />
   } @else {
-    <div class="kanban-board">
+    <div class="kanban-board" cdkDropListGroup>
       @for (status of statuses; track status) {
         <section
           [class]="columnClass(status)"
           [class.is-drop-target]="dragOverStatus() === status"
-          (dragover)="dragOver(status, $event)"
-          (dragleave)="dragOverStatus.set(null)"
-          (drop)="dropTask(status, $event)"
         >
           <header>
             <div>
@@ -82,14 +79,22 @@
               <p>{{ tasksForStatus(status).length }} items</p>
             </div>
           </header>
-          <div class="kanban-list">
+          <div
+            class="kanban-list"
+            cdkDropList
+            [cdkDropListData]="tasksForStatus(status)"
+            (cdkDropListEntered)="dragOverStatus.set(status)"
+            (cdkDropListExited)="dragOverStatus.set(null)"
+            (cdkDropListDropped)="dropTask(status, $event)"
+          >
             @for (task of tasksForStatus(status); track task.id) {
               <article
                 class="task-card workflow-card"
                 [class.is-urgent]="task.isUrgent"
-                draggable="true"
-                (dragstart)="dragStart(task, $event)"
-                (dragend)="endDrag()"
+                cdkDrag
+                [cdkDragData]="task"
+                (cdkDragStarted)="dragStart(task)"
+                (cdkDragEnded)="endDrag()"
               >
                 <div class="task-card__top">
                   <app-badge [tone]="priorityTone(task.priority)">{{ task.priority }}</app-badge>
@@ -115,6 +120,34 @@
                   <button type="button" (click)="runQuickAction('assign', task)" [attr.aria-label]="'Assign ' + task.title">Assign</button>
                   <button type="button" [attr.aria-label]="'More actions for ' + task.title">...</button>
                 </div>
+
+                <ng-template cdkDragPreview>
+                  <article class="task-card workflow-card workflow-card-preview" [class.is-urgent]="task.isUrgent">
+                    <div class="task-card__top">
+                      <app-badge [tone]="priorityTone(task.priority)">{{ task.priority }}</app-badge>
+                      <span class="task-type">{{ task.type }}</span>
+                    </div>
+                    <h3>{{ task.title }}</h3>
+                    <p class="task-account"><span aria-hidden="true">Co</span>{{ task.customer }}</p>
+                    <p class="task-detail">{{ task.detail }}</p>
+                    @if (task.blockedReason) {
+                      <p class="blocked-reason">{{ task.blockedReason }}</p>
+                    }
+                    <div class="task-card__meta">
+                      <span class="avatar-mini">{{ task.owner.slice(0, 1) }}</span>
+                      <span><span aria-hidden="true">Ow</span>{{ task.owner }}</span>
+                      <time [class.is-overdue]="task.isOverdue"><span aria-hidden="true">Due</span>{{ task.dueDate | date: 'MMM d' }}</time>
+                    </div>
+                    <div class="task-card__footer">
+                      <span>{{ task.update }}</span>
+                      <span>{{ task.comments }} comments</span>
+                    </div>
+                  </article>
+                </ng-template>
+
+                <ng-template cdkDragPlaceholder>
+                  <div class="workflow-card-placeholder"></div>
+                </ng-template>
               </article>
             } @empty {
               <div class="lane-empty">No items in this lane</div>
