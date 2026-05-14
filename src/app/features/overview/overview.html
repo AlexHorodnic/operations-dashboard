@@ -34,7 +34,20 @@
             <h3>Revenue momentum</h3>
             <span>Monthly recurring revenue</span>
           </div>
-          <button class="text-button" type="button">Export</button>
+          <div class="export-control">
+            @if (exportMessage()) {
+              <span class="export-feedback" aria-live="polite">{{ exportMessage() }}</span>
+            }
+            <button
+              class="text-button"
+              type="button"
+              title="Download revenue momentum data as CSV"
+              aria-label="Download revenue momentum data as CSV"
+              (click)="exportRevenueMomentum()"
+            >
+              Export
+            </button>
+          </div>
         </div>
         <div class="chart-shell">
           <div class="chart-axis" aria-hidden="true">

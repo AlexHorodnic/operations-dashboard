@@ -3,6 +3,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DashboardDataService } from '../../core/services/dashboard-data.service';
 import { KpiCard } from '../../shared/kpi-card/kpi-card';
 import { Activity, Kpi } from '../../models/dashboard.models';
+import { exportCsv } from '../../shared/utils/csv-export';
+
+interface RevenueTrendPoint {
+  month: string;
+  revenue: number;
+  value: string;
+  height: number;
+}
 
 @Component({
   selector: 'app-overview',
@@ -16,13 +24,14 @@ export class Overview {
   readonly error = signal(false);
   readonly kpis = signal<Kpi[]>([]);
   readonly activities = signal<Activity[]>([]);
-  readonly revenueTrend = [
-    { month: 'Jan', value: '$318K', height: 34 },
-    { month: 'Feb', value: '$346K', height: 48 },
-    { month: 'Mar', value: '$371K', height: 56 },
-    { month: 'Apr', value: '$396K', height: 72 },
-    { month: 'May', value: '$429K', height: 84 },
-    { month: 'Jun', value: '$448K', height: 96 },
+  readonly exportMessage = signal('');
+  readonly revenueTrend: RevenueTrendPoint[] = [
+    { month: 'Jan', revenue: 318000, value: '$318K', height: 34 },
+    { month: 'Feb', revenue: 346000, value: '$346K', height: 48 },
+    { month: 'Mar', revenue: 371000, value: '$371K', height: 56 },
+    { month: 'Apr', revenue: 396000, value: '$396K', height: 72 },
+    { month: 'May', revenue: 429000, value: '$429K', height: 84 },
+    { month: 'Jun', revenue: 448000, value: '$448K', height: 96 },
   ];
 
   constructor() {
@@ -43,5 +52,14 @@ export class Overview {
         this.loading.set(false);
       },
     });
+  }
+
+  exportRevenueMomentum(): void {
+    exportCsv('revenue-momentum.csv', this.revenueTrend, [
+      { header: 'Month', value: (point) => point.month },
+      { header: 'Revenue', value: (point) => point.revenue },
+    ]);
+    this.exportMessage.set('CSV exported');
+    window.setTimeout(() => this.exportMessage.set(''), 2400);
   }
 }

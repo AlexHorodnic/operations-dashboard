@@ -46,9 +46,21 @@
       <div class="bulk-toolbar">
         <strong>{{ selectedCount() }} selected</strong>
         <button class="row-action" type="button">Assign owner</button>
-        <button class="row-action" type="button">Export</button>
+        <button
+          class="row-action"
+          type="button"
+          title="Export selected accounts as CSV"
+          aria-label="Export selected accounts as CSV"
+          (click)="exportAccounts()"
+        >
+          Export
+        </button>
         <button class="row-action" type="button" (click)="clearSelection()">Clear</button>
       </div>
+    }
+
+    @if (exportMessage()) {
+      <p class="export-feedback" aria-live="polite">{{ exportMessage() }}</p>
     }
 
     @if (loading()) {
@@ -58,8 +70,10 @@
         }
       </div>
     } @else if (error()) {
-      <app-empty-state title="Unable to load accounts" message="The account directory could not be refreshed. Retry to restore the latest local data." />
-      <div class="state-actions">
+      <div class="state-card state-card--inline-action">
+        <div class="state-card__icon">!</div>
+        <h3>Unable to load accounts</h3>
+        <p>The account directory could not be refreshed. Retry to restore the latest local data.</p>
         <button class="text-button" type="button" (click)="load()">Retry</button>
       </div>
     } @else if (!filteredCustomers().length) {
@@ -92,7 +106,10 @@
                 <td>{{ customer.plan }}</td>
                 <td><app-badge [tone]="statusTone(customer.status)">{{ customer.status }}</app-badge></td>
                 <td>
-                  <span class="health-score">{{ customer.healthScore }}</span>
+                  <div class="health-cell">
+                    <span class="health-score">{{ customer.healthScore }}</span>
+                    <div class="health-bar" aria-hidden="true"><i [style.width.%]="customer.healthScore"></i></div>
+                  </div>
                 </td>
                 <td>{{ customer.revenue | currency: 'USD':'symbol':'1.0-0' }}</td>
                 <td>{{ customer.lastActivity | date: 'MMM d, y' }}</td>

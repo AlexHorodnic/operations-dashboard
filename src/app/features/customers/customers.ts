@@ -7,6 +7,7 @@ import { Customer, CustomerPlan, CustomerStatus } from '../../models/dashboard.m
 import { Badge } from '../../shared/badge/badge';
 import { EmptyState } from '../../shared/empty-state/empty-state';
 import { Drawer } from '../../shared/ui/drawer/drawer';
+import { exportCsv } from '../../shared/utils/csv-export';
 
 type SortKey = 'name' | 'company' | 'plan' | 'status' | 'revenue' | 'lastActivity' | 'healthScore';
 type SortDirection = 'asc' | 'desc';
@@ -32,6 +33,7 @@ export class Customers {
   readonly page = signal(1);
   readonly pageSize = 6;
   readonly selectedCustomer = signal<Customer | null>(null);
+  readonly exportMessage = signal('');
 
   readonly statuses: (CustomerStatus | 'All')[] = ['All', 'Active', 'At risk', 'Paused'];
   readonly plans: (CustomerPlan | 'All')[] = ['All', 'Starter', 'Growth', 'Enterprise'];
@@ -134,6 +136,30 @@ export class Customers {
 
   clearSelection(): void {
     this.selectedIds.set(new Set());
+  }
+
+  exportAccounts(): void {
+    const selectedIds = this.selectedIds();
+    const rows = selectedIds.size
+      ? this.filteredCustomers().filter((customer) => selectedIds.has(customer.id))
+      : this.filteredCustomers();
+
+    exportCsv('accounts.csv', rows, [
+      { header: 'Name', value: (customer) => customer.name },
+      { header: 'Email', value: (customer) => customer.email },
+      { header: 'Company', value: (customer) => customer.company },
+      { header: 'Plan', value: (customer) => customer.plan },
+      { header: 'Status', value: (customer) => customer.status },
+      { header: 'HealthScore', value: (customer) => customer.healthScore },
+      { header: 'Revenue', value: (customer) => customer.revenue },
+      { header: 'Owner', value: (customer) => customer.owner },
+      { header: 'Region', value: (customer) => customer.region },
+      { header: 'LastActivity', value: (customer) => customer.lastActivity },
+      { header: 'RenewalDate', value: (customer) => customer.renewalDate },
+    ]);
+
+    this.exportMessage.set(selectedIds.size ? 'Selected accounts exported' : 'Accounts exported');
+    window.setTimeout(() => this.exportMessage.set(''), 2400);
   }
 
   nextPage(): void {
