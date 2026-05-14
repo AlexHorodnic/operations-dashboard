@@ -1,0 +1,155 @@
+<section class="section" id="customers">
+  <div class="section__heading">
+    <div>
+      <h2>Accounts</h2>
+      <p>Manage customer health, ownership, renewals, and account operations.</p>
+    </div>
+    <span class="timestamp">{{ filteredCustomers().length }} matching accounts</span>
+  </div>
+
+  <article class="panel">
+    <div class="panel__header panel__header--bordered">
+      <div>
+        <h3>Account directory</h3>
+        <span>CRM sync preview</span>
+      </div>
+      <div class="panel-actions">
+        <button class="text-button" type="button" (click)="load(true)">Simulate error</button>
+        <button class="text-button" type="button">Add account</button>
+      </div>
+    </div>
+
+    <div class="filters">
+      <label>
+        <span>Search</span>
+        <input type="search" placeholder="Name, company, owner, or email" [ngModel]="search()" (ngModelChange)="updateSearch($event)" />
+      </label>
+      <label>
+        <span>Status</span>
+        <select [ngModel]="status()" (ngModelChange)="updateStatus($event)">
+          @for (option of statuses; track option) {
+            <option [ngValue]="option">{{ option }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        <span>Plan</span>
+        <select [ngModel]="plan()" (ngModelChange)="updatePlan($event)">
+          @for (option of plans; track option) {
+            <option [ngValue]="option">{{ option }}</option>
+          }
+        </select>
+      </label>
+    </div>
+
+    @if (selectedCount()) {
+      <div class="bulk-toolbar">
+        <strong>{{ selectedCount() }} selected</strong>
+        <button class="row-action" type="button">Assign owner</button>
+        <button class="row-action" type="button">Export</button>
+        <button class="row-action" type="button" (click)="clearSelection()">Clear</button>
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="table-skeleton" aria-label="Loading accounts">
+        @for (item of [1, 2, 3, 4, 5]; track item) {
+          <div></div>
+        }
+      </div>
+    } @else if (error()) {
+      <app-empty-state title="Unable to load accounts" message="The account directory could not be refreshed. Retry to restore the latest local data." />
+      <div class="state-actions">
+        <button class="text-button" type="button" (click)="load()">Retry</button>
+      </div>
+    } @else if (!filteredCustomers().length) {
+      <app-empty-state title="No accounts match these filters" message="Adjust search, status, or plan filters to broaden the account list." />
+    } @else {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th><input type="checkbox" [checked]="allPageSelected()" (change)="togglePage($any($event.target).checked)" aria-label="Select visible accounts" /></th>
+              <th><button type="button" (click)="setSort('name')">Contact {{ sortIndicator('name') }}</button></th>
+              <th><button type="button" (click)="setSort('company')">Company {{ sortIndicator('company') }}</button></th>
+              <th><button type="button" (click)="setSort('plan')">Plan {{ sortIndicator('plan') }}</button></th>
+              <th><button type="button" (click)="setSort('status')">Status {{ sortIndicator('status') }}</button></th>
+              <th><button type="button" (click)="setSort('healthScore')">Health {{ sortIndicator('healthScore') }}</button></th>
+              <th><button type="button" (click)="setSort('revenue')">Revenue {{ sortIndicator('revenue') }}</button></th>
+              <th><button type="button" (click)="setSort('lastActivity')">Last activity {{ sortIndicator('lastActivity') }}</button></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (customer of pagedCustomers(); track customer.id) {
+              <tr>
+                <td><input type="checkbox" [checked]="selectedIds().has(customer.id)" (change)="toggleCustomer(customer.id, $any($event.target).checked)" [attr.aria-label]="'Select ' + customer.company" /></td>
+                <td class="primary-cell" (click)="openCustomer(customer)">
+                  <strong>{{ customer.name }}</strong>
+                  <span>{{ customer.email }}</span>
+                </td>
+                <td>{{ customer.company }}</td>
+                <td>{{ customer.plan }}</td>
+                <td><app-badge [tone]="statusTone(customer.status)">{{ customer.status }}</app-badge></td>
+                <td>
+                  <span class="health-score">{{ customer.healthScore }}</span>
+                </td>
+                <td>{{ customer.revenue | currency: 'USD':'symbol':'1.0-0' }}</td>
+                <td>{{ customer.lastActivity | date: 'MMM d, y' }}</td>
+                <td><button class="row-action" type="button" (click)="openCustomer(customer)">Open</button></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="pagination">
+        <span>Page {{ page() }} of {{ pageCount() }}</span>
+        <div>
+          <button class="row-action" type="button" (click)="previousPage()" [disabled]="page() === 1">Previous</button>
+          <button class="row-action" type="button" (click)="nextPage()" [disabled]="page() === pageCount()">Next</button>
+        </div>
+      </footer>
+    }
+  </article>
+</section>
+
+<app-drawer [open]="!!selectedCustomer()" [title]="selectedCustomer()?.company ?? 'Account details'" eyebrow="Account record" (closed)="selectedCustomer.set(null)">
+  @if (selectedCustomer(); as customer) {
+    <div class="drawer-summary">
+      <div>
+        <h3>{{ customer.name }}</h3>
+        <p>{{ customer.email }} · {{ customer.phone }}</p>
+      </div>
+      <app-badge [tone]="statusTone(customer.status)">{{ customer.status }}</app-badge>
+    </div>
+
+    <div class="detail-grid">
+      <div><span>Plan</span><strong>{{ customer.plan }}</strong></div>
+      <div><span>Revenue</span><strong>{{ customer.revenue | currency: 'USD':'symbol':'1.0-0' }}</strong></div>
+      <div><span>Owner</span><strong>{{ customer.owner }}</strong></div>
+      <div><span>Region</span><strong>{{ customer.region }}</strong></div>
+      <div><span>Seats</span><strong>{{ customer.seats }}</strong></div>
+      <div><span>Health</span><strong>{{ customer.healthScore }}</strong></div>
+      <div><span>Created</span><strong>{{ customer.createdAt | date: 'MMM d, y' }}</strong></div>
+      <div><span>Renewal</span><strong>{{ customer.renewalDate | date: 'MMM d, y' }}</strong></div>
+    </div>
+
+    <section class="drawer-section">
+      <h3>Notes</h3>
+      <p>{{ customer.notes }}</p>
+    </section>
+
+    <section class="drawer-section">
+      <h3>Recent activity</h3>
+      <div class="activity-list">
+        @for (item of customer.recentActivity; track item) {
+          <div class="activity-item">
+            <span class="activity-dot activity-dot--info"></span>
+            <div><strong>{{ item }}</strong></div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+</app-drawer>

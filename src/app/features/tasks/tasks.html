@@ -1,0 +1,72 @@
+<section class="section" id="tasks">
+  <div class="section__heading">
+    <div>
+      <h2>Workflow queue</h2>
+      <p>Coordinate account operations across onboarding, renewals, incidents, and risk work.</p>
+    </div>
+    <span class="timestamp">{{ filteredTasks().length }} active work items</span>
+  </div>
+
+  <article class="panel workflow-filters">
+    <label>
+      <span>Search</span>
+      <input type="search" placeholder="Task, account, or work type" [ngModel]="query()" (ngModelChange)="query.set($event)" />
+    </label>
+    <label>
+      <span>Owner</span>
+      <select [ngModel]="owner()" (ngModelChange)="owner.set($event)">
+        @for (option of owners(); track option) {
+          <option [ngValue]="option">{{ option }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      <span>Priority</span>
+      <select [ngModel]="priority()" (ngModelChange)="priority.set($event)">
+        @for (option of priorities; track option) {
+          <option [ngValue]="option">{{ option }}</option>
+        }
+      </select>
+    </label>
+  </article>
+
+  @if (loading()) {
+    <section class="loading-grid" aria-label="Loading workflow queue">
+      @for (item of [1, 2, 3, 4]; track item) {
+        <div class="skeleton-card"></div>
+      }
+    </section>
+  } @else if (!filteredTasks().length) {
+    <app-empty-state title="No workflow items found" message="Adjust owner, priority, or search filters to find matching operational work." />
+  } @else {
+    <div class="kanban-board">
+      @for (status of statuses; track status) {
+        <section class="kanban-column">
+          <header>
+            <h3>{{ status }}</h3>
+            <span>{{ tasksForStatus(status).length }}</span>
+          </header>
+          <div class="kanban-list">
+            @for (task of tasksForStatus(status); track task.id) {
+              <article class="task-card">
+                <div class="task-card__top">
+                  <app-badge [tone]="priorityTone(task.priority)">{{ task.priority }}</app-badge>
+                  <span>{{ task.type }}</span>
+                </div>
+                <h3>{{ task.title }}</h3>
+                <p>{{ task.customer }}</p>
+                <div class="task-card__meta">
+                  <span class="avatar-mini">{{ task.owner.slice(0, 1) }}</span>
+                  <span>{{ task.owner }}</span>
+                  <time>{{ task.dueDate | date: 'MMM d' }}</time>
+                </div>
+              </article>
+            } @empty {
+              <div class="lane-empty">No items in this lane</div>
+            }
+          </div>
+        </section>
+      }
+    </div>
+  }
+</section>

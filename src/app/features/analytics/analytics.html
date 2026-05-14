@@ -1,0 +1,124 @@
+<section class="section" id="analytics">
+  <div class="section__heading">
+    <div>
+      <h2>Analytics</h2>
+      <p>Revenue, growth, conversion, and workload signals for operations planning.</p>
+    </div>
+    <label class="range-select">
+      <span>Date range</span>
+      <select [ngModel]="range()" (ngModelChange)="range.set($event)">
+        @for (option of ranges; track option) {
+          <option [ngValue]="option">{{ option }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  @if (loading()) {
+    <section class="loading-grid" aria-label="Loading analytics">
+      @for (item of [1, 2, 3, 4]; track item) {
+        <div class="skeleton-card"></div>
+      }
+    </section>
+  } @else {
+    <div class="comparison-grid">
+      <article class="kpi-card">
+        <p>Revenue index</p>
+        <div class="kpi-card__value">{{ latest()?.revenue }}</div>
+        <div class="kpi-card__footer"><span class="trend trend--up">Up {{ (latest()?.revenue ?? 0) - (previous()?.revenue ?? 0) }} pts</span><span>month over month</span></div>
+      </article>
+      <article class="kpi-card">
+        <p>Customer growth</p>
+        <div class="kpi-card__value">8.1%</div>
+        <div class="kpi-card__footer"><span class="trend trend--up">Up 1.4%</span><span>net accounts</span></div>
+      </article>
+      <article class="kpi-card">
+        <p>Conversion</p>
+        <div class="kpi-card__value">{{ latest()?.conversion }}%</div>
+        <div class="kpi-card__footer"><span class="trend trend--up">Up 0.4%</span><span>trial to paid</span></div>
+      </article>
+      <article class="kpi-card">
+        <p>Workload</p>
+        <div class="kpi-card__value">{{ latest()?.workload }}%</div>
+        <div class="kpi-card__footer"><span class="trend trend--down">Up 4 pts</span><span>team capacity</span></div>
+      </article>
+    </div>
+
+    <div class="analytics-grid">
+      <article class="panel panel--wide">
+        <div class="panel__header">
+          <div>
+            <h3>Revenue by month</h3>
+            <span>Indexed MRR growth</span>
+          </div>
+        </div>
+        <div class="chart-shell chart-shell--bars">
+          <div class="chart-axis" aria-hidden="true">
+            <span>100</span>
+            <span>75</span>
+            <span>50</span>
+          </div>
+          <div class="bar-chart" aria-label="Monthly revenue chart">
+            @for (point of points(); track point.label) {
+              <div class="bar-chart__item" [attr.data-value]="point.revenue">
+                <span [style.height.%]="(point.revenue / maxRevenue()) * 100" [title]="point.label + ': ' + point.revenue"></span>
+                <small>{{ point.label }}</small>
+              </div>
+            }
+          </div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel__header">
+          <div>
+            <h3>Summary insights</h3>
+            <span>Generated from local mock metrics</span>
+          </div>
+        </div>
+        <div class="insight-list">
+          @for (insight of insights(); track insight) {
+            <div class="activity-item">
+              <span class="activity-dot activity-dot--info"></span>
+              <div><strong>{{ insight }}</strong></div>
+            </div>
+          }
+        </div>
+      </article>
+    </div>
+
+    <div class="analytics-grid">
+      <article class="panel">
+        <div class="panel__header">
+          <div>
+            <h3>Conversion and workload</h3>
+            <span>Recent operating signals</span>
+          </div>
+        </div>
+        <div class="metric-list">
+          @for (point of points().slice(-4); track point.label) {
+            <div>
+              <span>{{ point.label }} conversion</span>
+              <strong>{{ point.conversion }}%</strong>
+              <div class="meter"><i [style.width.%]="point.workload"></i></div>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel__header">
+          <div>
+            <h3>Revenue mix</h3>
+            <span>Plan contribution</span>
+          </div>
+        </div>
+        <div class="revenue-mix">
+          <div><span style="--size: 62%"></span><strong>Enterprise</strong><small>62%</small></div>
+          <div><span style="--size: 28%"></span><strong>Growth</strong><small>28%</small></div>
+          <div><span style="--size: 10%"></span><strong>Starter</strong><small>10%</small></div>
+        </div>
+      </article>
+    </div>
+  }
+</section>

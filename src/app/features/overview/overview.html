@@ -1,0 +1,77 @@
+<section class="section" id="overview">
+  <div class="section__heading">
+    <div>
+      <h2>Operating snapshot</h2>
+      <p>Current month performance across revenue, account health, and operational work.</p>
+    </div>
+    <span class="timestamp">Updated May 13, 2026</span>
+  </div>
+
+  @if (loading()) {
+    <section class="loading-grid" aria-label="Loading overview">
+      @for (item of [1, 2, 3, 4]; track item) {
+        <div class="skeleton-card"></div>
+      }
+    </section>
+  } @else if (error()) {
+    <section class="state-card">
+      <div class="state-card__icon">!</div>
+      <h3>Unable to refresh operating data</h3>
+      <p>Retry the request to reload the latest workspace metrics.</p>
+      <button class="text-button" type="button" (click)="load()">Retry</button>
+    </section>
+  } @else {
+    <div class="kpi-grid">
+      @for (kpi of kpis(); track kpi.label) {
+        <app-kpi-card [kpi]="kpi" />
+      }
+    </div>
+
+    <div class="overview-grid">
+      <article class="panel panel--wide">
+        <div class="panel__header">
+          <div>
+            <h3>Revenue momentum</h3>
+            <span>Monthly recurring revenue</span>
+          </div>
+          <button class="text-button" type="button">Export</button>
+        </div>
+        <div class="chart-shell">
+          <div class="chart-axis" aria-hidden="true">
+            <span>$450K</span>
+            <span>$375K</span>
+            <span>$300K</span>
+          </div>
+          <div class="sparkline" aria-label="Revenue trend from January to June">
+            @for (point of revenueTrend; track point.month) {
+              <span [style.height.%]="point.height" [attr.data-value]="point.value" [title]="point.month + ': ' + point.value">
+                <small>{{ point.month }}</small>
+              </span>
+            }
+          </div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel__header">
+          <div>
+            <h3>Operations feed</h3>
+            <span>Live account and workflow events</span>
+          </div>
+        </div>
+        <div class="activity-list">
+          @for (activity of activities(); track activity.id) {
+            <div class="activity-item">
+              <span [class]="'activity-dot activity-dot--' + activity.tone"></span>
+              <div>
+                <strong>{{ activity.title }}</strong>
+                <p>{{ activity.detail }}</p>
+              </div>
+              <time>{{ activity.time }}</time>
+            </div>
+          }
+        </div>
+      </article>
+    </div>
+  }
+</section>
