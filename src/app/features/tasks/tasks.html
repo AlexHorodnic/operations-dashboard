@@ -92,57 +92,48 @@
               <article
                 class="task-card workflow-card"
                 [class.is-urgent]="task.isUrgent"
+                [class.is-low]="task.priority === 'Low'"
+                [class.is-medium]="task.priority === 'Medium'"
+                [class.is-high]="task.priority === 'High'"
+                [class.is-critical]="task.priority === 'Critical'"
+                tabindex="0"
                 cdkDrag
                 [cdkDragData]="task"
+                (click)="openTaskDrawer(task, $event)"
+                (keydown.enter)="openTaskDrawer(task, $event)"
+                (keydown.space)="$event.preventDefault(); openTaskDrawer(task, $event)"
                 (cdkDragStarted)="dragStart(task)"
                 (cdkDragEnded)="endDrag()"
               >
                 <div class="task-card__top">
+                  <span class="avatar-mini">{{ task.owner.slice(0, 1) }}</span>
                   <app-badge [tone]="priorityTone(task.priority)">{{ task.priority }}</app-badge>
                   <span class="task-type">{{ task.type }}</span>
                 </div>
                 <h3>{{ task.title }}</h3>
-                <p class="task-account"><span aria-hidden="true">Co</span>{{ task.customer }}</p>
+                <p class="task-account">{{ task.customer }}</p>
                 <p class="task-detail">{{ task.detail }}</p>
                 @if (task.blockedReason) {
                   <p class="blocked-reason">{{ task.blockedReason }}</p>
                 }
-                <div class="task-card__meta">
-                  <span class="avatar-mini">{{ task.owner.slice(0, 1) }}</span>
-                  <span><span aria-hidden="true">Ow</span>{{ task.owner }}</span>
-                  <time [class.is-overdue]="task.isOverdue"><span aria-hidden="true">Due</span>{{ task.dueDate | date: 'MMM d' }}</time>
-                </div>
                 <div class="task-card__footer">
                   <span>{{ task.update }}</span>
-                  <span>{{ task.comments }} comments</span>
+                  <time [class.is-overdue]="task.isOverdue"><span aria-hidden="true">Due</span>{{ task.dueDate | date: 'MMM d' }}</time>
                 </div>
                 <div class="task-actions" aria-label="Task quick actions">
-                  <button type="button" (click)="runQuickAction('open', task)" [attr.aria-label]="'Open ' + task.title">Open</button>
-                  <button type="button" (click)="runQuickAction('assign', task)" [attr.aria-label]="'Assign ' + task.title">Assign</button>
-                  <button type="button" [attr.aria-label]="'More actions for ' + task.title">...</button>
+                  <button type="button" (click)="$event.stopPropagation(); runQuickAction('open', task)" [attr.aria-label]="'Open ' + task.title">Open</button>
+                  <button type="button" (click)="$event.stopPropagation(); runQuickAction('assign', task)" [attr.aria-label]="'Assign ' + task.title">Assign</button>
+                  <button type="button" (click)="$event.stopPropagation()" [attr.aria-label]="'More actions for ' + task.title">...</button>
                 </div>
 
                 <ng-template cdkDragPreview>
-                  <article class="task-card workflow-card workflow-card-preview" [class.is-urgent]="task.isUrgent">
-                    <div class="task-card__top">
+                  <article class="workflow-card-preview" [class.is-urgent]="task.isUrgent">
+                    <div>
                       <app-badge [tone]="priorityTone(task.priority)">{{ task.priority }}</app-badge>
-                      <span class="task-type">{{ task.type }}</span>
+                      <span>{{ task.type }}</span>
                     </div>
-                    <h3>{{ task.title }}</h3>
-                    <p class="task-account"><span aria-hidden="true">Co</span>{{ task.customer }}</p>
-                    <p class="task-detail">{{ task.detail }}</p>
-                    @if (task.blockedReason) {
-                      <p class="blocked-reason">{{ task.blockedReason }}</p>
-                    }
-                    <div class="task-card__meta">
-                      <span class="avatar-mini">{{ task.owner.slice(0, 1) }}</span>
-                      <span><span aria-hidden="true">Ow</span>{{ task.owner }}</span>
-                      <time [class.is-overdue]="task.isOverdue"><span aria-hidden="true">Due</span>{{ task.dueDate | date: 'MMM d' }}</time>
-                    </div>
-                    <div class="task-card__footer">
-                      <span>{{ task.update }}</span>
-                      <span>{{ task.comments }} comments</span>
-                    </div>
+                    <strong>{{ task.title }}</strong>
+                    <small>{{ task.customer }}</small>
                   </article>
                 </ng-template>
 
@@ -159,3 +150,108 @@
     </div>
   }
 </section>
+
+@if (selectedTask(); as task) {
+  @if (selectedTaskDetails(); as details) {
+    <div class="task-drawer-backdrop" (click)="closeTaskDrawer()" aria-hidden="true"></div>
+    <aside class="task-drawer" role="dialog" aria-modal="true" [attr.aria-label]="task.title">
+      <header class="task-drawer__header">
+        <div>
+          <span>{{ task.customer }}</span>
+          <h2>{{ task.title }}</h2>
+          <div class="task-drawer__chips" aria-label="Task metadata">
+            <app-badge [tone]="priorityTone(task.priority)">{{ task.priority }}</app-badge>
+            <span>{{ task.type }}</span>
+            <span>{{ task.status }}</span>
+          </div>
+        </div>
+        <div class="task-drawer__actions">
+          <button class="row-action" type="button" (click)="runQuickAction('assign', task)">Assign</button>
+          <button class="icon-button" type="button" aria-label="More task actions">···</button>
+          <button #taskDrawerClose class="icon-button" type="button" aria-label="Close task details" (click)="closeTaskDrawer()">×</button>
+        </div>
+      </header>
+
+      <div class="task-drawer__body">
+        <section class="task-drawer__overview">
+          <div><span>Owner</span><strong>{{ task.owner }}</strong></div>
+          <div><span>Due date</span><strong>{{ task.dueDate | date: 'MMM d, y' }}</strong></div>
+          <div><span>Status</span><strong>{{ task.status }}</strong></div>
+          <div><span>Priority</span><strong>{{ task.priority }}</strong></div>
+          <div><span>Work type</span><strong>{{ task.type }}</strong></div>
+          <div><span>Last updated</span><strong>{{ task.update }}</strong></div>
+        </section>
+
+        @if (task.blockedReason || details.blockerDetail) {
+          <section class="task-drawer__blocker">
+            <span>Blocker / risk</span>
+            <strong>{{ task.blockedReason ?? 'Requires attention' }}</strong>
+            @if (details.blockerDetail) {
+              <p>{{ details.blockerDetail }}</p>
+            }
+          </section>
+        }
+
+        <section class="task-drawer__section">
+          <h3>Activity</h3>
+          <div class="task-timeline">
+            @for (event of details.timeline; track event.time + event.title) {
+              <article>
+                <time>{{ event.time }}</time>
+                <strong>{{ event.title }}</strong>
+                <p>{{ event.detail }}</p>
+              </article>
+            }
+          </div>
+        </section>
+
+        <section class="task-drawer__section">
+          <h3>Comments</h3>
+          <div class="task-comments">
+            @for (comment of details.comments; track comment.author + comment.time) {
+              <article>
+                <span>{{ comment.initials }}</span>
+                <div>
+                  <strong>{{ comment.author }}</strong>
+                  <time>{{ comment.time }}</time>
+                  <p>{{ comment.message }}</p>
+                </div>
+              </article>
+            }
+          </div>
+          <label class="task-comment-input">
+            <span>Add comment</span>
+            <input type="text" placeholder="Add comment…" />
+          </label>
+        </section>
+
+        <section class="task-drawer__section">
+          <h3>Related account</h3>
+          <div class="task-account-panel">
+            <strong>{{ details.account.company }}</strong>
+            <div>
+              <span>{{ details.account.plan }}</span>
+              <span>{{ details.account.contractValue }}</span>
+              <span>{{ details.account.health }}</span>
+            </div>
+            <p>{{ details.account.context }}</p>
+          </div>
+        </section>
+
+        @if (details.resources.length) {
+          <section class="task-drawer__section">
+            <h3>Attachments & resources</h3>
+            <div class="task-resources">
+              @for (resource of details.resources; track resource.name) {
+                <button type="button">
+                  <strong>{{ resource.name }}</strong>
+                  <span>{{ resource.type }}</span>
+                </button>
+              }
+            </div>
+          </section>
+        }
+      </div>
+    </aside>
+  }
+}
