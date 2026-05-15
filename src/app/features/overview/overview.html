@@ -30,7 +30,7 @@
 
     <div class="overview-grid">
       <article class="panel panel--wide">
-        <div class="panel__header">
+        <div class="panel__header revenue-card__header">
           <div>
             <h3>Revenue momentum</h3>
             <span>Monthly recurring revenue</span>
@@ -39,31 +39,56 @@
             @if (exportMessage()) {
               <span class="export-feedback" aria-live="polite">{{ exportMessage() }}</span>
             }
-            <button
-              class="text-button"
-              type="button"
-              title="Download revenue momentum data as CSV"
-              aria-label="Download revenue momentum data as CSV"
-              (click)="exportRevenueMomentum()"
-            >
-              Export
+            <div class="segmented revenue-range" aria-label="Revenue range">
+              @for (range of ['Monthly', 'Quarterly', 'Yearly']; track range) {
+                <button type="button" [class.is-active]="revenueRange() === range" (click)="revenueRange.set($any(range))">
+                  {{ range }}
+                </button>
+              }
+            </div>
+            <button class="icon-button revenue-export" type="button" title="Download revenue momentum data as CSV" aria-label="Download revenue momentum data as CSV" (click)="exportRevenueMomentum()">
+              ↓
             </button>
           </div>
         </div>
-        <div class="chart-shell">
+        <div class="revenue-summary">
+          <div>
+            <strong>{{ latestRevenue().value }}</strong>
+            <span>Current MRR</span>
+          </div>
+          <div>
+            <strong>{{ revenueGrowth() }}</strong>
+            <span>Best month this quarter</span>
+          </div>
+        </div>
+        <div class="chart-shell revenue-chart">
           <div class="chart-axis" aria-hidden="true">
             <span>$450K</span>
             <span>$375K</span>
             <span>$300K</span>
           </div>
           <div class="sparkline" aria-label="Revenue trend from January to June">
-            @for (point of revenueTrend; track point.month) {
-              <span [style.height.%]="point.height" [attr.data-value]="point.value" [title]="point.month + ': ' + point.value">
+            <span class="revenue-target" aria-hidden="true">{{ revenueTarget }}</span>
+            <svg class="revenue-trend-line" viewBox="0 0 600 160" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M20 120 C80 104, 120 94, 140 86 S220 70, 260 62 S340 48, 380 40 S460 24, 500 18 S560 10, 580 8" />
+            </svg>
+            @for (point of revenueTrend(); track point.month; let last = $last) {
+              <span
+                class="revenue-bar"
+                [class.is-latest]="last"
+                [class.is-best]="point.month === bestRevenue().month"
+                [style.height.%]="point.height"
+                [attr.data-value]="point.value"
+                [attr.data-growth]="point.growth"
+                [attr.data-change]="point.change"
+                [attr.aria-label]="point.month + ' revenue ' + point.value + ', growth ' + point.growth + ', ' + point.change"
+              >
                 <small>{{ point.month }}</small>
               </span>
             }
           </div>
         </div>
+        <p class="revenue-insight">MRR crossed the $425K milestone in May and extended gains again in June, with growth staying positive across every month shown.</p>
       </article>
 
       <article class="panel">

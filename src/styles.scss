@@ -332,7 +332,7 @@ p {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  width: min(100%, var(--content-max));
+  width: min(calc(100% - 2rem), var(--content-max));
   min-height: 5.25rem;
   margin: 0 auto;
   padding: 1rem 0 1rem 1.25rem;
@@ -687,8 +687,9 @@ select:focus-visible {
 .content-stack {
   display: grid;
   gap: var(--space-6);
-  width: min(100%, var(--content-max));
+  width: min(calc(100% - 2rem), var(--content-max));
   margin: 0 auto;
+  padding-bottom: var(--space-6);
 }
 
 .mobile-nav,
@@ -847,6 +848,53 @@ select:focus-visible {
   border-top: 1px solid var(--border-subtle);
 }
 
+.revenue-card__header {
+  align-items: flex-start;
+}
+
+.revenue-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.revenue-summary > div {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 9rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.65rem;
+  background:
+    linear-gradient(135deg, rgb(106 166 255 / 12%), rgb(116 214 154 / 5%)),
+    rgb(255 255 255 / 1.6%);
+}
+
+.revenue-summary strong {
+  font-size: 1rem;
+}
+
+.revenue-summary span,
+.revenue-insight {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.revenue-range button {
+  min-height: 1.95rem;
+}
+
+.revenue-export {
+  width: 1.95rem;
+  height: 1.95rem;
+  font-weight: 700;
+}
+
+.revenue-chart {
+  position: relative;
+}
+
 .chart-axis {
   display: flex;
   flex-direction: column;
@@ -868,7 +916,42 @@ select:focus-visible {
     linear-gradient(to bottom, var(--border-subtle) 1px, transparent 1px) 0 0 / 100% 33.333%;
 }
 
-.sparkline span,
+.revenue-chart .sparkline {
+  position: relative;
+  isolation: isolate;
+}
+
+.revenue-target {
+  position: absolute;
+  top: 1.35rem;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  border-top: 1px dashed rgb(229 186 88 / 38%);
+  color: var(--amber);
+  font-size: 0.68rem;
+  line-height: 1;
+}
+
+.revenue-trend-line {
+  position: absolute;
+  inset: 0 0 1.25rem;
+  z-index: 3;
+  width: 100%;
+  height: calc(100% - 1.25rem);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.revenue-trend-line path {
+  fill: none;
+  stroke: rgb(116 214 154 / 78%);
+  stroke-linecap: round;
+  stroke-width: 3;
+  filter: drop-shadow(0 0 10px rgb(116 214 154 / 18%));
+}
+
+.sparkline .revenue-bar,
 .bar-chart__item span {
   position: relative;
   flex: 1;
@@ -878,17 +961,43 @@ select:focus-visible {
   transition:
     filter 140ms ease,
     opacity 140ms ease,
-    transform 140ms ease;
+    transform 140ms ease,
+    box-shadow 140ms ease;
+  animation: revenue-rise 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.sparkline span:hover,
+.sparkline .revenue-bar:nth-of-type(3) { animation-delay: 40ms; }
+.sparkline .revenue-bar:nth-of-type(4) { animation-delay: 80ms; }
+.sparkline .revenue-bar:nth-of-type(5) { animation-delay: 120ms; }
+.sparkline .revenue-bar:nth-of-type(6) { animation-delay: 160ms; }
+.sparkline .revenue-bar:nth-of-type(7) { animation-delay: 200ms; }
+
+.sparkline .revenue-bar:hover,
 .bar-chart__item:hover span {
   filter: brightness(1.14);
   opacity: 0.95;
   transform: translateY(-1px);
 }
 
-.sparkline span::before,
+.sparkline .revenue-bar.is-latest {
+  background: linear-gradient(180deg, #8cc0ff, rgb(106 166 255 / 24%));
+  box-shadow: 0 0 24px rgb(106 166 255 / 18%);
+}
+
+.sparkline .revenue-bar.is-best::after {
+  position: absolute;
+  top: -0.58rem;
+  right: 50%;
+  width: 0.42rem;
+  height: 0.42rem;
+  transform: translateX(50%);
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 4px rgb(116 214 154 / 12%);
+  content: "";
+}
+
+.sparkline .revenue-bar::before,
 .bar-chart__item::before {
   position: absolute;
   right: 50%;
@@ -899,7 +1008,7 @@ select:focus-visible {
   border-radius: 0.32rem;
   background: #090c10;
   color: var(--text);
-  content: attr(data-value);
+  content: attr(data-value) " · " attr(data-growth) " · " attr(data-change);
   font-size: 0.68rem;
   opacity: 0;
   padding: 0.2rem 0.38rem;
@@ -910,19 +1019,32 @@ select:focus-visible {
   white-space: nowrap;
 }
 
-.sparkline span:hover::before,
+.sparkline .revenue-bar:hover::before,
 .bar-chart__item:hover::before {
   opacity: 1;
   transform: translateX(50%) translateY(0);
 }
 
-.sparkline small {
+.sparkline .revenue-bar small {
   position: absolute;
   right: 50%;
   bottom: -1.2rem;
   transform: translateX(50%);
   color: var(--faint);
   font-size: 0.68rem;
+}
+
+.revenue-insight {
+  margin-top: 0.95rem;
+  line-height: 1.45;
+}
+
+@keyframes revenue-rise {
+  from {
+    transform: scaleY(0);
+    transform-origin: bottom;
+    opacity: 0.3;
+  }
 }
 
 .activity-list,
@@ -1601,6 +1723,101 @@ tbody tr:hover .row-action {
   height: 12rem;
 }
 
+.analytics-revenue__header {
+  align-items: flex-start;
+}
+
+.analytics-revenue__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.analytics-revenue__summary > div {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 9rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.65rem;
+  background: rgb(255 255 255 / 1.8%);
+}
+
+.analytics-revenue__summary strong {
+  font-size: 1rem;
+}
+
+.analytics-revenue__summary span,
+.analytics-revenue__insight {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.chart-shell--bars .bar-chart {
+  position: relative;
+  isolation: isolate;
+}
+
+.analytics-target-zone {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 0;
+  height: 32%;
+  border-bottom: 1px dashed rgb(116 214 154 / 24%);
+  background: linear-gradient(180deg, rgb(116 214 154 / 8%), transparent);
+  color: var(--green);
+  font-size: 0.68rem;
+}
+
+.analytics-target-zone::after,
+.analytics-baseline::after {
+  position: absolute;
+  right: 0;
+  padding-left: 0.4rem;
+  background: var(--surface-card);
+}
+
+.analytics-target-zone::after {
+  bottom: 0.2rem;
+  content: "Target zone";
+}
+
+.analytics-baseline {
+  position: absolute;
+  top: 31.5%;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  border-top: 1px solid rgb(106 166 255 / 28%);
+}
+
+.analytics-baseline::after {
+  top: -0.7rem;
+  color: var(--blue);
+  font-size: 0.68rem;
+  content: "100 baseline";
+}
+
+.analytics-trend-line {
+  position: absolute;
+  inset: 0 0 1.25rem;
+  z-index: 3;
+  width: 100%;
+  height: calc(100% - 1.25rem);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.analytics-trend-line path {
+  fill: none;
+  stroke: rgb(128 168 255 / 52%);
+  stroke-linecap: round;
+  stroke-width: 2.5;
+}
+
 .bar-chart__item {
   position: relative;
   display: grid;
@@ -1616,6 +1833,24 @@ tbody tr:hover .row-action {
 
 .bar-chart__item::before {
   bottom: calc(100% - 0.8rem);
+}
+
+.analytics-bar span {
+  background: linear-gradient(180deg, rgb(128 168 255 / 92%), rgb(106 166 255 / 18%));
+}
+
+.analytics-bar.is-latest span {
+  background: linear-gradient(180deg, #9ac7ff, rgb(128 168 255 / 24%));
+  box-shadow: 0 0 22px rgb(106 166 255 / 16%);
+}
+
+.analytics-bar::before {
+  content: attr(data-value) " · " attr(data-growth);
+}
+
+.analytics-revenue__insight {
+  margin-top: 0.95rem;
+  line-height: 1.45;
 }
 
 .metric-list > div {
@@ -1923,7 +2158,7 @@ tbody tr:hover .row-action {
   .topbar {
     grid-template-columns: 1fr;
     gap: var(--space-4);
-    width: 100%;
+    width: calc(100% - 2rem);
     border-right: 0;
     border-left: 0;
     border-radius: 0;
@@ -2028,7 +2263,7 @@ tbody tr:hover .row-action {
 @media (max-width: 720px) {
   .content-stack {
     gap: var(--space-5);
-    width: 100%;
+    width: calc(100% - 2rem);
   }
 
   .topbar {
@@ -2297,7 +2532,7 @@ tbody tr:hover .row-action {
   }
 
   .content-stack {
-    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom));
   }
 
   .panel,

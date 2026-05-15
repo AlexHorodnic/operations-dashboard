@@ -47,10 +47,20 @@
 
     <div class="analytics-grid">
       <article class="panel panel--wide">
-        <div class="panel__header">
+        <div class="panel__header analytics-revenue__header">
           <div>
             <h3>Revenue by month</h3>
-            <span>Indexed MRR growth</span>
+            <span>Indexed MRR growth against baseline</span>
+          </div>
+        </div>
+        <div class="analytics-revenue__summary">
+          <div>
+            <strong>+{{ revenuePointGain() }} pts</strong>
+            <span>vs start of period</span>
+          </div>
+          <div>
+            <strong>{{ targetMonths() }} of {{ points().length }}</strong>
+            <span>months above target</span>
           </div>
         </div>
         <div class="chart-shell chart-shell--bars">
@@ -60,14 +70,25 @@
             <span>50</span>
           </div>
           <div class="bar-chart" aria-label="Monthly revenue chart">
-            @for (point of points(); track point.label) {
-              <div class="bar-chart__item" [attr.data-value]="point.revenue">
-                <span [style.height.%]="(point.revenue / maxRevenue()) * 100" [title]="point.label + ': ' + point.revenue"></span>
+            <span class="analytics-target-zone" aria-hidden="true">Target zone</span>
+            <span class="analytics-baseline" aria-hidden="true">100 baseline</span>
+            <svg class="analytics-trend-line" viewBox="0 0 600 180" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M20 148 C88 138, 120 126, 140 118 S220 103, 260 94 S340 79, 380 68 S460 52, 500 38 S560 25, 580 18" />
+            </svg>
+            @for (point of chartPoints(); track point.label) {
+              <div
+                class="bar-chart__item analytics-bar"
+                [class.is-latest]="point.isLatest"
+                [attr.data-value]="point.revenue"
+                [attr.data-growth]="point.delta"
+              >
+                <span [style.height.%]="(point.revenue / maxRevenue()) * 100" [attr.aria-label]="point.label + ' revenue index ' + point.revenue + ', ' + point.delta"></span>
                 <small>{{ point.label }}</small>
               </div>
             }
           </div>
         </div>
+        <p class="analytics-revenue__insight">The revenue index stayed above baseline through the latest period, with steady month-over-month gains supporting durable MRR expansion.</p>
       </article>
 
       <article class="panel">
