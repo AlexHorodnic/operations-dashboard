@@ -82,6 +82,7 @@
           aria-label="Export selected accounts as CSV"
           (click)="exportAccounts()"
         >
+          <lucide-icon [img]="Download" size="14" aria-hidden="true"></lucide-icon>
           Export
         </button>
         <button class="row-action" type="button" (click)="clearSelection()">Clear</button>
@@ -89,7 +90,7 @@
     }
 
     @if (exportMessage()) {
-      <p class="export-feedback" aria-live="polite">{{ exportMessage() }}</p>
+      <p class="export-feedback export-feedback--desktop-only" aria-live="polite">{{ exportMessage() }}</p>
     }
 
     @if (loading()) {

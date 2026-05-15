@@ -2,34 +2,12 @@
   display: block;
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  clip-path: inset(50%);
-}
-
 .analytics-kpis .kpi-card__footer {
   align-items: center;
 }
 
-.analytics-revenue-card {
-  display: grid;
-}
-
 .analytics-insights-card {
   align-content: start;
-}
-
-.analytics-chart-shell {
-  min-width: 0;
-}
-
-.analytics-chart-shell .bar-chart {
-  min-width: 0;
 }
 
 .analytics-bar__value {
@@ -65,47 +43,14 @@
   content: attr(data-value) " ? " attr(data-growth);
 }
 
-.analytics-bar:focus-within::before {
-  opacity: 1;
-  transform: translateX(50%) translateY(0);
-}
-
-.analytics-bar__value:focus-visible {
-  outline: 2px solid rgb(106 166 255 / 52%);
-  outline-offset: 2px;
-}
-
 .analytics-revenue__summary > div:first-child strong {
   color: var(--green);
 }
 
-.analytics-data-table {
-  border-collapse: collapse;
-}
-
 @media (max-width: 720px) {
-  .analytics-chart-shell {
-    grid-template-columns: 2.25rem minmax(0, 1fr);
-    gap: 0.8rem;
-  }
-
-  .analytics-chart-shell .bar-chart {
-    gap: 0.35rem;
-  }
-
   .analytics-target-zone::after {
     top: 0.35rem;
     left: 0.35rem;
     padding-inline: 0.35rem;
-  }
-
-  .analytics-bar::before {
-    white-space: normal;
-    text-align: left;
-  }
-
-  .analytics-revenue__summary > div {
-    min-width: 0;
-    flex: 1 1 10rem;
   }
 }

@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, computed, inject, isDevMode, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { CircleAlert, LucideAngularModule } from 'lucide-angular';
+import { CircleAlert, Download, LucideAngularModule } from 'lucide-angular';
 import { DashboardDataService } from '../../core/services/dashboard-data.service';
 import {
   CUSTOMER_OWNERS,
@@ -45,6 +45,7 @@ interface AccountDraft {
 })
 export class Customers {
   readonly CircleAlert = CircleAlert;
+  readonly Download = Download;
   private readonly data = inject(DashboardDataService);
   private readonly destroyRef = inject(DestroyRef);
 

@@ -39,7 +39,7 @@
           </div>
           <div class="export-control">
             @if (exportMessage()) {
-              <span class="export-feedback" aria-live="polite">{{ exportMessage() }}</span>
+              <span class="export-feedback export-feedback--desktop-only" aria-live="polite">{{ exportMessage() }}</span>
             }
             <div class="segmented revenue-range" aria-label="Revenue range">
               @for (range of ranges; track range) {

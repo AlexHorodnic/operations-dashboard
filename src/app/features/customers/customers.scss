@@ -148,3 +148,16 @@
     border: 0;
   }
 }
+
+
+.bulk-toolbar .row-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.bulk-toolbar .row-action lucide-icon {
+  display: grid;
+  place-items: center;
+}
