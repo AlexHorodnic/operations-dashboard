@@ -73,6 +73,12 @@ interface TaskDraft {
   type: OperationTask['type'];
 }
 
+interface TaskToast {
+  message: string;
+  tone: 'success' | 'danger';
+  actionLabel?: string;
+}
+
 @Component({
   selector: 'app-tasks',
   imports: [CommonModule, FormsModule, DragDropModule, LucideAngularModule, Badge, EmptyState],
@@ -148,12 +154,13 @@ export class Tasks {
   readonly owner = signal('All');
   readonly priority = signal<TaskPriority | 'All'>('All');
   readonly dragOverStatus = signal<TaskStatus | null>(null);
-  readonly actionMessage = signal('');
+  readonly toast = signal<TaskToast | null>(null);
   readonly statusUpdates = signal(new Map<number, Partial<TaskMeta>>());
   readonly selectedTaskId = signal<number | null>(null);
   readonly draggingTask = signal(false);
   readonly assignmentTaskId = signal<number | null>(null);
   readonly actionsTaskId = signal<number | null>(null);
+  readonly drawerActionsOpen = signal(false);
   readonly createTaskOpen = signal(false);
   readonly taskDraft = signal<TaskDraft>(this.createTaskDraft());
   readonly taskDraftError = signal('');
@@ -338,13 +345,16 @@ export class Tasks {
   assignOwner(task: WorkflowTask, owner: string): void {
     this.tasks.set(this.data.updateTask(task.id, { owner }));
     this.assignmentTaskId.set(null);
-    this.actionMessage.set(`${task.title} assigned to ${owner}`);
-    window.setTimeout(() => this.actionMessage.set(''), 2200);
+    this.showToast({ message: `${task.title} assigned to ${owner}`, tone: 'success' });
   }
 
   toggleTaskActions(taskId: number): void {
     this.actionsTaskId.set(this.actionsTaskId() === taskId ? null : taskId);
     this.assignmentTaskId.set(null);
+  }
+
+  toggleDrawerActions(): void {
+    this.drawerActionsOpen.update((open) => !open);
   }
 
   deleteTask(task: WorkflowTask): void {
@@ -353,8 +363,8 @@ export class Tasks {
     if (this.selectedTaskId() === task.id) {
       this.closeTaskDrawer();
     }
-    this.actionMessage.set(`${task.title} deleted`);
-    window.setTimeout(() => this.actionMessage.set(''), 2200);
+    this.showToast({ message: `${task.title} deleted`, tone: 'danger', actionLabel: 'Undo' });
+    this.deletedTask.set(task);
   }
 
   openCreateTask(): void {
@@ -398,8 +408,7 @@ export class Tasks {
     this.query.set('');
     this.owner.set('All');
     this.priority.set('All');
-    this.actionMessage.set(`${task.title} created`);
-    window.setTimeout(() => this.actionMessage.set(''), 2200);
+    this.showToast({ message: `${task.title} created`, tone: 'success' });
     if (this.route.snapshot.queryParamMap.get('createTask')) {
       void this.router.navigate([], { relativeTo: this.route, queryParams: { createTask: null }, queryParamsHandling: 'merge' });
     }
@@ -412,11 +421,13 @@ export class Tasks {
 
     this.lastFocusedTaskCard = event.currentTarget as HTMLElement | null;
     this.selectedTaskId.set(task.id);
+    this.drawerActionsOpen.set(false);
     window.setTimeout(() => this.drawerCloseButton()?.nativeElement.focus());
   }
 
   closeTaskDrawer(): void {
     this.selectedTaskId.set(null);
+    this.drawerActionsOpen.set(false);
     window.setTimeout(() => this.lastFocusedTaskCard?.focus());
   }
 
@@ -430,9 +441,15 @@ export class Tasks {
   @HostListener('document:click', ['$event'])
   protected closeMenusOnOutsideClick(event: MouseEvent): void {
     const target = event.target as HTMLElement | null;
-    if (!target?.closest('.task-card') && !target?.closest('.drawer-assignment')) {
+    if (
+      !target?.closest('.task-card') &&
+      !target?.closest('.drawer-assignment') &&
+      !target?.closest('.task-drawer__actions') &&
+      !target?.closest('.drawer-actions-popover')
+    ) {
       this.assignmentTaskId.set(null);
       this.actionsTaskId.set(null);
+      this.drawerActionsOpen.set(false);
     }
   }
 
@@ -474,6 +491,39 @@ export class Tasks {
 
   private nextTaskId(): number {
     return Math.max(...this.tasks().map((task) => task.id), 0) + 1;
+  }
+
+  readonly deletedTask = signal<WorkflowTask | null>(null);
+
+  restoreDeletedTask(): void {
+    const task = this.deletedTask();
+    if (!task) {
+      return;
+    }
+
+    const { isOverdue, isUrgent, comments, update, detail, blockedReason, ...restoredTask } = task;
+    this.tasks.set(this.data.addTask(restoredTask));
+    this.deletedTask.set(null);
+    this.showToast({ message: `${task.title} restored`, tone: 'success' });
+  }
+
+  dismissToast(): void {
+    if (this.toast()?.tone === 'danger') {
+      this.deletedTask.set(null);
+    }
+    this.toast.set(null);
+  }
+
+  private showToast(toast: TaskToast): void {
+    this.toast.set(toast);
+    window.setTimeout(() => {
+      if (this.toast() === toast) {
+        this.toast.set(null);
+        if (toast.tone === 'danger') {
+          this.deletedTask.set(null);
+        }
+      }
+    }, 3200);
   }
 
   private createTaskDraft(): TaskDraft {

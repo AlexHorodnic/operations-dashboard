@@ -61,10 +61,6 @@
     }
   </article>
 
-  @if (actionMessage()) {
-    <p class="export-feedback" aria-live="polite">{{ actionMessage() }}</p>
-  }
-
   @if (loading()) {
     <section class="loading-grid" aria-label="Loading workflow queue">
       @for (item of [1, 2, 3, 4]; track item) {
@@ -181,6 +177,20 @@
   }
 </section>
 
+@if (toast(); as toast) {
+  <aside [class]="'task-toast task-toast--' + toast.tone" role="status" aria-live="polite">
+    <span class="task-toast__indicator" aria-hidden="true"></span>
+    <div>
+      <strong>{{ toast.tone === 'danger' ? 'Task removed' : 'Updated' }}</strong>
+      <p>{{ toast.message }}</p>
+    </div>
+    @if (toast.actionLabel) {
+      <button type="button" (click)="restoreDeletedTask()">{{ toast.actionLabel }}</button>
+    }
+    <button class="task-toast__close" type="button" aria-label="Dismiss notification" (click)="dismissToast()">×</button>
+  </aside>
+}
+
 @if (selectedTask(); as task) {
   @if (selectedTaskDetails(); as details) {
     <div class="task-drawer-backdrop" (click)="closeTaskDrawer()" aria-hidden="true"></div>
@@ -196,20 +206,25 @@
           </div>
         </div>
         <div class="task-drawer__actions">
-          <button class="row-action" type="button" (click)="openAssignment(task)">Assign</button>
-          <button class="icon-button" type="button" aria-label="More task actions">···</button>
-          <button #taskDrawerClose class="icon-button" type="button" aria-label="Close task details" (click)="closeTaskDrawer()">×</button>
+          <div class="drawer-actions-menu">
+            <button
+              class="icon-button"
+              type="button"
+              aria-label="More task actions"
+              [attr.aria-expanded]="drawerActionsOpen()"
+              (click)="toggleDrawerActions()"
+            >
+              ...
+            </button>
+            @if (drawerActionsOpen()) {
+              <div class="drawer-actions-popover" (click)="$event.stopPropagation()">
+                <button type="button" class="is-danger" (click)="deleteTask(task)">Delete task</button>
+              </div>
+            }
+          </div>
+          <button #taskDrawerClose class="icon-button" type="button" aria-label="Close task details" (click)="closeTaskDrawer()">x</button>
         </div>
       </header>
-      @if (assignmentTaskId() === task.id) {
-        <div class="drawer-assignment" aria-label="Assign owner">
-          @for (ownerOption of owners().slice(1); track ownerOption) {
-            <button type="button" [class.is-active]="task.owner === ownerOption" (click)="assignOwner(task, ownerOption)">
-              {{ ownerOption }}
-            </button>
-          }
-        </div>
-      }
 
       <div class="task-drawer__body">
         <section class="task-drawer__overview">

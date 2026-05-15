@@ -842,6 +842,12 @@ select:focus-visible {
   transform: translateY(-1px);
 }
 
+.comparison-grid .kpi-card:hover {
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+  transform: none;
+}
+
 .trend {
   font-size: 0.78rem;
   font-weight: 700;
@@ -1175,10 +1181,100 @@ input[type="checkbox"] {
   gap: 0.65rem;
 }
 
-.export-feedback {
-  color: var(--green);
+.task-toast {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 70;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  width: min(24rem, calc(100vw - 2rem));
+  min-height: 4.2rem;
+  padding: 0.8rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 4%), transparent 55%),
+    var(--surface-card);
+  box-shadow:
+    0 20px 46px rgb(0 0 0 / 34%),
+    inset 0 1px 0 rgb(255 255 255 / 4%);
+  animation: task-toast-in 180ms ease-out;
+}
+
+.task-toast__indicator {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 0.28rem rgb(116 214 154 / 12%);
+}
+
+.task-toast div {
+  min-width: 0;
+}
+
+.task-toast strong,
+.task-toast p {
+  display: block;
+}
+
+.task-toast strong {
   font-size: 0.76rem;
-  font-weight: 600;
+}
+
+.task-toast p {
+  overflow: hidden;
+  margin-top: 0.12rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-toast > button:not(.task-toast__close) {
+  min-height: 1.9rem;
+  border: 1px solid rgb(106 166 255 / 28%);
+  border-radius: 999px;
+  background: rgb(106 166 255 / 10%);
+  color: var(--text);
+  padding: 0 0.7rem;
+  font-size: 0.76rem;
+  font-weight: 650;
+}
+
+.task-toast > button:not(.task-toast__close):hover {
+  border-color: rgb(106 166 255 / 46%);
+  background: rgb(106 166 255 / 16%);
+}
+
+.task-toast__close {
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--faint);
+  font-size: 1rem;
+}
+
+.task-toast__close:hover {
+  color: var(--text);
+}
+
+.task-toast--danger .task-toast__indicator {
+  background: var(--coral);
+  box-shadow: 0 0 0 0.28rem rgb(255 127 115 / 12%);
+}
+
+@keyframes task-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.45rem) scale(0.98);
+  }
 }
 
 .bulk-assignment {
@@ -1981,8 +2077,7 @@ tbody tr:hover .row-action {
   font-size: 0.7rem;
 }
 
-.task-popover button,
-.drawer-assignment button {
+.task-popover button {
   border: 1px solid transparent;
   border-radius: 0.35rem;
   background: transparent;
@@ -2003,11 +2098,40 @@ tbody tr:hover .row-action {
   color: var(--coral);
 }
 
-.drawer-assignment {
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  padding: 0 1rem 1rem;
+.drawer-actions-menu {
+  position: relative;
+}
+
+.drawer-actions-popover {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  z-index: 4;
+  display: grid;
+  min-width: 8.5rem;
+  padding: 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface-card);
+  box-shadow: var(--shadow-raised);
+}
+
+.drawer-actions-popover button {
+  border: 1px solid transparent;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: var(--text);
+  padding: 0.45rem 0.55rem;
+  text-align: left;
+}
+
+.drawer-actions-popover button:hover {
+  border-color: rgb(255 127 115 / 28%);
+  background: rgb(255 127 115 / 10%);
+}
+
+.drawer-actions-popover .is-danger {
+  color: var(--coral);
 }
 
 .task-form-grid {
@@ -2346,14 +2470,21 @@ tbody tr:hover .row-action {
   left: 0;
   z-index: 0;
   height: 32%;
-  border-bottom: 1px dashed rgb(116 214 154 / 24%);
-  background: linear-gradient(180deg, rgb(116 214 154 / 8%), transparent);
+  border-bottom: 1px solid rgb(116 214 154 / 34%);
+  background:
+    linear-gradient(180deg, rgb(116 214 154 / 15%), rgb(116 214 154 / 7%)),
+    repeating-linear-gradient(
+      135deg,
+      rgb(116 214 154 / 7%) 0,
+      rgb(116 214 154 / 7%) 0.45rem,
+      transparent 0.45rem,
+      transparent 0.9rem
+    );
   color: var(--green);
   font-size: 0.68rem;
 }
 
-.analytics-target-zone::after,
-.analytics-baseline::after {
+.analytics-target-zone::after {
   position: absolute;
   right: 0;
   padding-left: 0.4rem;
@@ -2361,7 +2492,14 @@ tbody tr:hover .row-action {
 }
 
 .analytics-target-zone::after {
-  bottom: 0.2rem;
+  top: 0.45rem;
+  left: 0.45rem;
+  right: auto;
+  border: 1px solid rgb(116 214 154 / 22%);
+  border-radius: 999px;
+  background: rgb(19 24 32 / 92%);
+  padding: 0.18rem 0.45rem;
+  font-weight: 650;
   content: "Target zone";
 }
 
@@ -2372,13 +2510,6 @@ tbody tr:hover .row-action {
   left: 0;
   z-index: 1;
   border-top: 1px solid rgb(106 166 255 / 28%);
-}
-
-.analytics-baseline::after {
-  top: -0.7rem;
-  color: var(--blue);
-  font-size: 0.68rem;
-  content: "100 baseline";
 }
 
 .analytics-trend-line {
@@ -2841,10 +2972,6 @@ tbody tr:hover .row-action {
 }
 
 @media (max-width: 720px) {
-  .export-feedback {
-    display: none;
-  }
-
   .content-stack {
     gap: var(--space-5);
     width: calc(100% - 2rem);
@@ -3166,5 +3293,12 @@ tbody tr:hover .row-action {
 
   .task-drawer__overview {
     grid-template-columns: 1fr;
+  }
+
+  .task-toast {
+    right: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+    left: 1rem;
+    width: auto;
   }
 }
