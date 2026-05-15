@@ -2088,8 +2088,7 @@ tbody tr:hover .row-action {
 
 .task-popover button:hover,
 .task-popover button.is-active,
-.drawer-assignment button:hover,
-.drawer-assignment button.is-active {
+.task-popover button:focus-visible {
   border-color: rgb(106 166 255 / 32%);
   background: rgb(106 166 255 / 12%);
 }
@@ -2125,7 +2124,8 @@ tbody tr:hover .row-action {
   text-align: left;
 }
 
-.drawer-actions-popover button:hover {
+.drawer-actions-popover button:hover,
+.drawer-actions-popover button:focus-visible {
   border-color: rgb(255 127 115 / 28%);
   background: rgb(255 127 115 / 10%);
 }
@@ -2267,8 +2267,7 @@ tbody tr:hover .row-action {
 }
 
 .task-drawer__overview span,
-.task-drawer__blocker span,
-.task-comment-input span {
+.task-drawer__blocker span {
   color: var(--faint);
   font-size: 0.72rem;
 }
@@ -2368,12 +2367,6 @@ tbody tr:hover .row-action {
   gap: 0.12rem;
 }
 
-.task-comment-input {
-  display: grid;
-  gap: 0.4rem;
-  margin-top: 0.8rem;
-}
-
 .task-account-panel strong {
   font-size: 0.9rem;
 }
@@ -2397,7 +2390,7 @@ tbody tr:hover .row-action {
   gap: 0.5rem;
 }
 
-.task-resources button {
+.task-resources div {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2411,15 +2404,9 @@ tbody tr:hover .row-action {
   text-align: left;
 }
 
-.task-resources button span {
+.task-resources div span {
   color: var(--faint);
   font-size: 0.72rem;
-}
-
-.task-resources button:hover,
-.task-resources button:focus-visible {
-  border-color: rgb(106 166 255 / 36%);
-  background: var(--surface-3);
 }
 
 .chart-shell--bars .chart-axis,
@@ -2862,6 +2849,17 @@ tbody tr:hover .row-action {
 @keyframes shimmer {
   to {
     background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

@@ -11,7 +11,6 @@ import { Badge } from '../../shared/badge/badge';
 import { EmptyState } from '../../shared/empty-state/empty-state';
 
 interface TaskMeta {
-  comments: number;
   update: string;
   detail: string;
   blockedReason?: string;
@@ -91,16 +90,16 @@ export class Tasks {
   private readonly destroyRef = inject(DestroyRef);
   private readonly today = new Date(new Date().toISOString().slice(0, 10) + 'T00:00:00');
   private readonly taskMeta = new Map<number, TaskMeta>([
-    [1, { comments: 4, update: 'Updated 2m ago', detail: 'Waiting on workspace admin' }],
-    [2, { comments: 8, update: 'Escalated 18m ago', detail: 'Finance sync blocked', blockedReason: 'Waiting on finance approval' }],
-    [3, { comments: 2, update: 'Updated 1h ago', detail: 'Draft packet in review' }],
-    [4, { comments: 3, update: 'Updated 34m ago', detail: 'Mapping review in progress' }],
-    [5, { comments: 1, update: 'Closed yesterday', detail: 'Migration accepted by customer' }],
-    [6, { comments: 5, update: 'Updated 45m ago', detail: 'Retention risk review queued' }],
-    [7, { comments: 2, update: 'Updated 3h ago', detail: 'Security team requested documents' }],
-    [8, { comments: 1, update: 'Completed 2d ago', detail: 'Expansion seats provisioned' }],
-    [9, { comments: 3, update: 'Updated 26m ago', detail: 'Admin handoff waiting on customer' }],
-    [10, { comments: 6, update: 'Blocked 1h ago', detail: 'Renewal memo waiting on CSM', blockedReason: 'Missing executive sponsor notes' }],
+    [1, { update: 'Updated 2m ago', detail: 'Waiting on workspace admin' }],
+    [2, { update: 'Escalated 18m ago', detail: 'Finance sync blocked', blockedReason: 'Waiting on finance approval' }],
+    [3, { update: 'Updated 1h ago', detail: 'Draft packet in review' }],
+    [4, { update: 'Updated 34m ago', detail: 'Mapping review in progress' }],
+    [5, { update: 'Closed yesterday', detail: 'Migration accepted by customer' }],
+    [6, { update: 'Updated 45m ago', detail: 'Retention risk review queued' }],
+    [7, { update: 'Updated 3h ago', detail: 'Security team requested documents' }],
+    [8, { update: 'Completed 2d ago', detail: 'Expansion seats provisioned' }],
+    [9, { update: 'Updated 26m ago', detail: 'Admin handoff waiting on customer' }],
+    [10, { update: 'Blocked 1h ago', detail: 'Renewal memo waiting on CSM', blockedReason: 'Missing executive sponsor notes' }],
   ]);
   private readonly taskDetails = new Map<number, TaskDetailRecord>([
     [1, {
@@ -177,7 +176,7 @@ export class Tasks {
   readonly workflowTasks = computed<WorkflowTask[]>(() =>
     this.tasks().map((task) => {
       const dueDate = new Date(`${task.dueDate}T00:00:00`);
-      const meta = this.taskMeta.get(task.id) ?? { comments: 0, update: 'Updated recently', detail: 'No recent update' };
+      const meta = this.taskMeta.get(task.id) ?? { update: 'Updated recently', detail: 'No recent update' };
       const statusUpdate = this.statusUpdates().get(task.id);
       return {
         ...task,
@@ -202,6 +201,7 @@ export class Tasks {
       return matchesQuery && matchesOwner && matchesPriority;
     });
   });
+  readonly filteredActiveTaskCount = computed(() => this.filteredTasks().filter((task) => task.status !== 'Done').length);
   readonly tasksByStatus = computed(() => {
     const grouped = new Map<TaskStatus, WorkflowTask[]>(this.statuses.map((status) => [status, []]));
 
@@ -443,7 +443,6 @@ export class Tasks {
     const target = event.target as HTMLElement | null;
     if (
       !target?.closest('.task-card') &&
-      !target?.closest('.drawer-assignment') &&
       !target?.closest('.task-drawer__actions') &&
       !target?.closest('.drawer-actions-popover')
     ) {
@@ -501,7 +500,7 @@ export class Tasks {
       return;
     }
 
-    const { isOverdue, isUrgent, comments, update, detail, blockedReason, ...restoredTask } = task;
+    const { isOverdue, isUrgent, update, detail, blockedReason, ...restoredTask } = task;
     this.tasks.set(this.data.addTask(restoredTask));
     this.deletedTask.set(null);
     this.showToast({ message: `${task.title} restored`, tone: 'success' });

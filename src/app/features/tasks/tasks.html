@@ -10,7 +10,7 @@
         <lucide-icon [img]="Plus" size="15" aria-hidden="true"></lucide-icon>
         New task
       </button>
-      <span class="timestamp">{{ filteredTasks().length }} active work items</span>
+      <span class="timestamp">{{ filteredActiveTaskCount() }} active work items</span>
     </div>
   </div>
 
@@ -51,6 +51,9 @@
     <button class="row-action" type="button" (click)="clearFilters()" [disabled]="!hasActiveFilters()">Clear filters</button>
     @if (hasActiveFilters()) {
       <div class="filter-chips" aria-label="Active workflow filters">
+        @if (query().trim()) {
+          <button type="button" (click)="query.set('')" aria-label="Clear search filter">Search: {{ query().trim() }} x</button>
+        }
         @if (owner() !== 'All') {
           <button type="button" (click)="owner.set('All')" aria-label="Clear owner filter">Owner: {{ owner() }} x</button>
         }
@@ -273,10 +276,6 @@
               </article>
             }
           </div>
-          <label class="task-comment-input">
-            <span>Add comment</span>
-            <input type="text" placeholder="Add comment…" />
-          </label>
         </section>
 
         <section class="task-drawer__section">
@@ -297,10 +296,10 @@
             <h3>Attachments & resources</h3>
             <div class="task-resources">
               @for (resource of details.resources; track resource.name) {
-                <button type="button">
+                <div>
                   <strong>{{ resource.name }}</strong>
                   <span>{{ resource.type }}</span>
-                </button>
+                </div>
               }
             </div>
           </section>
