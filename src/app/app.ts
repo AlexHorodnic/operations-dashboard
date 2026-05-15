@@ -108,4 +108,17 @@ export class App {
       this.notificationsOpen.set(false);
     }
   }
+
+  @HostListener('document:click', ['$event'])
+  protected closeCommandPaletteOnOutsideClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+
+    if (this.commandOpen() && !target?.closest('.topbar__search')) {
+      this.commandOpen.set(false);
+    }
+
+    if (this.notificationsOpen() && !target?.closest('.notification-menu')) {
+      this.notificationsOpen.set(false);
+    }
+  }
 }

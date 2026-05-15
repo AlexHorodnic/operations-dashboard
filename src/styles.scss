@@ -204,7 +204,7 @@ p {
 
 .breadcrumb {
   display: block;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.25rem;
   color: var(--faint);
   font-size: 0.72rem;
 }
@@ -323,12 +323,12 @@ p {
   top: 0;
   z-index: 10;
   display: grid;
-  grid-template-columns: minmax(16rem, 1fr) minmax(18rem, 28rem) minmax(14rem, 1fr);
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   width: min(100%, var(--content-max));
   min-height: 5.25rem;
   margin: 0 auto;
-  padding: 1rem 1.25rem;
+  padding: 1rem 0 1rem 1.25rem;
   border-right: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   border-left: 1px solid var(--border);
@@ -337,13 +337,6 @@ p {
   backdrop-filter: blur(12px);
 }
 
-.topbar h1 {
-  font-size: 1.28rem;
-  line-height: 1.2;
-  letter-spacing: 0;
-}
-
-.topbar p,
 .section__heading p,
 .panel__header span,
 .timestamp,
@@ -354,56 +347,30 @@ td span,
   color: var(--muted);
 }
 
-.topbar__title {
-  min-width: 0;
-}
-
 .topbar__search {
-  position: relative;
+  position: absolute;
+  left: 50%;
   display: flex;
   justify-content: center;
+  width: min(28rem, calc(100% - 2.5rem));
   min-width: 0;
-}
-
-.topbar__title p {
-  margin-top: 0.28rem;
-  font-size: 0.78rem;
-}
-
-.topbar__status {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.55rem;
-}
-
-.topbar__status span {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  min-height: 1.35rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--muted);
-  padding: 0.12rem 0.55rem;
-  font-size: 0.72rem;
-  font-weight: 650;
-}
-
-.topbar__status i {
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 0 3px rgb(116 214 154 / 12%);
+  transform: translateX(-50%);
 }
 
 .topbar__actions {
+  --topbar-action-height: 2.35rem;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: var(--space-2);
+}
+
+.topbar__actions .icon-button {
+  height: var(--topbar-action-height);
+}
+
+.topbar__actions .icon-button {
+  width: var(--topbar-action-height);
 }
 
 .search-control {
@@ -454,7 +421,7 @@ td span,
 
 .workspace-select {
   display: grid;
-  min-height: 2.15rem;
+  min-height: 0;
   min-width: 10.5rem;
   align-content: center;
   gap: 0.05rem;
@@ -462,7 +429,7 @@ td span,
   border-radius: 0.42rem;
   background: var(--surface);
   color: var(--text);
-  padding: 0.25rem 0.65rem;
+  padding: 0.18rem 0.65rem;
   text-align: left;
 }
 
@@ -510,8 +477,7 @@ td span,
 
 .icon-button,
 .text-button,
-.row-action,
-.avatar-button {
+.row-action {
   border: 1px solid var(--border);
   border-radius: 0.38rem;
   background: var(--surface-2);
@@ -669,21 +635,9 @@ td span,
   font-size: 0.7rem;
 }
 
-.avatar-button {
-  width: 2.15rem;
-  height: 2.15rem;
-  border-radius: 999px;
-  background: rgb(106 166 255 / 14%);
-  color: #dce8ff;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
 .icon-button:hover,
 .text-button:hover,
-.row-action:hover,
-.avatar-button:hover,
-.workspace-select:hover {
+.row-action:hover {
   border-color: rgb(106 166 255 / 45%);
   background: var(--surface-3);
 }
@@ -1953,7 +1907,11 @@ tbody tr:hover .row-action {
   }
 
   .topbar__search {
+    position: relative;
+    left: auto;
     justify-content: stretch;
+    width: auto;
+    transform: none;
   }
 
   .topbar__search .command-palette {
@@ -2031,12 +1989,12 @@ tbody tr:hover .row-action {
   }
 
   .topbar {
-    align-items: flex-start;
-    flex-direction: column;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    align-items: center;
     padding: 0.9rem 1rem;
   }
 
-  .topbar,
   .section__heading,
   .panel__header {
     align-items: flex-start;
@@ -2073,8 +2031,15 @@ tbody tr:hover .row-action {
   }
 
   .topbar__actions {
+    justify-self: end;
+    width: auto;
+    flex-wrap: nowrap;
+  }
+
+  .topbar__search {
+    grid-column: 1 / -1;
+    grid-row: 2;
     width: 100%;
-    flex-wrap: wrap;
   }
 
   .search-control {
@@ -2082,7 +2047,7 @@ tbody tr:hover .row-action {
   }
 
   .workspace-select {
-    flex: 1 1 12rem;
+    min-width: 0;
   }
 
   .state-demo {

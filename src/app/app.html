@@ -33,14 +33,9 @@
 
   <main class="dashboard-main">
     <header class="topbar">
-      <div class="topbar__title">
-        <span class="breadcrumb">Operations / {{ activePage().label }}</span>
-        <h1>{{ activePage().label }}</h1>
-        <p>{{ activePage().description }}</p>
-        <div class="topbar__status" aria-label="Workspace status">
-          <span>{{ activePage().metric }}</span>
-          <span><i aria-hidden="true"></i>Live sync</span>
-        </div>
+      <div class="workspace-select">
+        <span>Acme Operations</span>
+        <strong>Team workspace</strong>
       </div>
 
       <div class="topbar__search">
@@ -52,10 +47,6 @@
       </div>
 
       <div class="topbar__actions">
-        <button class="workspace-select" type="button">
-          <span>Acme Operations</span>
-          <strong>Team workspace</strong>
-        </button>
         <div class="notification-menu">
           <button
             class="icon-button notification-trigger"
@@ -106,7 +97,6 @@
             </section>
           }
         </div>
-        <button class="avatar-button" type="button" aria-label="Profile">AL</button>
       </div>
     </header>
 
