@@ -9,7 +9,7 @@
         class="sidebar-toggle"
         type="button"
         [attr.aria-label]="sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
-        (click)="sidebarCollapsed.update((collapsed) => !collapsed)"
+        (click)="toggleSidebar()"
       >
         {{ sidebarCollapsed() ? '>' : '<' }}
       </button>
@@ -53,7 +53,7 @@
       <div class="topbar__search">
         <button class="search-control" type="button" (click)="commandOpen.set(true)" aria-label="Open command palette">
           <span>/</span>
-          <strong>Search accounts, tasks, reports...</strong>
+          <strong>Search tasks, reports, actions...</strong>
         </button>
         <app-command-palette [open]="commandOpen()" (closed)="commandOpen.set(false)" />
       </div>

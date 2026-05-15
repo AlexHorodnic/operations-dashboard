@@ -3,6 +3,8 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { Component, DestroyRef, ElementRef, HostListener, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CircleAlert, CircleCheckBig, Clock3, ListTodo, LucideAngularModule, Plus } from 'lucide-angular';
 import { DashboardDataService } from '../../core/services/dashboard-data.service';
 import { OperationTask, TaskPriority, TaskStatus } from '../../models/dashboard.models';
 import { Badge } from '../../shared/badge/badge';
@@ -61,15 +63,27 @@ interface TaskDetailRecord {
   resources: TaskResource[];
 }
 
+interface TaskDraft {
+  title: string;
+  owner: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  dueDate: string;
+  customer: string;
+  type: OperationTask['type'];
+}
+
 @Component({
   selector: 'app-tasks',
-  imports: [CommonModule, FormsModule, DragDropModule, Badge, EmptyState],
+  imports: [CommonModule, FormsModule, DragDropModule, LucideAngularModule, Badge, EmptyState],
   templateUrl: './tasks.html',
 })
 export class Tasks {
   private readonly data = inject(DashboardDataService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly today = new Date('2026-05-14T00:00:00');
+  private readonly today = new Date(new Date().toISOString().slice(0, 10) + 'T00:00:00');
   private readonly taskMeta = new Map<number, TaskMeta>([
     [1, { comments: 4, update: 'Updated 2m ago', detail: 'Waiting on workspace admin' }],
     [2, { comments: 8, update: 'Escalated 18m ago', detail: 'Finance sync blocked', blockedReason: 'Waiting on finance approval' }],
@@ -138,9 +152,20 @@ export class Tasks {
   readonly statusUpdates = signal(new Map<number, Partial<TaskMeta>>());
   readonly selectedTaskId = signal<number | null>(null);
   readonly draggingTask = signal(false);
+  readonly assignmentTaskId = signal<number | null>(null);
+  readonly actionsTaskId = signal<number | null>(null);
+  readonly createTaskOpen = signal(false);
+  readonly taskDraft = signal<TaskDraft>(this.createTaskDraft());
+  readonly taskDraftError = signal('');
   readonly statuses: TaskStatus[] = ['Queued', 'In progress', 'Blocked', 'Done'];
   readonly priorities: (TaskPriority | 'All')[] = ['All', 'Critical', 'High', 'Medium', 'Low'];
-  readonly owners = computed(() => ['All', ...Array.from(new Set(this.tasks().map((task) => task.owner)))]);
+  readonly taskTypes: OperationTask['type'][] = ['Onboarding', 'Incident', 'Renewal', 'Risk', 'Migration'];
+  readonly ListTodo = ListTodo;
+  readonly Clock3 = Clock3;
+  readonly CircleAlert = CircleAlert;
+  readonly CircleCheckBig = CircleCheckBig;
+  readonly Plus = Plus;
+  readonly owners = computed(() => ['All', ...Array.from(new Set(['Avery', 'Mina', 'Sam', 'Iris', 'Leo', ...this.tasks().map((task) => task.owner)]))]);
 
   readonly workflowTasks = computed<WorkflowTask[]>(() =>
     this.tasks().map((task) => {
@@ -225,6 +250,11 @@ export class Tasks {
       this.tasks.set(tasks);
       this.loading.set(false);
     });
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      if (params.get('createTask') === '1') {
+        this.openCreateTask();
+      }
+    });
   }
 
   tasksForStatus(status: TaskStatus): WorkflowTask[] {
@@ -254,6 +284,19 @@ export class Tasks {
     return `kanban-column kanban-column--${status.toLowerCase().replaceAll(' ', '-')}`;
   }
 
+  statusIcon(status: TaskStatus) {
+    if (status === 'Queued') {
+      return this.ListTodo;
+    }
+    if (status === 'In progress') {
+      return this.Clock3;
+    }
+    if (status === 'Blocked') {
+      return this.CircleAlert;
+    }
+    return this.CircleCheckBig;
+  }
+
   dragStart(task: WorkflowTask): void {
     this.draggingTask.set(true);
     this.dragOverStatus.set(task.status);
@@ -274,7 +317,7 @@ export class Tasks {
       moveItemInArray(reorderedTasks, event.previousIndex, event.currentIndex);
       this.reorderStatus(status, reorderedTasks.map((item) => item.id));
     } else {
-      this.tasks.update((tasks) => tasks.map((item) => (item.id === task.id ? { ...item, status } : item)));
+      this.tasks.set(this.data.updateTask(task.id, { status }));
       this.recordStatusUpdate(task.id, task.status, status);
       this.reorderStatus(status, orderedTargetIds);
     }
@@ -287,9 +330,79 @@ export class Tasks {
     window.setTimeout(() => this.draggingTask.set(false));
   }
 
-  runQuickAction(action: 'open' | 'assign', task: WorkflowTask): void {
-    this.actionMessage.set(action === 'open' ? `Opened ${task.title}` : `Assignment flow opened for ${task.title}`);
+  openAssignment(task: WorkflowTask): void {
+    this.assignmentTaskId.set(this.assignmentTaskId() === task.id ? null : task.id);
+    this.actionsTaskId.set(null);
+  }
+
+  assignOwner(task: WorkflowTask, owner: string): void {
+    this.tasks.set(this.data.updateTask(task.id, { owner }));
+    this.assignmentTaskId.set(null);
+    this.actionMessage.set(`${task.title} assigned to ${owner}`);
     window.setTimeout(() => this.actionMessage.set(''), 2200);
+  }
+
+  toggleTaskActions(taskId: number): void {
+    this.actionsTaskId.set(this.actionsTaskId() === taskId ? null : taskId);
+    this.assignmentTaskId.set(null);
+  }
+
+  deleteTask(task: WorkflowTask): void {
+    this.tasks.set(this.data.deleteTask(task.id));
+    this.actionsTaskId.set(null);
+    if (this.selectedTaskId() === task.id) {
+      this.closeTaskDrawer();
+    }
+    this.actionMessage.set(`${task.title} deleted`);
+    window.setTimeout(() => this.actionMessage.set(''), 2200);
+  }
+
+  openCreateTask(): void {
+    this.taskDraft.set(this.createTaskDraft());
+    this.taskDraftError.set('');
+    this.createTaskOpen.set(true);
+  }
+
+  closeCreateTask(): void {
+    this.createTaskOpen.set(false);
+    this.taskDraftError.set('');
+    if (this.route.snapshot.queryParamMap.get('createTask')) {
+      void this.router.navigate([], { relativeTo: this.route, queryParams: { createTask: null }, queryParamsHandling: 'merge' });
+    }
+  }
+
+  updateTaskDraft<K extends keyof TaskDraft>(key: K, value: TaskDraft[K]): void {
+    this.taskDraft.update((draft) => ({ ...draft, [key]: value }));
+  }
+
+  createTask(): void {
+    const draft = this.taskDraft();
+    if (!draft.title.trim() || !draft.customer.trim() || !draft.dueDate) {
+      this.taskDraftError.set('Title, customer, and due date are required.');
+      return;
+    }
+
+    const task: OperationTask = {
+      id: this.nextTaskId(),
+      title: draft.title.trim(),
+      owner: draft.owner,
+      status: draft.status,
+      priority: draft.priority,
+      dueDate: draft.dueDate,
+      customer: draft.customer.trim(),
+      type: draft.type,
+    };
+
+    this.tasks.set(this.data.addTask(task));
+    this.createTaskOpen.set(false);
+    this.query.set('');
+    this.owner.set('All');
+    this.priority.set('All');
+    this.actionMessage.set(`${task.title} created`);
+    window.setTimeout(() => this.actionMessage.set(''), 2200);
+    if (this.route.snapshot.queryParamMap.get('createTask')) {
+      void this.router.navigate([], { relativeTo: this.route, queryParams: { createTask: null }, queryParamsHandling: 'merge' });
+    }
   }
 
   openTaskDrawer(task: WorkflowTask, event: Event): void {
@@ -314,6 +427,15 @@ export class Tasks {
     }
   }
 
+  @HostListener('document:click', ['$event'])
+  protected closeMenusOnOutsideClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (!target?.closest('.task-card') && !target?.closest('.drawer-assignment')) {
+      this.assignmentTaskId.set(null);
+      this.actionsTaskId.set(null);
+    }
+  }
+
   private reorderStatus(status: TaskStatus, orderedIds: readonly number[]): void {
     this.tasks.update((tasks) => {
       const byId = new Map(tasks.map((task) => [task.id, task]));
@@ -324,7 +446,7 @@ export class Tasks {
       const remainingInStatus = tasks.filter((task) => task.status === status && !orderedSet.has(task.id));
       const otherTasks = tasks.filter((task) => task.status !== status);
 
-      return [...otherTasks, ...reordered, ...remainingInStatus];
+      return this.data.updateTasks([...otherTasks, ...reordered, ...remainingInStatus]);
     });
   }
 
@@ -348,5 +470,21 @@ export class Tasks {
       });
       return next;
     });
+  }
+
+  private nextTaskId(): number {
+    return Math.max(...this.tasks().map((task) => task.id), 0) + 1;
+  }
+
+  private createTaskDraft(): TaskDraft {
+    return {
+      title: '',
+      owner: 'Avery',
+      status: 'Queued',
+      priority: 'Medium',
+      dueDate: new Date().toISOString().slice(0, 10),
+      customer: '',
+      type: 'Onboarding',
+    };
   }
 }

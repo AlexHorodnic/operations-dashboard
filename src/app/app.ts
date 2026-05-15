@@ -6,6 +6,15 @@ import { filter } from 'rxjs';
 import { VercelAnalyticsService } from './core/services/vercel-analytics.service';
 import { CommandPalette } from './shared/ui/command-palette/command-palette';
 
+interface AppNotification {
+  id: number;
+  title: string;
+  detail: string;
+  time: string;
+  tone: string;
+  read: boolean;
+}
+
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, RouterLink, RouterLinkActive, FormsModule, LucideAngularModule, CommandPalette],
@@ -17,7 +26,9 @@ export class App {
   private readonly analytics = inject(VercelAnalyticsService);
   protected readonly commandOpen = signal(false);
   protected readonly notificationsOpen = signal(false);
-  protected readonly sidebarCollapsed = signal(false);
+  private readonly notificationsKey = 'operations-dashboard-notifications';
+  private readonly sidebarCollapsedKey = 'operations-dashboard-sidebar-collapsed';
+  protected readonly sidebarCollapsed = signal(this.readSidebarCollapsed());
   protected readonly mobileTopbarHidden = signal(false);
   protected readonly Bell = Bell;
   protected readonly CircleAlert = CircleAlert;
@@ -28,7 +39,7 @@ export class App {
   protected readonly ListTodo = ListTodo;
   protected readonly BarChart3 = BarChart3;
   protected readonly X = X;
-  protected readonly notifications = signal([
+  protected readonly notifications = signal<AppNotification[]>(this.readNotifications() ?? [
     {
       id: 1,
       title: 'Billing sync blocked',
@@ -86,10 +97,12 @@ export class App {
     this.notifications.update((notifications) =>
       notifications.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)),
     );
+    this.writeNotifications();
   }
 
   protected markAllNotificationsRead(): void {
     this.notifications.update((notifications) => notifications.map((notification) => ({ ...notification, read: true })));
+    this.writeNotifications();
   }
 
   constructor() {
@@ -97,6 +110,15 @@ export class App {
     this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe((event) => {
       this.currentPath.set(event.urlAfterRedirects);
     });
+  }
+
+  protected toggleSidebar(): void {
+    this.sidebarCollapsed.update((collapsed) => !collapsed);
+    try {
+      localStorage.setItem(this.sidebarCollapsedKey, JSON.stringify(this.sidebarCollapsed()));
+    } catch {
+      // Persistence is best-effort for local mock data.
+    }
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -125,6 +147,32 @@ export class App {
 
     if (this.notificationsOpen() && !target?.closest('.notification-menu')) {
       this.notificationsOpen.set(false);
+    }
+  }
+
+  private readNotifications(): AppNotification[] | null {
+    try {
+      const raw = localStorage.getItem(this.notificationsKey);
+      const parsed = raw ? JSON.parse(raw) : null;
+      return Array.isArray(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private writeNotifications(): void {
+    try {
+      localStorage.setItem(this.notificationsKey, JSON.stringify(this.notifications()));
+    } catch {
+      // Persistence is best-effort for local mock data.
+    }
+  }
+
+  private readSidebarCollapsed(): boolean {
+    try {
+      return JSON.parse(localStorage.getItem(this.sidebarCollapsedKey) ?? 'false') === true;
+    } catch {
+      return false;
     }
   }
 

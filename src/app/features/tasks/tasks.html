@@ -5,7 +5,13 @@
       <h2>Workflow queue</h2>
       <p>Coordinate account operations across onboarding, renewals, incidents, and risk work.</p>
     </div>
-    <span class="timestamp">{{ filteredTasks().length }} active work items</span>
+    <div class="section__actions">
+      <button class="row-action create-task-button" type="button" (click)="openCreateTask()">
+        <lucide-icon [img]="Plus" size="15" aria-hidden="true"></lucide-icon>
+        New task
+      </button>
+      <span class="timestamp">{{ filteredTasks().length }} active work items</span>
+    </div>
   </div>
 
   <div class="workflow-kpi-grid" aria-label="Workflow summary">
@@ -76,7 +82,10 @@
         >
           <header>
             <div>
-              <h3>{{ status }}</h3>
+              <h3>
+                <lucide-icon [img]="statusIcon(status)" size="16" aria-hidden="true"></lucide-icon>
+                {{ status }}
+              </h3>
               <p>{{ tasksForStatus(status).length }} items</p>
             </div>
           </header>
@@ -121,13 +130,34 @@
                   <time [class.is-overdue]="task.isOverdue"><span aria-hidden="true">Due</span>{{ task.dueDate | date: 'MMM d' }}</time>
                 </div>
                 <div class="task-actions" aria-label="Task quick actions">
-                  <button type="button" (click)="$event.stopPropagation(); runQuickAction('open', task)" [attr.aria-label]="'Open ' + task.title">Open</button>
-                  <button type="button" (click)="$event.stopPropagation(); runQuickAction('assign', task)" [attr.aria-label]="'Assign ' + task.title">Assign</button>
-                  <button type="button" (click)="$event.stopPropagation()" [attr.aria-label]="'More actions for ' + task.title">...</button>
+                  <button type="button" (click)="$event.stopPropagation(); openAssignment(task)" [attr.aria-label]="'Assign ' + task.title">Assign</button>
+                  <button type="button" (click)="$event.stopPropagation(); toggleTaskActions(task.id)" [attr.aria-label]="'More actions for ' + task.title">...</button>
                 </div>
+                @if (assignmentTaskId() === task.id) {
+                  <div class="task-popover assignment-popover" (click)="$event.stopPropagation()">
+                    <strong>Assign owner</strong>
+                    @for (ownerOption of owners().slice(1); track ownerOption) {
+                      <button type="button" [class.is-active]="task.owner === ownerOption" (click)="assignOwner(task, ownerOption)">
+                        {{ ownerOption }}
+                      </button>
+                    }
+                  </div>
+                }
+                @if (actionsTaskId() === task.id) {
+                  <div class="task-popover actions-popover" (click)="$event.stopPropagation()">
+                    <button type="button" class="is-danger" (click)="deleteTask(task)">Delete task</button>
+                  </div>
+                }
 
                 <ng-template cdkDragPreview>
-                  <article class="workflow-card-preview" [class.is-urgent]="task.isUrgent">
+                  <article
+                    class="workflow-card-preview"
+                    [class.is-urgent]="task.isUrgent"
+                    [class.is-low]="task.priority === 'Low'"
+                    [class.is-medium]="task.priority === 'Medium'"
+                    [class.is-high]="task.priority === 'High'"
+                    [class.is-critical]="task.priority === 'Critical'"
+                  >
                     <div>
                       <app-badge [tone]="priorityTone(task.priority)">{{ task.priority }}</app-badge>
                       <span>{{ task.type }}</span>
@@ -166,11 +196,20 @@
           </div>
         </div>
         <div class="task-drawer__actions">
-          <button class="row-action" type="button" (click)="runQuickAction('assign', task)">Assign</button>
+          <button class="row-action" type="button" (click)="openAssignment(task)">Assign</button>
           <button class="icon-button" type="button" aria-label="More task actions">···</button>
           <button #taskDrawerClose class="icon-button" type="button" aria-label="Close task details" (click)="closeTaskDrawer()">×</button>
         </div>
       </header>
+      @if (assignmentTaskId() === task.id) {
+        <div class="drawer-assignment" aria-label="Assign owner">
+          @for (ownerOption of owners().slice(1); track ownerOption) {
+            <button type="button" [class.is-active]="task.owner === ownerOption" (click)="assignOwner(task, ownerOption)">
+              {{ ownerOption }}
+            </button>
+          }
+        </div>
+      }
 
       <div class="task-drawer__body">
         <section class="task-drawer__overview">
@@ -254,4 +293,72 @@
       </div>
     </aside>
   }
+}
+
+@if (createTaskOpen()) {
+  <div class="task-drawer-backdrop" (click)="closeCreateTask()" aria-hidden="true"></div>
+  <aside class="task-drawer task-create-drawer" role="dialog" aria-modal="true" aria-label="Create task">
+    <header class="task-drawer__header">
+      <div>
+        <span>Workflow queue</span>
+        <h2>Create task</h2>
+      </div>
+      <button class="icon-button" type="button" aria-label="Close create task" (click)="closeCreateTask()">×</button>
+    </header>
+    <div class="task-drawer__body">
+      <div class="task-form-grid">
+        <label>
+          <span>Title</span>
+          <input type="text" [ngModel]="taskDraft().title" (ngModelChange)="updateTaskDraft('title', $event)" placeholder="Review onboarding checklist" />
+        </label>
+        <label>
+          <span>Customer</span>
+          <input type="text" [ngModel]="taskDraft().customer" (ngModelChange)="updateTaskDraft('customer', $event)" placeholder="Bluebird Finance" />
+        </label>
+        <label>
+          <span>Owner</span>
+          <select [ngModel]="taskDraft().owner" (ngModelChange)="updateTaskDraft('owner', $event)">
+            @for (ownerOption of owners().slice(1); track ownerOption) {
+              <option [ngValue]="ownerOption">{{ ownerOption }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>Status</span>
+          <select [ngModel]="taskDraft().status" (ngModelChange)="updateTaskDraft('status', $event)">
+            @for (statusOption of statuses; track statusOption) {
+              <option [ngValue]="statusOption">{{ statusOption }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>Priority</span>
+          <select [ngModel]="taskDraft().priority" (ngModelChange)="updateTaskDraft('priority', $event)">
+            @for (priorityOption of priorities.slice(1); track priorityOption) {
+              <option [ngValue]="priorityOption">{{ priorityOption }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>Work type</span>
+          <select [ngModel]="taskDraft().type" (ngModelChange)="updateTaskDraft('type', $event)">
+            @for (typeOption of taskTypes; track typeOption) {
+              <option [ngValue]="typeOption">{{ typeOption }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>Due date</span>
+          <input type="date" [ngModel]="taskDraft().dueDate" (ngModelChange)="updateTaskDraft('dueDate', $event)" />
+        </label>
+      </div>
+      @if (taskDraftError()) {
+        <p class="form-error">{{ taskDraftError() }}</p>
+      }
+      <div class="task-form-actions">
+        <button class="row-action" type="button" (click)="closeCreateTask()">Cancel</button>
+        <button class="text-button" type="button" (click)="createTask()">Create task</button>
+      </div>
+    </div>
+  </aside>
 }

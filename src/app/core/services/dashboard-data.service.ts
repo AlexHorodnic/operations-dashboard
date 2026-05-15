@@ -7,6 +7,7 @@ import { Activity, AnalyticsPoint, Customer, Kpi, OperationTask } from '../../mo
 export class DashboardDataService {
   private readonly ownerOverridesKey = 'operations-dashboard-owner-overrides';
   private readonly customCustomersKey = 'operations-dashboard-custom-customers';
+  private readonly tasksKey = 'operations-dashboard-tasks';
 
   getOverview(): Observable<{ kpis: Kpi[]; activities: Activity[] }> {
     return this.withLatency({ kpis, activities: recentActivities }, 360);
@@ -38,7 +39,24 @@ export class DashboardDataService {
   }
 
   getTasks(): Observable<OperationTask[]> {
-    return this.withLatency(tasks, 340);
+    return this.withLatency(this.getStoredTasks(), 340);
+  }
+
+  updateTasks(nextTasks: readonly OperationTask[]): OperationTask[] {
+    this.writeTasks(nextTasks);
+    return this.getStoredTasks();
+  }
+
+  addTask(task: OperationTask): OperationTask[] {
+    return this.updateTasks([...this.getStoredTasks(), task]);
+  }
+
+  updateTask(taskId: number, changes: Partial<OperationTask>): OperationTask[] {
+    return this.updateTasks(this.getStoredTasks().map((task) => (task.id === taskId ? { ...task, ...changes } : task)));
+  }
+
+  deleteTask(taskId: number): OperationTask[] {
+    return this.updateTasks(this.getStoredTasks().filter((task) => task.id !== taskId));
   }
 
   getAnalytics(): Observable<AnalyticsPoint[]> {
@@ -97,6 +115,29 @@ export class DashboardDataService {
     }
   }
 
+  private getStoredTasks(): OperationTask[] {
+    const storedTasks = this.readTasks();
+    return storedTasks.length ? storedTasks : tasks.map((task) => ({ ...task }));
+  }
+
+  private readTasks(): OperationTask[] {
+    try {
+      const raw = localStorage.getItem(this.tasksKey);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed.filter((task): task is OperationTask => this.isTask(task)) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private writeTasks(nextTasks: readonly OperationTask[]): void {
+    try {
+      localStorage.setItem(this.tasksKey, JSON.stringify(nextTasks));
+    } catch {
+      // Persistence is best-effort for local mock data.
+    }
+  }
+
   private isOwnerOverrideRecord(value: unknown): value is Record<number, string> {
     return (
       typeof value === 'object' &&
@@ -113,6 +154,21 @@ export class DashboardDataService {
       typeof (value as Customer).name === 'string' &&
       typeof (value as Customer).email === 'string' &&
       typeof (value as Customer).company === 'string'
+    );
+  }
+
+  private isTask(value: unknown): value is OperationTask {
+    return (
+      typeof value === 'object' &&
+      value !== null &&
+      typeof (value as OperationTask).id === 'number' &&
+      typeof (value as OperationTask).title === 'string' &&
+      typeof (value as OperationTask).owner === 'string' &&
+      typeof (value as OperationTask).status === 'string' &&
+      typeof (value as OperationTask).priority === 'string' &&
+      typeof (value as OperationTask).dueDate === 'string' &&
+      typeof (value as OperationTask).customer === 'string' &&
+      typeof (value as OperationTask).type === 'string'
     );
   }
 }

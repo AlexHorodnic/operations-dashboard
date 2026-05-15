@@ -50,8 +50,7 @@ export class CommandPalette {
     { label: 'Open Workflow Queue', hint: 'Review active operational work', route: '/tasks' },
     { label: 'Open Analytics', hint: 'View revenue and conversion trends', route: '/analytics' },
     { label: 'Open Overview', hint: 'Return to operating snapshot', route: '/overview' },
-    { label: 'Create Task', hint: 'Prepare a new workflow item' },
-    { label: 'Search Account', hint: 'Find a customer record' },
+    { label: 'Create Task', hint: 'Prepare a new workflow item', route: '/tasks?createTask=1' },
   ];
 
   readonly filteredActions = computed(() => {

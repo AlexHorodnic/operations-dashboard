@@ -4,6 +4,7 @@ import { DashboardDataService } from '../../core/services/dashboard-data.service
 import { KpiCard } from '../../shared/kpi-card/kpi-card';
 import { Activity, Kpi } from '../../models/dashboard.models';
 import { exportCsv } from '../../shared/utils/csv-export';
+import { Download, LucideAngularModule } from 'lucide-angular';
 
 interface RevenueTrendPoint {
   month: string;
@@ -16,7 +17,7 @@ interface RevenueTrendPoint {
 
 @Component({
   selector: 'app-overview',
-  imports: [KpiCard],
+  imports: [KpiCard, LucideAngularModule],
   templateUrl: './overview.html',
 })
 export class Overview {
@@ -28,6 +29,7 @@ export class Overview {
   readonly activities = signal<Activity[]>([]);
   readonly exportMessage = signal('');
   readonly revenueRange = signal<'Monthly' | 'Quarterly' | 'Yearly'>('Monthly');
+  readonly Download = Download;
   private readonly revenueSeries: Record<'Monthly' | 'Quarterly' | 'Yearly', RevenueTrendPoint[]> = {
     Monthly: [
       { month: 'Jan', revenue: 318000, value: '$318K', height: 34, growth: '+0%', change: 'Baseline month' },
