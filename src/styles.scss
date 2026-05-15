@@ -40,6 +40,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
+  overflow-x: hidden;
   background: var(--bg);
   color: var(--text);
   font-size: 0.875rem;
@@ -123,6 +124,7 @@ button {
   border-radius: 0.4rem;
   background: var(--surface);
   color: var(--muted);
+  line-height: 1;
   transition:
     background-color 140ms ease,
     border-color 140ms ease,
@@ -236,6 +238,11 @@ p {
     transform 140ms ease;
 }
 
+.nav-icon {
+  display: grid;
+  flex: 0 0 auto;
+}
+
 .sidebar nav a:hover {
   border-color: rgb(106 166 255 / 16%);
   background: linear-gradient(90deg, rgb(106 166 255 / 9%), rgb(255 255 255 / 2%));
@@ -270,7 +277,7 @@ p {
   margin-left: var(--sidebar-collapsed-width);
 }
 
-.dashboard-shell.is-sidebar-collapsed .brand strong,
+.dashboard-shell.is-sidebar-collapsed .brand,
 .dashboard-shell.is-sidebar-collapsed .workspace-card div,
 .dashboard-shell.is-sidebar-collapsed .nav-text {
   display: none;
@@ -597,6 +604,11 @@ td span,
   color: var(--blue);
 }
 
+.notification-icon lucide-icon {
+  display: block;
+  line-height: 0;
+}
+
 .notification-icon--danger {
   background: rgb(255 127 115 / 12%);
   color: var(--coral);
@@ -677,6 +689,17 @@ select:focus-visible {
   gap: var(--space-6);
   width: min(100%, var(--content-max));
   margin: 0 auto;
+}
+
+.mobile-nav,
+.mobile-brand {
+  display: none;
+}
+
+.topbar__identity {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
 }
 
 .state-demo {
@@ -1920,21 +1943,7 @@ tbody tr:hover .row-action {
   }
 
   .sidebar {
-    position: sticky;
-    height: auto;
-    width: auto;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    padding: 1rem;
-    overflow-x: auto;
-  }
-
-  .dashboard-shell.is-sidebar-collapsed .sidebar {
-    width: auto;
-    padding: 1rem;
+    display: none;
   }
 
   .dashboard-main {
@@ -1945,23 +1954,60 @@ tbody tr:hover .row-action {
     margin-left: 0;
   }
 
-  .sidebar nav {
+  .mobile-nav {
+    position: sticky;
+    top: 0;
+    z-index: 30;
     display: flex;
-    gap: 0.35rem;
-    padding-top: 0;
-    border-top: 0;
-    margin-top: 0;
+    align-items: center;
+    gap: 0.4rem;
+    overflow-x: auto;
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: rgb(11 13 16 / 92%);
+    backdrop-filter: blur(12px);
+    scrollbar-width: none;
+    transition: padding 180ms ease;
   }
 
-  .workspace-badge,
-  .workspace-card,
-  .sidebar-toggle {
+  .mobile-nav::-webkit-scrollbar {
     display: none;
   }
 
-  .dashboard-shell.is-sidebar-collapsed .brand strong,
-  .dashboard-shell.is-sidebar-collapsed .nav-text {
-    display: inline;
+  .mobile-nav a {
+    flex: 0 0 auto;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    color: var(--muted);
+    min-height: 2.5rem;
+    padding: 0.65rem 0.85rem;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      background-color 140ms ease,
+      border-color 140ms ease,
+      color 140ms ease;
+  }
+
+  .mobile-nav a.is-active {
+    border-color: rgb(106 166 255 / 20%);
+    background: rgb(106 166 255 / 11%);
+    color: var(--text);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 4%),
+      0 0 0 1px rgb(106 166 255 / 8%),
+      0 8px 24px rgb(106 166 255 / 8%);
+  }
+
+  .mobile-nav a:hover,
+  .mobile-nav a:focus-visible {
+    background: rgb(255 255 255 / 4%);
+    color: var(--text);
+  }
+
+  .mobile-nav a:active {
+    transform: translateY(1px);
   }
 
   .kpi-grid,
@@ -1980,19 +2026,52 @@ tbody tr:hover .row-action {
 }
 
 @media (max-width: 720px) {
-  .sidebar {
-    padding: 1rem;
-  }
-
   .content-stack {
     gap: var(--space-5);
+    width: 100%;
   }
 
   .topbar {
+    position: sticky;
+    top: 4.35rem;
+    z-index: 25;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0.75rem;
+    gap: 0.85rem;
     align-items: center;
-    padding: 0.9rem 1rem;
+    min-height: auto;
+    padding: 0.95rem 1rem;
+    background: rgb(11 13 16 / 92%);
+    backdrop-filter: blur(12px);
+    transition:
+      transform 180ms ease,
+      opacity 180ms ease;
+  }
+
+  .topbar.is-mobile-hidden {
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(calc(-100% - 1px));
+  }
+
+  .mobile-brand {
+    display: grid;
+    flex: 0 0 auto;
+    width: 2.35rem;
+    height: 2.35rem;
+    place-items: center;
+    border: 1px solid var(--border);
+    border-radius: 0.4rem;
+    background:
+      linear-gradient(135deg, rgb(106 166 255 / 20%), rgb(116 214 154 / 10%)),
+      var(--surface-2);
+    color: var(--text);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .topbar__identity .workspace-select {
+    height: 2.35rem;
   }
 
   .section__heading,
@@ -2044,6 +2123,7 @@ tbody tr:hover .row-action {
 
   .search-control {
     width: 100%;
+    min-height: 2.5rem;
   }
 
   .workspace-select {
@@ -2061,6 +2141,21 @@ tbody tr:hover .row-action {
 
   .filters {
     gap: var(--space-3);
+    margin: 0.85rem 0 var(--space-4);
+    padding-bottom: var(--space-3);
+  }
+
+  .section__heading {
+    gap: 0.2rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .breadcrumb {
+    margin-bottom: 0.1rem;
+  }
+
+  .section__heading p {
+    margin-top: 0.2rem;
   }
 
   .panel,
@@ -2068,6 +2163,153 @@ tbody tr:hover .row-action {
   .state-card,
   .kpi-card {
     padding: 0.95rem;
+  }
+
+  input,
+  select,
+  .workflow-search,
+  .workflow-search div,
+  .filters label {
+    width: 100%;
+  }
+
+  input,
+  select,
+  textarea {
+    min-height: 2.5rem;
+  }
+
+  .workflow-search div {
+    min-height: 2.5rem;
+  }
+
+  .table-wrap {
+    overflow: visible;
+    border: 0;
+  }
+
+  table,
+  thead,
+  tbody,
+  tr,
+  td {
+    display: block;
+    width: 100%;
+  }
+
+  table {
+    min-width: 0;
+    border-collapse: collapse;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  tbody tr {
+    position: relative;
+    display: grid;
+    gap: 0.8rem;
+    padding: 1rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.65rem;
+    background: var(--surface-card);
+    transition:
+      background-color 140ms ease,
+      border-color 140ms ease,
+      transform 140ms ease;
+  }
+
+  tbody tr:active {
+    border-color: rgb(106 166 255 / 22%);
+    background: rgb(255 255 255 / 3%);
+    transform: translateY(1px);
+  }
+
+  tbody td {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+    border: 0;
+    padding: 0;
+  }
+
+  tbody td::before {
+    color: rgb(113 123 135 / 88%);
+    font-size: 0.72rem;
+    font-weight: 600;
+    content: attr(data-label);
+  }
+
+  tbody .selection-cell,
+  tbody .action-cell {
+    display: block;
+  }
+
+  tbody .selection-cell::before,
+  tbody .action-cell::before,
+  tbody .desktop-only-cell {
+    display: none;
+  }
+
+  tbody .selection-cell {
+    position: absolute;
+    top: 0.9rem;
+    right: 0.9rem;
+    width: auto;
+  }
+
+  tbody .primary-cell {
+    padding-right: 2rem;
+  }
+
+  tbody .primary-cell strong,
+  tbody td:not(.selection-cell):not(.action-cell) {
+    font-weight: 600;
+  }
+
+  tbody .action-cell {
+    margin-top: 0.15rem;
+  }
+
+  tbody .action-cell .row-action {
+    width: 100%;
+    min-height: 2.35rem;
+    border-color: rgb(106 166 255 / 22%);
+    background: rgb(106 166 255 / 7%);
+    color: var(--text);
+  }
+
+  tbody .action-cell .row-action:hover,
+  tbody .action-cell .row-action:focus-visible {
+    border-color: rgb(106 166 255 / 42%);
+    background: rgb(106 166 255 / 12%);
+  }
+
+  tbody .action-cell .row-action:active {
+    background: rgb(106 166 255 / 16%);
+  }
+
+  .content-stack {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+
+  .panel,
+  .task-card,
+  .state-card,
+  .kpi-card,
+  .workspace-select,
+  .topbar__identity,
+  .topbar__search,
+  .mobile-nav,
+  .table-wrap {
+    max-width: 100%;
   }
 
   .panel-actions,

@@ -110,23 +110,23 @@
           <tbody>
             @for (customer of pagedCustomers(); track customer.id) {
               <tr>
-                <td><input type="checkbox" [checked]="selectedIds().has(customer.id)" (change)="toggleCustomer(customer.id, $any($event.target).checked)" [attr.aria-label]="'Select ' + customer.company" /></td>
-                <td class="primary-cell" (click)="openCustomer(customer)">
+                <td class="selection-cell"><input type="checkbox" [checked]="selectedIds().has(customer.id)" (change)="toggleCustomer(customer.id, $any($event.target).checked)" [attr.aria-label]="'Select ' + customer.company" /></td>
+                <td class="primary-cell" data-label="Name" (click)="openCustomer(customer)">
                   <strong>{{ customer.name }}</strong>
                   <span>{{ customer.email }}</span>
                 </td>
-                <td>{{ customer.company }}</td>
-                <td>{{ customer.plan }}</td>
-                <td><app-badge [tone]="statusTone(customer.status)">{{ customer.status }}</app-badge></td>
-                <td>
+                <td data-label="Company">{{ customer.company }}</td>
+                <td data-label="Plan">{{ customer.plan }}</td>
+                <td data-label="Status"><app-badge [tone]="statusTone(customer.status)">{{ customer.status }}</app-badge></td>
+                <td class="desktop-only-cell">
                   <div class="health-cell">
                     <span class="health-score">{{ customer.healthScore }}</span>
                     <div class="health-bar" aria-hidden="true"><i [style.width.%]="customer.healthScore"></i></div>
                   </div>
                 </td>
-                <td>{{ customer.revenue | currency: 'USD':'symbol':'1.0-0' }}</td>
-                <td>{{ customer.lastActivity | date: 'MMM d, y' }}</td>
-                <td><button class="row-action" type="button" (click)="openCustomer(customer)">Open</button></td>
+                <td class="desktop-only-cell">{{ customer.revenue | currency: 'USD':'symbol':'1.0-0' }}</td>
+                <td class="desktop-only-cell">{{ customer.lastActivity | date: 'MMM d, y' }}</td>
+                <td class="action-cell"><button class="row-action" type="button" (click)="openCustomer(customer)">Open</button></td>
               </tr>
             }
           </tbody>

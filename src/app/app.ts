@@ -1,7 +1,7 @@
 import { Component, HostListener, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { Bell, CircleAlert, CircleCheck, Clock, LucideAngularModule, X } from 'lucide-angular';
+import { BarChart3, Bell, CircleAlert, CircleCheck, Clock, LayoutDashboard, ListTodo, LucideAngularModule, UsersRound, X } from 'lucide-angular';
 import { filter } from 'rxjs';
 import { VercelAnalyticsService } from './core/services/vercel-analytics.service';
 import { CommandPalette } from './shared/ui/command-palette/command-palette';
@@ -18,10 +18,15 @@ export class App {
   protected readonly commandOpen = signal(false);
   protected readonly notificationsOpen = signal(false);
   protected readonly sidebarCollapsed = signal(false);
+  protected readonly mobileTopbarHidden = signal(false);
   protected readonly Bell = Bell;
   protected readonly CircleAlert = CircleAlert;
   protected readonly CircleCheck = CircleCheck;
   protected readonly Clock = Clock;
+  protected readonly LayoutDashboard = LayoutDashboard;
+  protected readonly UsersRound = UsersRound;
+  protected readonly ListTodo = ListTodo;
+  protected readonly BarChart3 = BarChart3;
   protected readonly X = X;
   protected readonly notifications = signal([
     {
@@ -52,15 +57,16 @@ export class App {
   protected readonly unreadNotifications = computed(() => this.notifications().filter((notification) => !notification.read).length);
   protected readonly currentPath = signal(this.router.url);
   protected readonly navItems = [
-    { route: '/overview', label: 'Overview', description: 'Operating snapshot', metric: '4 core KPIs' },
-    { route: '/customers', label: 'Accounts', description: 'Account management workspace', metric: '12 matching accounts' },
-    { route: '/tasks', label: 'Workflow queue', description: 'Operations coordination workspace', metric: '10 active items' },
-    { route: '/analytics', label: 'Analytics', description: 'Revenue and conversion reporting', metric: '6 month trend' },
+    { route: '/overview', label: 'Overview', description: 'Operating snapshot', metric: '4 core KPIs', icon: this.LayoutDashboard },
+    { route: '/customers', label: 'Accounts', description: 'Account management workspace', metric: '12 matching accounts', icon: this.UsersRound },
+    { route: '/tasks', label: 'Workflow queue', description: 'Operations coordination workspace', metric: '10 active items', icon: this.ListTodo },
+    { route: '/analytics', label: 'Analytics', description: 'Revenue and conversion reporting', metric: '6 month trend', icon: this.BarChart3 },
   ];
   protected readonly activePage = computed(() => {
     const active = this.navItems.find((item) => this.currentPath().startsWith(item.route));
     return active ?? this.navItems[0];
   });
+  private lastScrollY = 0;
 
   protected notificationIcon(tone: string) {
     if (tone === 'danger') {
@@ -120,5 +126,27 @@ export class App {
     if (this.notificationsOpen() && !target?.closest('.notification-menu')) {
       this.notificationsOpen.set(false);
     }
+  }
+
+  @HostListener('window:scroll')
+  protected updateMobileTopbarVisibility(): void {
+    if (window.innerWidth > 720) {
+      this.mobileTopbarHidden.set(false);
+      this.lastScrollY = window.scrollY;
+      return;
+    }
+
+    const currentScrollY = window.scrollY;
+    const delta = currentScrollY - this.lastScrollY;
+
+    if (currentScrollY < 24) {
+      this.mobileTopbarHidden.set(false);
+    } else if (delta > 8) {
+      this.mobileTopbarHidden.set(true);
+    } else if (delta < -8) {
+      this.mobileTopbarHidden.set(false);
+    }
+
+    this.lastScrollY = currentScrollY;
   }
 }

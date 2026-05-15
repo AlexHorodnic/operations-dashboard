@@ -25,6 +25,7 @@
     <nav aria-label="Primary navigation">
       @for (item of navItems; track item.route) {
         <a [routerLink]="item.route" routerLinkActive="is-active">
+          <lucide-icon class="nav-icon" [img]="item.icon" size="16" aria-hidden="true"></lucide-icon>
           <span class="nav-text">{{ item.label }}</span>
         </a>
       }
@@ -32,10 +33,21 @@
   </aside>
 
   <main class="dashboard-main">
-    <header class="topbar">
-      <div class="workspace-select">
-        <span>Acme Operations</span>
-        <strong>Team workspace</strong>
+    <nav class="mobile-nav" aria-label="Primary navigation">
+      @for (item of navItems; track item.route) {
+        <a [routerLink]="item.route" routerLinkActive="is-active">
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+
+    <header class="topbar" [class.is-mobile-hidden]="mobileTopbarHidden()">
+      <div class="topbar__identity">
+        <a class="mobile-brand" routerLink="/overview" aria-label="Operations dashboard home">OD</a>
+        <div class="workspace-select">
+          <span>Acme Operations</span>
+          <strong>Team workspace</strong>
+        </div>
       </div>
 
       <div class="topbar__search">
