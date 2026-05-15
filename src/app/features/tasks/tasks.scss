@@ -70,3 +70,34 @@
     grid-column: auto;
   }
 }
+
+
+.task-delete-trigger {
+  display: inline-grid;
+  min-width: 1.8rem;
+  place-items: center;
+  color: var(--coral);
+}
+
+.task-actions .task-delete-trigger {
+  padding-inline: 0.35rem;
+}
+
+.task-drawer__actions .task-delete-trigger {
+  width: 2rem;
+  min-width: 2rem;
+  padding-inline: 0;
+}
+
+
+.task-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.task-actions .task-delete-trigger lucide-icon {
+  display: grid;
+  place-items: center;
+}

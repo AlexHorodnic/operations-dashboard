@@ -28,7 +28,7 @@
     <label class="workflow-search">
       <span>Search</span>
       <div>
-        <i aria-hidden="true">/</i>
+        <lucide-icon [img]="Search" size="14" aria-hidden="true"></lucide-icon>
         <input type="search" placeholder="Task, account, or work type" [ngModel]="query()" (ngModelChange)="query.set($event)" />
       </div>
     </label>
@@ -72,7 +72,7 @@
     </section>
   } @else if (error()) {
     <section class="state-card" role="alert">
-      <div class="state-card__icon">!</div>
+      <div class="state-card__icon"><lucide-icon [img]="CircleAlert" size="18" aria-hidden="true"></lucide-icon></div>
       <h3>Unable to load workflow queue</h3>
       <p>Retry the request to restore the latest task state.</p>
       <button class="text-button" type="button" (click)="load()">Retry</button>
@@ -145,7 +145,9 @@
                 </div>
                 <div class="task-actions" aria-label="Task quick actions">
                   <button type="button" (click)="$event.stopPropagation(); openAssignment(task)" [attr.aria-expanded]="assignmentTaskId() === task.id" [attr.aria-label]="'Assign ' + task.title">Assign</button>
-                  <button type="button" (click)="$event.stopPropagation(); toggleTaskActions(task.id)" [attr.aria-expanded]="actionsTaskId() === task.id" [attr.aria-label]="'More actions for ' + task.title">More</button>
+                  <button class="task-delete-trigger" type="button" (click)="$event.stopPropagation(); toggleTaskActions(task.id)" [attr.aria-expanded]="actionsTaskId() === task.id" [attr.aria-label]="'Delete ' + task.title">
+                    <lucide-icon [img]="Trash2" size="13" aria-hidden="true"></lucide-icon>
+                  </button>
                 </div>
                 @if (assignmentTaskId() === task.id) {
                   <div class="task-popover assignment-popover" role="menu" (click)="$event.stopPropagation()">
@@ -226,13 +228,13 @@
         <div class="task-drawer__actions">
           <div class="drawer-actions-menu">
             <button
-              class="icon-button"
+              class="icon-button task-delete-trigger"
               type="button"
-              aria-label="More task actions"
+              aria-label="Delete task"
               [attr.aria-expanded]="drawerActionsOpen()"
               (click)="toggleDrawerActions()"
             >
-              More
+              <lucide-icon [img]="Trash2" size="14" aria-hidden="true"></lucide-icon>
             </button>
             @if (drawerActionsOpen()) {
               <div class="drawer-actions-popover" (click)="$event.stopPropagation()">
@@ -240,7 +242,7 @@
               </div>
             }
           </div>
-          <button #taskDrawerClose class="icon-button" type="button" aria-label="Close task details" (click)="closeTaskDrawer()">?</button>
+          <button #taskDrawerClose class="icon-button" type="button" aria-label="Close task details" (click)="closeTaskDrawer()"><lucide-icon [img]="X" size="14" aria-hidden="true"></lucide-icon></button>
         </div>
       </header>
 

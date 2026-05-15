@@ -5,7 +5,7 @@ import { KpiCard } from '../../shared/kpi-card/kpi-card';
 import { EmptyState } from '../../shared/empty-state/empty-state';
 import { Activity, Kpi } from '../../models/dashboard.models';
 import { exportCsv } from '../../shared/utils/csv-export';
-import { Download, LucideAngularModule } from 'lucide-angular';
+import { CircleAlert, Download, LucideAngularModule } from 'lucide-angular';
 
 type RevenueRange = 'Monthly' | 'Quarterly' | 'Yearly';
 
@@ -39,6 +39,7 @@ export class Overview {
   readonly exportMessage = signal('');
   readonly revenueRange = signal<RevenueRange>('Monthly');
   readonly ranges: readonly RevenueRange[] = ['Monthly', 'Quarterly', 'Yearly'];
+  readonly CircleAlert = CircleAlert;
   readonly Download = Download;
   readonly updatedAt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date());
   readonly revenueTarget = 425000;

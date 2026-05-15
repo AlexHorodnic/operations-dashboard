@@ -100,7 +100,7 @@
       </div>
     } @else if (error()) {
       <div class="state-card state-card--inline-action" role="alert">
-        <div class="state-card__icon">!</div>
+        <div class="state-card__icon"><lucide-icon [img]="CircleAlert" size="18" aria-hidden="true"></lucide-icon></div>
         <h3>Unable to load accounts</h3>
         <p>The account directory could not be refreshed. Retry to restore the latest local data.</p>
         <button class="text-button" type="button" (click)="load()">Retry</button>

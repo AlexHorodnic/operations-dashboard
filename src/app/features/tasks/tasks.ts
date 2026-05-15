@@ -4,7 +4,7 @@ import { Component, DestroyRef, ElementRef, HostListener, computed, inject, sign
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CircleAlert, CircleCheckBig, Clock3, ListTodo, LucideAngularModule, Plus } from 'lucide-angular';
+import { CircleAlert, CircleCheckBig, Clock3, ListTodo, LucideAngularModule, Plus, Search, Trash2, X } from 'lucide-angular';
 import { DashboardDataService } from '../../core/services/dashboard-data.service';
 import { CUSTOMER_OWNERS, OperationTask, TaskPriority, TaskStatus } from '../../models/dashboard.models';
 import { Badge } from '../../shared/badge/badge';
@@ -173,6 +173,9 @@ export class Tasks {
   readonly CircleAlert = CircleAlert;
   readonly CircleCheckBig = CircleCheckBig;
   readonly Plus = Plus;
+  readonly Search = Search;
+  readonly Trash2 = Trash2;
+  readonly X = X;
   readonly owners = computed(() => ['All', ...Array.from(new Set([...CUSTOMER_OWNERS, ...this.tasks().map((task) => task.owner)]))]);
 
   readonly workflowTasks = computed<WorkflowTask[]>(() =>

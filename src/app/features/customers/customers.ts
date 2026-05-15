@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, computed, inject, isDevMode, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { CircleAlert, LucideAngularModule } from 'lucide-angular';
 import { DashboardDataService } from '../../core/services/dashboard-data.service';
 import {
   CUSTOMER_OWNERS,
@@ -38,11 +39,12 @@ interface AccountDraft {
 
 @Component({
   selector: 'app-customers',
-  imports: [CommonModule, FormsModule, Badge, EmptyState, Drawer],
+  imports: [CommonModule, FormsModule, LucideAngularModule, Badge, EmptyState, Drawer],
   templateUrl: './customers.html',
   styleUrl: './customers.scss',
 })
 export class Customers {
+  readonly CircleAlert = CircleAlert;
   private readonly data = inject(DashboardDataService);
   private readonly destroyRef = inject(DestroyRef);
 

@@ -1,7 +1,7 @@
 import { Component, HostListener, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { BarChart3, Bell, CircleAlert, CircleCheck, Clock, LayoutDashboard, ListTodo, LucideAngularModule, UsersRound, X } from 'lucide-angular';
+import { BarChart3, Bell, ChevronLeft, ChevronRight, CircleAlert, CircleCheck, Clock, LayoutDashboard, ListTodo, LucideAngularModule, Search, UsersRound, X } from 'lucide-angular';
 import { filter } from 'rxjs';
 import { VercelAnalyticsService } from './core/services/vercel-analytics.service';
 import { CommandPalette } from './shared/ui/command-palette/command-palette';
@@ -31,6 +31,9 @@ export class App {
   protected readonly sidebarCollapsed = signal(this.readSidebarCollapsed());
   protected readonly mobileTopbarHidden = signal(false);
   protected readonly Bell = Bell;
+  protected readonly ChevronLeft = ChevronLeft;
+  protected readonly ChevronRight = ChevronRight;
+  protected readonly Search = Search;
   protected readonly CircleAlert = CircleAlert;
   protected readonly CircleCheck = CircleCheck;
   protected readonly Clock = Clock;

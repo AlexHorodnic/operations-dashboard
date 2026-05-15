@@ -1,6 +1,7 @@
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { CircleAlert, LucideAngularModule } from 'lucide-angular';
 import { DashboardDataService } from '../../core/services/dashboard-data.service';
 import { AnalyticsPoint } from '../../models/dashboard.models';
 import { EmptyState } from '../../shared/empty-state/empty-state';
@@ -14,11 +15,12 @@ interface RevenueMixItem {
 
 @Component({
   selector: 'app-analytics',
-  imports: [FormsModule, EmptyState],
+  imports: [FormsModule, EmptyState, LucideAngularModule],
   templateUrl: './analytics.html',
   styleUrl: './analytics.scss',
 })
 export class Analytics {
+  readonly CircleAlert = CircleAlert;
   private readonly data = inject(DashboardDataService);
   private readonly destroyRef = inject(DestroyRef);
 

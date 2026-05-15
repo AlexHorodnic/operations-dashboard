@@ -11,7 +11,7 @@
         [attr.aria-label]="sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
         (click)="toggleSidebar()"
       >
-        {{ sidebarCollapsed() ? '>' : '<' }}
+        <lucide-icon [img]="sidebarCollapsed() ? ChevronRight : ChevronLeft" size="14" aria-hidden="true"></lucide-icon>
       </button>
     </div>
 
@@ -52,7 +52,7 @@
 
       <div class="topbar__search">
         <button class="search-control" type="button" (click)="commandOpen.set(true)" aria-label="Open command palette">
-          <span>/</span>
+          <lucide-icon [img]="Search" size="15" aria-hidden="true"></lucide-icon>
           <strong>Search tasks, reports, actions...</strong>
         </button>
         <app-command-palette [open]="commandOpen()" (closed)="commandOpen.set(false)" />
