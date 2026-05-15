@@ -247,13 +247,16 @@
       </header>
 
       <div class="task-drawer__body">
-        <section class="task-drawer__overview">
-          <div><span>Owner</span><strong>{{ task.owner }}</strong></div>
-          <div><span>Due date</span><strong>{{ task.dueDate | date: 'MMM d, y' }}</strong></div>
-          <div><span>Status</span><strong>{{ task.status }}</strong></div>
-          <div><span>Priority</span><strong>{{ task.priority }}</strong></div>
-          <div><span>Work type</span><strong>{{ task.type }}</strong></div>
-          <div><span>Last updated</span><strong>{{ task.update }}</strong></div>
+        <section class="task-drawer__section task-drawer__overview-section" aria-label="Task overview">
+          <h3>Overview</h3>
+          <div class="task-drawer__overview">
+            <div><span>Owner</span><strong>{{ task.owner }}</strong></div>
+            <div><span>Due date</span><strong>{{ task.dueDate | date: 'MMM d, y' }}</strong></div>
+            <div><span>Status</span><strong>{{ task.status }}</strong></div>
+            <div><span>Priority</span><strong>{{ task.priority }}</strong></div>
+            <div><span>Work type</span><strong>{{ task.type }}</strong></div>
+            <div><span>Last updated</span><strong>{{ task.update }}</strong></div>
+          </div>
         </section>
 
         @if (task.blockedReason || details.blockerDetail) {
@@ -293,6 +296,10 @@
               </article>
             }
           </div>
+          <label class="task-comment-composer">
+            <span class="sr-only">Add comment</span>
+            <input type="text" placeholder="Add comment…" />
+          </label>
         </section>
 
         <section class="task-drawer__section">
@@ -305,6 +312,9 @@
               <span>{{ details.account.health }}</span>
             </div>
             <p>{{ details.account.context }}</p>
+            @if (details.account.openIssues) {
+              <p><em>Open issues</em>{{ details.account.openIssues }}</p>
+            }
           </div>
         </section>
 

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, DestroyRef, ElementRef, HostListener, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, HostListener, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -47,6 +47,7 @@ interface RelatedAccount {
   contractValue: string;
   health: string;
   context: string;
+  openIssues?: string;
 }
 
 interface TaskResource {
@@ -127,7 +128,7 @@ export class Tasks {
         { author: 'Mina', initials: 'M', time: '18m ago', message: 'Need finance approval before we can replay the failed payloads.' },
         { author: 'Leo', initials: 'L', time: '9m ago', message: 'I attached the latest finance notes for review.' },
       ],
-      account: { company: 'Atlas Retail', plan: 'Enterprise', contractValue: '$68.9K ARR', health: 'At risk · 61', context: 'Open incident: billing sync' },
+      account: { company: 'Atlas Retail', plan: 'Enterprise', contractValue: '$68.9K ARR', health: 'At risk · 61', context: 'Renewal Jul 28, 2026', openIssues: 'Billing sync incident' },
       resources: [{ name: 'Finance notes', type: 'DOC' }, { name: 'Payload sample', type: 'JSON' }],
     }],
     [4, {
@@ -144,8 +145,9 @@ export class Tasks {
       resources: [{ name: 'Import mapping', type: 'CSV' }],
     }],
   ]);
-  private readonly fallbackAccount: RelatedAccount = { company: 'Related account', plan: 'Growth', contractValue: '$24.0K ARR', health: 'Healthy · 82', context: 'No open incidents' };
+  private readonly fallbackAccount: RelatedAccount = { company: 'Related account', plan: 'Growth', contractValue: '$24.0K ARR', health: 'Healthy · 82', context: 'No upcoming renewal milestone', openIssues: 'No open issues' };
   private lastFocusedTaskCard: HTMLElement | null = null;
+  private lockedScrollY = 0;
   private readonly drawerCloseButton = viewChild<ElementRef<HTMLButtonElement>>('taskDrawerClose');
 
   readonly loading = signal(true);
@@ -268,6 +270,11 @@ export class Tasks {
 
   constructor() {
     this.load();
+    effect(() => {
+      const drawerOpen = this.selectedTaskId() !== null || this.createTaskOpen();
+      this.setBodyScrollLock(drawerOpen);
+    });
+    this.destroyRef.onDestroy(() => this.setBodyScrollLock(false));
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       if (params.get('createTask') === '1') {
         this.openCreateTask();
@@ -571,5 +578,26 @@ export class Tasks {
       customer: '',
       type: 'Onboarding',
     };
+  }
+
+  private setBodyScrollLock(locked: boolean): void {
+    if (locked) {
+      if (document.body.classList.contains('is-task-drawer-open')) {
+        return;
+      }
+
+      this.lockedScrollY = window.scrollY;
+      document.body.classList.add('is-task-drawer-open');
+      document.body.style.top = `-${this.lockedScrollY}px`;
+      return;
+    }
+
+    if (!document.body.classList.contains('is-task-drawer-open')) {
+      return;
+    }
+
+    document.body.classList.remove('is-task-drawer-open');
+    document.body.style.top = '';
+    window.scrollTo({ top: this.lockedScrollY });
   }
 }
