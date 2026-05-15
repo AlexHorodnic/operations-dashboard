@@ -9,7 +9,7 @@ import { Kpi } from '../../models/dashboard.models';
       <div class="kpi-card__value">{{ kpi().value }}</div>
       <div class="kpi-card__footer">
         <span [class]="kpi().trendDirection === 'up' ? 'trend trend--up' : 'trend trend--down'">
-          {{ kpi().trendDirection === 'up' ? 'Up' : 'Down' }} {{ kpi().trend }}
+          {{ kpi().trend }}
         </span>
         <span>{{ kpi().detail }}</span>
       </div>

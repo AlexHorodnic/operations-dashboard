@@ -1,4 +1,4 @@
-<section class="section" id="analytics">
+<section class="section analytics-section" id="analytics" [attr.aria-busy]="loading()">
   <div class="section__heading">
     <div>
       <span class="breadcrumb">Operations / Analytics</span>
@@ -16,41 +16,50 @@
   </div>
 
   @if (loading()) {
-    <section class="loading-grid" aria-label="Loading analytics">
+    <section class="loading-grid" role="status" aria-live="polite" aria-label="Loading analytics">
       @for (item of [1, 2, 3, 4]; track item) {
         <div class="skeleton-card"></div>
       }
     </section>
+  } @else if (error()) {
+    <section class="state-card" role="alert">
+      <div class="state-card__icon">!</div>
+      <h3>Unable to load analytics</h3>
+      <p>Retry the request to restore the latest revenue and workload metrics.</p>
+      <button class="text-button" type="button" (click)="load()">Retry</button>
+    </section>
+  } @else if (!hasData()) {
+    <app-empty-state title="No analytics available" message="Try another date range or refresh once metrics are available." />
   } @else {
-    <div class="comparison-grid">
+    <div class="comparison-grid analytics-kpis" aria-label="Analytics KPI summary">
       <article class="kpi-card">
         <p>Revenue index</p>
         <div class="kpi-card__value">{{ latest()?.revenue }}</div>
-        <div class="kpi-card__footer"><span class="trend trend--up">Up {{ (latest()?.revenue ?? 0) - (previous()?.revenue ?? 0) }} pts</span><span>month over month</span></div>
+        <div class="kpi-card__footer"><span class="trend trend--up">Up {{ (latest()?.revenue ?? 0) - (previous()?.revenue ?? 0) }} pts</span><span>vs prior period</span></div>
       </article>
       <article class="kpi-card">
-        <p>Customer growth</p>
-        <div class="kpi-card__value">8.1%</div>
-        <div class="kpi-card__footer"><span class="trend trend--up">Up 1.4%</span><span>net accounts</span></div>
+        <p>Period growth</p>
+        <div class="kpi-card__value">{{ revenueGrowthRate() }}%</div>
+        <div class="kpi-card__footer"><span class="trend trend--up">+{{ revenuePointGain() }} pts</span><span>from period start</span></div>
       </article>
       <article class="kpi-card">
         <p>Conversion</p>
         <div class="kpi-card__value">{{ latest()?.conversion }}%</div>
-        <div class="kpi-card__footer"><span class="trend trend--up">Up 0.4%</span><span>trial to paid</span></div>
+        <div class="kpi-card__footer"><span class="trend trend--up">Up {{ conversionDelta() }} pts</span><span>trial to paid</span></div>
       </article>
       <article class="kpi-card">
         <p>Workload</p>
         <div class="kpi-card__value">{{ latest()?.workload }}%</div>
-        <div class="kpi-card__footer"><span class="trend trend--down">Up 4 pts</span><span>team capacity</span></div>
+        <div class="kpi-card__footer"><span class="trend trend--down">Up {{ workloadDelta() }} pts</span><span>capacity used</span></div>
       </article>
     </div>
 
     <div class="analytics-grid">
-      <article class="panel panel--wide">
+      <article class="panel panel--wide analytics-revenue-card">
         <div class="panel__header analytics-revenue__header">
           <div>
             <h3>Revenue by month</h3>
-            <span>Indexed MRR growth against baseline</span>
+            <span>Indexed MRR where 100 marks the operating target</span>
           </div>
         </div>
         <div class="analytics-revenue__summary">
@@ -59,21 +68,22 @@
             <span>vs start of period</span>
           </div>
           <div>
-            <strong>{{ targetMonths() }} of {{ points().length }}</strong>
-            <span>months above target</span>
+            <strong>{{ targetPeriods() }} of {{ points().length }}</strong>
+            <span>periods at or above target</span>
           </div>
         </div>
-        <div class="chart-shell chart-shell--bars">
+        <p class="sr-only">{{ chartSummary() }}</p>
+        <div class="chart-shell chart-shell--bars analytics-chart-shell">
           <div class="chart-axis" aria-hidden="true">
             <span>100</span>
             <span>75</span>
             <span>50</span>
           </div>
-          <div class="bar-chart" aria-label="Monthly revenue chart">
-            <span class="analytics-target-zone" aria-hidden="true"></span>
-            <span class="analytics-baseline" aria-hidden="true"></span>
+          <div class="bar-chart" role="img" [attr.aria-label]="chartSummary()">
+            <span class="analytics-target-zone" [style.height.%]="targetZoneHeight()" aria-hidden="true"></span>
+            <span class="analytics-baseline" [style.top.%]="targetLineTop()" aria-hidden="true"></span>
             <svg class="analytics-trend-line" viewBox="0 0 600 180" preserveAspectRatio="none" aria-hidden="true">
-              <path d="M20 148 C88 138, 120 126, 140 118 S220 103, 260 94 S340 79, 380 68 S460 52, 500 38 S560 25, 580 18" />
+              <path [attr.d]="chartPath()" />
             </svg>
             @for (point of chartPoints(); track point.label) {
               <div
@@ -82,20 +92,34 @@
                 [attr.data-value]="point.revenue"
                 [attr.data-growth]="point.delta"
               >
-                <span [style.height.%]="(point.revenue / maxRevenue()) * 100" [attr.aria-label]="point.label + ' revenue index ' + point.revenue + ', ' + point.delta"></span>
+                <button
+                  class="analytics-bar__value"
+                  type="button"
+                  [style.height.%]="(point.revenue / maxRevenue()) * 100"
+                  [attr.aria-label]="point.label + ' revenue index ' + point.revenue + ', ' + point.delta"
+                ></button>
                 <small>{{ point.label }}</small>
               </div>
             }
           </div>
         </div>
-        <p class="analytics-revenue__insight">The revenue index stayed above baseline through the latest period, with steady month-over-month gains supporting durable MRR expansion.</p>
+        <table class="sr-only analytics-data-table">
+          <caption>Revenue by month data</caption>
+          <thead><tr><th scope="col">Period</th><th scope="col">Revenue index</th><th scope="col">Conversion</th><th scope="col">Workload</th></tr></thead>
+          <tbody>
+            @for (point of points(); track point.label) {
+              <tr><th scope="row">{{ point.label }}</th><td>{{ point.revenue }}</td><td>{{ point.conversion }}%</td><td>{{ point.workload }}%</td></tr>
+            }
+          </tbody>
+        </table>
+        <p class="analytics-revenue__insight">Revenue stayed above the target index in the latest period, with consistent gains supporting durable MRR expansion.</p>
       </article>
 
-      <article class="panel">
+      <article class="panel analytics-insights-card">
         <div class="panel__header">
           <div>
             <h3>Summary insights</h3>
-            <span>Generated from local mock metrics</span>
+            <span>Generated from local metrics</span>
           </div>
         </div>
         <div class="insight-list">
@@ -132,13 +156,13 @@
         <div class="panel__header">
           <div>
             <h3>Revenue mix</h3>
-            <span>Plan contribution</span>
+            <span>Plan contribution for selected range</span>
           </div>
         </div>
         <div class="revenue-mix">
-          <div><span style="--size: 62%"></span><strong>Enterprise</strong><small>62%</small></div>
-          <div><span style="--size: 28%"></span><strong>Growth</strong><small>28%</small></div>
-          <div><span style="--size: 10%"></span><strong>Starter</strong><small>10%</small></div>
+          @for (item of revenueMix(); track item.label) {
+            <div><span [style.--size.%]="item.value"></span><strong>{{ item.label }}</strong><small>{{ item.value }}%</small></div>
+          }
         </div>
       </article>
     </div>

@@ -1,0 +1,79 @@
+:host {
+  display: block;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.overview-revenue-card {
+  display: grid;
+}
+
+.overview-chart-shell {
+  min-width: 0;
+}
+
+.overview-chart-shell .sparkline {
+  min-width: 0;
+}
+
+.revenue-bar {
+  border: 0;
+  padding: 0;
+}
+
+.revenue-bar:focus-visible {
+  outline: 2px solid rgb(106 166 255 / 52%);
+  outline-offset: 2px;
+}
+
+.revenue-bar:focus-visible::before {
+  opacity: 1;
+  transform: translateX(50%) translateY(0);
+}
+
+.overview-activity-item:hover {
+  background: transparent;
+  border-bottom-color: var(--border-subtle);
+}
+
+.overview-data-table {
+  border-collapse: collapse;
+}
+
+@media (max-width: 720px) {
+  .overview-chart-shell {
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    gap: 0.8rem;
+  }
+
+  .overview-chart-shell .sparkline {
+    gap: 0.35rem;
+  }
+
+  .revenue-bar::before {
+    max-width: min(14rem, calc(100vw - 3rem));
+    white-space: normal;
+    text-align: left;
+  }
+
+  .overview-activity-item {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .overview-activity-item time {
+    grid-column: 2;
+  }
+
+  .revenue-summary > div {
+    min-width: 0;
+    flex: 1 1 10rem;
+  }
+}

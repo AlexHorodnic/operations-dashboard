@@ -1,9 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, isDevMode, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { DashboardDataService } from '../../core/services/dashboard-data.service';
-import { Customer, CustomerPlan, CustomerStatus } from '../../models/dashboard.models';
+import {
+  CUSTOMER_OWNERS,
+  CUSTOMER_PLANS,
+  CUSTOMER_REGIONS,
+  CUSTOMER_STATUSES,
+  Customer,
+  CustomerPlan,
+  CustomerStatus,
+} from '../../models/dashboard.models';
 import { Badge } from '../../shared/badge/badge';
 import { EmptyState } from '../../shared/empty-state/empty-state';
 import { Drawer } from '../../shared/ui/drawer/drawer';
@@ -32,6 +40,7 @@ interface AccountDraft {
   selector: 'app-customers',
   imports: [CommonModule, FormsModule, Badge, EmptyState, Drawer],
   templateUrl: './customers.html',
+  styleUrl: './customers.scss',
 })
 export class Customers {
   private readonly data = inject(DashboardDataService);
@@ -56,10 +65,20 @@ export class Customers {
   readonly accountDraft = signal<AccountDraft>(this.createAccountDraft());
   readonly accountDraftError = signal('');
 
-  readonly statuses: (CustomerStatus | 'All')[] = ['All', 'Active', 'At risk', 'Paused'];
-  readonly plans: (CustomerPlan | 'All')[] = ['All', 'Starter', 'Growth', 'Enterprise'];
-  readonly ownerOptions = ['Avery', 'Mina', 'Sam', 'Iris', 'Leo'];
-  readonly regionOptions = ['North America', 'EMEA', 'APAC', 'LATAM'];
+  readonly showDemoControls = isDevMode();
+  readonly statuses: readonly (CustomerStatus | 'All')[] = ['All', ...CUSTOMER_STATUSES];
+  readonly plans: readonly (CustomerPlan | 'All')[] = ['All', ...CUSTOMER_PLANS];
+  readonly ownerOptions = CUSTOMER_OWNERS;
+  readonly regionOptions = CUSTOMER_REGIONS;
+  readonly sortOptions: readonly { key: SortKey; label: string }[] = [
+    { key: 'lastActivity', label: 'Last activity' },
+    { key: 'name', label: 'Contact' },
+    { key: 'company', label: 'Company' },
+    { key: 'plan', label: 'Plan' },
+    { key: 'status', label: 'Status' },
+    { key: 'healthScore', label: 'Health' },
+    { key: 'revenue', label: 'Revenue' },
+  ];
 
   readonly filteredCustomers = computed(() => {
     const query = this.search().trim().toLowerCase();
@@ -90,6 +109,12 @@ export class Customers {
     const pageRows = this.pagedCustomers();
     return pageRows.length > 0 && pageRows.every((customer) => this.selectedIds().has(customer.id));
   });
+  readonly somePageSelected = computed(() => {
+    const pageRows = this.pagedCustomers();
+    const selectedOnPage = pageRows.filter((customer) => this.selectedIds().has(customer.id)).length;
+    return selectedOnPage > 0 && selectedOnPage < pageRows.length;
+  });
+  readonly hasActiveFilters = computed(() => !!this.search().trim() || this.status() !== 'All' || this.plan() !== 'All');
 
   constructor() {
     this.load();
@@ -125,22 +150,41 @@ export class Customers {
       return '';
     }
 
-    return this.sortDirection() === 'asc' ? '↑' : '↓';
+    return this.sortDirection() === 'asc' ? '?' : '?';
+  }
+
+  ariaSort(key: SortKey): 'ascending' | 'descending' | null {
+    if (this.sortKey() !== key) {
+      return null;
+    }
+
+    return this.sortDirection() === 'asc' ? 'ascending' : 'descending';
   }
 
   updateSearch(value: string): void {
     this.search.set(value);
-    this.page.set(1);
+    this.resetFilteredView();
   }
 
   updateStatus(value: CustomerStatus | 'All'): void {
     this.status.set(value);
-    this.page.set(1);
+    this.resetFilteredView();
   }
 
   updatePlan(value: CustomerPlan | 'All'): void {
     this.plan.set(value);
-    this.page.set(1);
+    this.resetFilteredView();
+  }
+
+  clearFilters(): void {
+    this.search.set('');
+    this.status.set('All');
+    this.plan.set('All');
+    this.resetFilteredView();
+  }
+
+  updateSort(key: SortKey): void {
+    this.setSort(key);
   }
 
   toggleCustomer(customerId: number, checked: boolean): void {
@@ -260,12 +304,10 @@ export class Customers {
     };
 
     this.customers.set(this.data.addCustomer(customer));
+    this.error.set(false);
     this.exportMessage.set(`${customer.company} added`);
     this.addAccountOpen.set(false);
-    this.status.set('All');
-    this.plan.set('All');
-    this.search.set('');
-    this.page.set(1);
+    this.clearFilters();
     window.setTimeout(() => this.exportMessage.set(''), 2400);
   }
 
@@ -294,6 +336,11 @@ export class Customers {
 
   private nextCustomerId(): number {
     return Math.max(...this.customers().map((customer) => customer.id), 0) + 1;
+  }
+
+  private resetFilteredView(): void {
+    this.page.set(1);
+    this.clearSelection();
   }
 
   private createAccountDraft(): AccountDraft {

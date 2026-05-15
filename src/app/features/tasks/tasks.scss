@@ -1,0 +1,72 @@
+:host {
+  display: block;
+}
+
+.workflow-empty-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.9rem;
+}
+
+.workflow-card:focus-visible {
+  outline: 2px solid rgb(106 166 255 / 52%);
+  outline-offset: 2px;
+}
+
+@media (hover: none) {
+  .task-actions {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .workflow-card .task-card__footer time {
+    opacity: 1;
+    padding-right: 5.25rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .section__actions {
+    width: 100%;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .workflow-kpi-grid {
+    gap: 0.8rem;
+  }
+
+  .workflow-kpi {
+    padding: 0.85rem;
+  }
+
+  .task-card__footer {
+    flex-direction: column;
+  }
+
+  .task-actions {
+    position: static;
+    margin-top: 0.65rem;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .workflow-card:hover .task-card__footer time,
+  .workflow-card:focus-within .task-card__footer time {
+    opacity: 1;
+  }
+
+  .task-popover {
+    right: auto;
+    left: 0;
+    bottom: 2.7rem;
+  }
+
+  .task-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .task-form-grid label:last-child {
+    grid-column: auto;
+  }
+}

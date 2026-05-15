@@ -2,23 +2,32 @@ import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DashboardDataService } from '../../core/services/dashboard-data.service';
 import { KpiCard } from '../../shared/kpi-card/kpi-card';
+import { EmptyState } from '../../shared/empty-state/empty-state';
 import { Activity, Kpi } from '../../models/dashboard.models';
 import { exportCsv } from '../../shared/utils/csv-export';
 import { Download, LucideAngularModule } from 'lucide-angular';
 
+type RevenueRange = 'Monthly' | 'Quarterly' | 'Yearly';
+
 interface RevenueTrendPoint {
-  month: string;
+  label: string;
   revenue: number;
+}
+
+interface ChartPoint extends RevenueTrendPoint {
   value: string;
   height: number;
   growth: string;
   change: string;
+  isLatest: boolean;
+  isBest: boolean;
 }
 
 @Component({
   selector: 'app-overview',
-  imports: [KpiCard, LucideAngularModule],
+  imports: [KpiCard, EmptyState, LucideAngularModule],
   templateUrl: './overview.html',
+  styleUrl: './overview.scss',
 })
 export class Overview {
   private readonly data = inject(DashboardDataService);
@@ -28,43 +37,91 @@ export class Overview {
   readonly kpis = signal<Kpi[]>([]);
   readonly activities = signal<Activity[]>([]);
   readonly exportMessage = signal('');
-  readonly revenueRange = signal<'Monthly' | 'Quarterly' | 'Yearly'>('Monthly');
+  readonly revenueRange = signal<RevenueRange>('Monthly');
+  readonly ranges: readonly RevenueRange[] = ['Monthly', 'Quarterly', 'Yearly'];
   readonly Download = Download;
-  private readonly revenueSeries: Record<'Monthly' | 'Quarterly' | 'Yearly', RevenueTrendPoint[]> = {
+  readonly updatedAt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date());
+  readonly revenueTarget = 425000;
+  private readonly revenueSeries: Record<RevenueRange, RevenueTrendPoint[]> = {
     Monthly: [
-      { month: 'Jan', revenue: 318000, value: '$318K', height: 34, growth: '+0%', change: 'Baseline month' },
-      { month: 'Feb', revenue: 346000, value: '$346K', height: 48, growth: '+8.8%', change: '+$28K vs Jan' },
-      { month: 'Mar', revenue: 371000, value: '$371K', height: 56, growth: '+7.2%', change: '+$25K vs Feb' },
-      { month: 'Apr', revenue: 396000, value: '$396K', height: 72, growth: '+6.7%', change: '+$25K vs Mar' },
-      { month: 'May', revenue: 429000, value: '$429K', height: 84, growth: '+8.3%', change: '+$33K vs Apr' },
-      { month: 'Jun', revenue: 448000, value: '$448K', height: 96, growth: '+4.4%', change: '+$19K vs May' },
+      { label: 'Jan', revenue: 318000 },
+      { label: 'Feb', revenue: 346000 },
+      { label: 'Mar', revenue: 371000 },
+      { label: 'Apr', revenue: 396000 },
+      { label: 'May', revenue: 429000 },
+      { label: 'Jun', revenue: 448000 },
     ],
     Quarterly: [
-      { month: 'Q1 25', revenue: 286000, value: '$286K', height: 24, growth: '+0%', change: 'Baseline quarter' },
-      { month: 'Q2 25', revenue: 314000, value: '$314K', height: 32, growth: '+9.8%', change: '+$28K vs Q1' },
-      { month: 'Q3 25', revenue: 352000, value: '$352K', height: 50, growth: '+12.1%', change: '+$38K vs Q2' },
-      { month: 'Q4 25', revenue: 381000, value: '$381K', height: 62, growth: '+8.2%', change: '+$29K vs Q3' },
-      { month: 'Q1 26', revenue: 405000, value: '$405K', height: 76, growth: '+6.3%', change: '+$24K vs Q4' },
-      { month: 'Q2 26', revenue: 448000, value: '$448K', height: 96, growth: '+10.6%', change: '+$43K vs Q1' },
+      { label: 'Q1 25', revenue: 286000 },
+      { label: 'Q2 25', revenue: 314000 },
+      { label: 'Q3 25', revenue: 352000 },
+      { label: 'Q4 25', revenue: 381000 },
+      { label: 'Q1 26', revenue: 405000 },
+      { label: 'Q2 26', revenue: 448000 },
     ],
     Yearly: [
-      { month: '2021', revenue: 198000, value: '$198K', height: 18, growth: '+0%', change: 'Baseline year' },
-      { month: '2022', revenue: 236000, value: '$236K', height: 28, growth: '+19.2%', change: '+$38K vs 2021' },
-      { month: '2023', revenue: 284000, value: '$284K', height: 42, growth: '+20.3%', change: '+$48K vs 2022' },
-      { month: '2024', revenue: 333000, value: '$333K', height: 58, growth: '+17.3%', change: '+$49K vs 2023' },
-      { month: '2025', revenue: 389000, value: '$389K', height: 74, growth: '+16.8%', change: '+$56K vs 2024' },
-      { month: '2026', revenue: 448000, value: '$448K', height: 96, growth: '+15.2%', change: '+$59K vs 2025' },
+      { label: '2021', revenue: 198000 },
+      { label: '2022', revenue: 236000 },
+      { label: '2023', revenue: 284000 },
+      { label: '2024', revenue: 333000 },
+      { label: '2025', revenue: 389000 },
+      { label: '2026', revenue: 448000 },
     ],
   };
+
   readonly revenueTrend = computed(() => this.revenueSeries[this.revenueRange()]);
+  readonly hasOverviewData = computed(() => this.kpis().length > 0 || this.activities().length > 0);
   readonly latestRevenue = computed(() => this.revenueTrend().at(-1)!);
-  readonly bestRevenue = computed(() => this.revenueTrend().reduce((best, point) => (point.revenue > best.revenue ? point : best)));
+  readonly firstRevenue = computed(() => this.revenueTrend()[0]);
+  readonly maxRevenue = computed(() => Math.max(...this.revenueTrend().map((point) => point.revenue), this.revenueTarget));
+  readonly minRevenue = computed(() => Math.min(...this.revenueTrend().map((point) => point.revenue)));
+  readonly chartPoints = computed<ChartPoint[]>(() => {
+    const points = this.revenueTrend();
+    const bestRevenue = Math.max(...points.map((point) => point.revenue));
+    const max = this.maxRevenue();
+    const min = this.minRevenue();
+    const span = Math.max(max - min, 1);
+
+    return points.map((point, index) => {
+      const previous = points[index - 1];
+      const growth = previous ? ((point.revenue - previous.revenue) / previous.revenue) * 100 : 0;
+      const delta = previous ? point.revenue - previous.revenue : 0;
+      return {
+        ...point,
+        value: this.formatCurrency(point.revenue),
+        height: ((point.revenue - min) / span) * 82 + 14,
+        growth: previous ? `${growth >= 0 ? '+' : ''}${growth.toFixed(1)}%` : '+0%',
+        change: previous ? `${delta >= 0 ? '+' : '-'}${this.formatCurrency(Math.abs(delta))} vs ${previous.label}` : `Baseline ${this.periodNoun()}`,
+        isLatest: index === points.length - 1,
+        isBest: point.revenue === bestRevenue,
+      };
+    });
+  });
   readonly revenueGrowth = computed(() => {
-    const first = this.revenueTrend()[0].revenue;
+    const first = this.firstRevenue().revenue;
     const latest = this.latestRevenue().revenue;
     return `+${Math.round(((latest - first) / first) * 100)}% over period`;
   });
-  readonly revenueTarget = '$425K target';
+  readonly targetLineTop = computed(() => 100 - ((this.revenueTarget - this.minRevenue()) / Math.max(this.maxRevenue() - this.minRevenue(), 1)) * 100);
+  readonly chartPath = computed(() => this.buildChartPath(this.chartPoints().map((point) => point.height)));
+  readonly axisLabels = computed(() => {
+    const max = this.maxRevenue();
+    const min = this.minRevenue();
+    const middle = Math.round((max + min) / 2 / 1000) * 1000;
+    return [this.formatCurrency(max), this.formatCurrency(middle), this.formatCurrency(min)];
+  });
+  readonly chartSummary = computed(() => {
+    const first = this.firstRevenue();
+    const latest = this.latestRevenue();
+    return `${this.rangeLabel()} revenue increased from ${this.formatCurrency(first.revenue)} to ${this.formatCurrency(latest.revenue)}, ${this.revenueGrowth()}.`;
+  });
+  readonly revenueInsight = computed(() => {
+    const latest = this.latestRevenue();
+    const first = this.firstRevenue();
+    const crossedTarget = this.revenueTrend().find((point) => point.revenue >= this.revenueTarget);
+    const targetCopy = crossedTarget ? `crossed the ${this.formatCurrency(this.revenueTarget)} target in ${crossedTarget.label}` : `remains below the ${this.formatCurrency(this.revenueTarget)} target`;
+    return `${this.rangeLabel()} revenue ${targetCopy} and reached ${this.formatCurrency(latest.revenue)}, up ${this.formatCurrency(latest.revenue - first.revenue)} from the start of the period.`;
+  });
 
   constructor() {
     this.load();
@@ -88,12 +145,44 @@ export class Overview {
 
   exportRevenueMomentum(): void {
     const range = this.revenueRange().toLowerCase();
-
     exportCsv(`revenue-momentum-${range}.csv`, this.revenueTrend(), [
-      { header: this.revenueRange() === 'Monthly' ? 'Month' : this.revenueRange() === 'Quarterly' ? 'Quarter' : 'Year', value: (point) => point.month },
+      { header: this.periodLabel(), value: (point) => point.label },
       { header: 'Revenue', value: (point) => point.revenue },
     ]);
     this.exportMessage.set('CSV exported');
     window.setTimeout(() => this.exportMessage.set(''), 2400);
+  }
+
+  periodLabel(): string {
+    if (this.revenueRange() === 'Monthly') return 'Month';
+    if (this.revenueRange() === 'Quarterly') return 'Quarter';
+    return 'Year';
+  }
+
+  rangeLabel(): string {
+    if (this.revenueRange() === 'Monthly') return 'Monthly';
+    if (this.revenueRange() === 'Quarterly') return 'Quarterly';
+    return 'Yearly';
+  }
+
+  private periodNoun(): string {
+    return this.periodLabel().toLowerCase();
+  }
+
+  private formatCurrency(value: number): string {
+    return `$${Math.round(value / 1000)}K`;
+  }
+
+  private buildChartPath(values: readonly number[]): string {
+    const width = 600;
+    const height = 160;
+    const paddingX = 20;
+    const paddingY = 8;
+    const points = values.map((value, index) => {
+      const x = values.length === 1 ? width / 2 : paddingX + ((width - paddingX * 2) * index) / (values.length - 1);
+      const y = height - paddingY - (value / 100) * (height - paddingY * 2);
+      return `${x.toFixed(1)} ${y.toFixed(1)}`;
+    });
+    return `M ${points.join(' L ')}`;
   }
 }

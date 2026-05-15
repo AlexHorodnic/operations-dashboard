@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CircleAlert, CircleCheckBig, Clock3, ListTodo, LucideAngularModule, Plus } from 'lucide-angular';
 import { DashboardDataService } from '../../core/services/dashboard-data.service';
-import { OperationTask, TaskPriority, TaskStatus } from '../../models/dashboard.models';
+import { CUSTOMER_OWNERS, OperationTask, TaskPriority, TaskStatus } from '../../models/dashboard.models';
 import { Badge } from '../../shared/badge/badge';
 import { EmptyState } from '../../shared/empty-state/empty-state';
 
@@ -82,13 +82,14 @@ interface TaskToast {
   selector: 'app-tasks',
   imports: [CommonModule, FormsModule, DragDropModule, LucideAngularModule, Badge, EmptyState],
   templateUrl: './tasks.html',
+  styleUrl: './tasks.scss',
 })
 export class Tasks {
   private readonly data = inject(DashboardDataService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly today = new Date(new Date().toISOString().slice(0, 10) + 'T00:00:00');
+  private readonly today = this.localMidnight(new Date());
   private readonly taskMeta = new Map<number, TaskMeta>([
     [1, { update: 'Updated 2m ago', detail: 'Waiting on workspace admin' }],
     [2, { update: 'Escalated 18m ago', detail: 'Finance sync blocked', blockedReason: 'Waiting on finance approval' }],
@@ -148,6 +149,7 @@ export class Tasks {
   private readonly drawerCloseButton = viewChild<ElementRef<HTMLButtonElement>>('taskDrawerClose');
 
   readonly loading = signal(true);
+  readonly error = signal(false);
   readonly tasks = signal<OperationTask[]>([]);
   readonly query = signal('');
   readonly owner = signal('All');
@@ -171,7 +173,7 @@ export class Tasks {
   readonly CircleAlert = CircleAlert;
   readonly CircleCheckBig = CircleCheckBig;
   readonly Plus = Plus;
-  readonly owners = computed(() => ['All', ...Array.from(new Set(['Avery', 'Mina', 'Sam', 'Iris', 'Leo', ...this.tasks().map((task) => task.owner)]))]);
+  readonly owners = computed(() => ['All', ...Array.from(new Set([...CUSTOMER_OWNERS, ...this.tasks().map((task) => task.owner)]))]);
 
   readonly workflowTasks = computed<WorkflowTask[]>(() =>
     this.tasks().map((task) => {
@@ -213,6 +215,7 @@ export class Tasks {
   });
 
   readonly hasActiveFilters = computed(() => !!this.query().trim() || this.owner() !== 'All' || this.priority() !== 'All');
+  readonly hasTasks = computed(() => this.workflowTasks().length > 0);
   readonly workflowKpis = computed<WorkflowKpi[]>(() => {
     const tasks = this.workflowTasks();
     const total = tasks.length || 1;
@@ -221,13 +224,21 @@ export class Tasks {
     const slaRisk = tasks.filter((task) => task.isUrgent).length;
     const done = tasks.filter((task) => task.status === 'Done').length;
     const completionRate = Math.round((done / total) * 100);
+    const dueThisWeek = tasks.filter((task) => {
+      if (task.status === 'Done') {
+        return false;
+      }
+      const dueDate = new Date(`${task.dueDate}T00:00:00`);
+      const msUntilDue = dueDate.getTime() - this.today.getTime();
+      return msUntilDue >= 0 && msUntilDue <= 7 * 24 * 60 * 60 * 1000;
+    }).length;
 
     return [
       { label: 'Active work items', value: String(active), detail: 'Across open lanes', tone: 'neutral' },
       { label: 'Blocked items', value: String(blocked), detail: 'Need intervention', tone: blocked ? 'danger' : 'success' },
       { label: 'SLA risk', value: String(slaRisk), detail: 'Critical or past due', tone: slaRisk ? 'warning' : 'success' },
       { label: 'Completion rate', value: `${completionRate}%`, detail: 'Closed in current cycle', tone: 'success' },
-      { label: 'Avg. resolution', value: '2.8d', detail: 'Rolling 14-day average', tone: 'neutral' },
+      { label: 'Due this week', value: String(dueThisWeek), detail: 'Open items approaching due date', tone: dueThisWeek ? 'warning' : 'success' },
     ];
   });
   readonly selectedTask = computed(() => this.workflowTasks().find((task) => task.id === this.selectedTaskId()) ?? null);
@@ -253,14 +264,26 @@ export class Tasks {
   });
 
   constructor() {
-    this.data.getTasks().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((tasks) => {
-      this.tasks.set(tasks);
-      this.loading.set(false);
-    });
+    this.load();
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       if (params.get('createTask') === '1') {
         this.openCreateTask();
       }
+    });
+  }
+
+  load(): void {
+    this.loading.set(true);
+    this.error.set(false);
+    this.data.getTasks().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (tasks) => {
+        this.tasks.set(tasks);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set(true);
+        this.loading.set(false);
+      },
     });
   }
 
@@ -525,13 +548,23 @@ export class Tasks {
     }, 3200);
   }
 
+  private localToday(): string {
+    const today = new Date();
+    const local = new Date(today.getTime() - today.getTimezoneOffset() * 60_000);
+    return local.toISOString().slice(0, 10);
+  }
+
+  private localMidnight(date: Date): Date {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
   private createTaskDraft(): TaskDraft {
     return {
       title: '',
       owner: 'Avery',
       status: 'Queued',
       priority: 'Medium',
-      dueDate: new Date().toISOString().slice(0, 10),
+      dueDate: this.localToday(),
       customer: '',
       type: 'Onboarding',
     };

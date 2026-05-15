@@ -10,6 +10,10 @@ export interface Kpi {
 
 export type CustomerStatus = 'Active' | 'At risk' | 'Paused';
 export type CustomerPlan = 'Starter' | 'Growth' | 'Enterprise';
+export const CUSTOMER_STATUSES: readonly CustomerStatus[] = ['Active', 'At risk', 'Paused'];
+export const CUSTOMER_PLANS: readonly CustomerPlan[] = ['Starter', 'Growth', 'Enterprise'];
+export const CUSTOMER_OWNERS = ['Avery', 'Mina', 'Sam', 'Iris', 'Leo'] as const;
+export const CUSTOMER_REGIONS = ['North America', 'EMEA', 'APAC', 'LATAM'] as const;
 
 export interface Customer {
   id: number;

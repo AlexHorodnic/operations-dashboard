@@ -1,26 +1,28 @@
-<section class="section" id="overview">
+<section class="section overview-section" id="overview" [attr.aria-busy]="loading()">
   <div class="section__heading">
     <div>
       <span class="breadcrumb">Operations / Overview</span>
       <h2>Operating snapshot</h2>
-      <p>Current month performance across revenue, account health, and operational work.</p>
+      <p>Current performance across revenue, account health, and operational work.</p>
     </div>
-    <span class="timestamp">Updated May 13, 2026</span>
+    <span class="timestamp">Updated {{ updatedAt }}</span>
   </div>
 
   @if (loading()) {
-    <section class="loading-grid" aria-label="Loading overview">
+    <section class="loading-grid" role="status" aria-live="polite" aria-label="Loading overview">
       @for (item of [1, 2, 3, 4]; track item) {
         <div class="skeleton-card"></div>
       }
     </section>
   } @else if (error()) {
-    <section class="state-card">
+    <section class="state-card" role="alert">
       <div class="state-card__icon">!</div>
       <h3>Unable to refresh operating data</h3>
       <p>Retry the request to reload the latest workspace metrics.</p>
       <button class="text-button" type="button" (click)="load()">Retry</button>
     </section>
+  } @else if (!hasOverviewData()) {
+    <app-empty-state title="No overview data available" message="Refresh once workspace metrics are available." />
   } @else {
     <div class="kpi-grid">
       @for (kpi of kpis(); track kpi.label) {
@@ -29,19 +31,19 @@
     </div>
 
     <div class="overview-grid">
-      <article class="panel panel--wide">
+      <article class="panel panel--wide overview-revenue-card">
         <div class="panel__header revenue-card__header">
           <div>
             <h3>Revenue momentum</h3>
-            <span>Monthly recurring revenue</span>
+            <span>{{ rangeLabel() }} recurring revenue</span>
           </div>
           <div class="export-control">
             @if (exportMessage()) {
               <span class="export-feedback" aria-live="polite">{{ exportMessage() }}</span>
             }
             <div class="segmented revenue-range" aria-label="Revenue range">
-              @for (range of ['Monthly', 'Quarterly', 'Yearly']; track range) {
-                <button type="button" [class.is-active]="revenueRange() === range" (click)="revenueRange.set($any(range))">
+              @for (range of ranges; track range) {
+                <button type="button" [class.is-active]="revenueRange() === range" (click)="revenueRange.set(range)">
                   {{ range }}
                 </button>
               }
@@ -53,7 +55,7 @@
         </div>
         <div class="revenue-summary">
           <div>
-            <strong>{{ latestRevenue().value }}</strong>
+            <strong>{{ chartPoints().at(-1)?.value }}</strong>
             <span>Current MRR</span>
           </div>
           <div>
@@ -61,46 +63,57 @@
             <span>Growth over period</span>
           </div>
         </div>
-        <div class="chart-shell revenue-chart">
+        <p class="sr-only">{{ chartSummary() }}</p>
+        <div class="chart-shell revenue-chart overview-chart-shell">
           <div class="chart-axis" aria-hidden="true">
-            <span>$450K</span>
-            <span>$375K</span>
-            <span>$300K</span>
+            @for (label of axisLabels(); track label) {
+              <span>{{ label }}</span>
+            }
           </div>
-          <div class="sparkline" aria-label="Revenue trend from January to June">
-            <span class="revenue-target" aria-hidden="true">{{ revenueTarget }}</span>
+          <div class="sparkline" role="img" [attr.aria-label]="chartSummary()">
+            <span class="revenue-target" [style.top.%]="targetLineTop()" aria-hidden="true">{{ '$425K target' }}</span>
             <svg class="revenue-trend-line" viewBox="0 0 600 160" preserveAspectRatio="none" aria-hidden="true">
-              <path d="M20 120 C80 104, 120 94, 140 86 S220 70, 260 62 S340 48, 380 40 S460 24, 500 18 S560 10, 580 8" />
+              <path [attr.d]="chartPath()" />
             </svg>
-            @for (point of revenueTrend(); track point.month; let last = $last) {
-              <span
+            @for (point of chartPoints(); track point.label) {
+              <button
                 class="revenue-bar"
-                [class.is-latest]="last"
-                [class.is-best]="point.month === bestRevenue().month"
+                type="button"
+                [class.is-latest]="point.isLatest"
+                [class.is-best]="point.isBest"
                 [style.height.%]="point.height"
                 [attr.data-value]="point.value"
                 [attr.data-growth]="point.growth"
                 [attr.data-change]="point.change"
-                [attr.aria-label]="point.month + ' revenue ' + point.value + ', growth ' + point.growth + ', ' + point.change"
+                [attr.aria-label]="point.label + ' revenue ' + point.value + ', growth ' + point.growth + ', ' + point.change"
               >
-                <small>{{ point.month }}</small>
-              </span>
+                <small>{{ point.label }}</small>
+              </button>
             }
           </div>
         </div>
-        <p class="revenue-insight">MRR crossed the $425K milestone in May and extended gains again in June, with growth staying positive across every month shown.</p>
+        <table class="sr-only overview-data-table">
+          <caption>Revenue momentum data</caption>
+          <thead><tr><th scope="col">{{ periodLabel() }}</th><th scope="col">Revenue</th></tr></thead>
+          <tbody>
+            @for (point of chartPoints(); track point.label) {
+              <tr><th scope="row">{{ point.label }}</th><td>{{ point.value }}</td></tr>
+            }
+          </tbody>
+        </table>
+        <p class="revenue-insight">{{ revenueInsight() }}</p>
       </article>
 
-      <article class="panel">
+      <article class="panel overview-feed-card">
         <div class="panel__header">
           <div>
             <h3>Operations feed</h3>
-            <span>Live account and workflow events</span>
+            <span>Recent account and workflow events</span>
           </div>
         </div>
-        <div class="activity-list">
+        <div class="activity-list overview-activity-list">
           @for (activity of activities(); track activity.id) {
-            <div class="activity-item">
+            <div class="activity-item overview-activity-item">
               <span [class]="'activity-dot activity-dot--' + activity.tone"></span>
               <div>
                 <strong>{{ activity.title }}</strong>
@@ -114,5 +127,3 @@
     </div>
   }
 </section>
-
-

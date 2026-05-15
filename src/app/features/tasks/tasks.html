@@ -1,4 +1,4 @@
-<section class="section" id="tasks">
+<section class="section workflow-section" id="tasks" [attr.aria-busy]="loading()">
   <div class="section__heading">
     <div>
       <span class="breadcrumb">Operations / Tasks</span>
@@ -52,31 +52,44 @@
     @if (hasActiveFilters()) {
       <div class="filter-chips" aria-label="Active workflow filters">
         @if (query().trim()) {
-          <button type="button" (click)="query.set('')" aria-label="Clear search filter">Search: {{ query().trim() }} x</button>
+          <button type="button" (click)="query.set('')" aria-label="Clear search filter">Search: {{ query().trim() }} &times;</button>
         }
         @if (owner() !== 'All') {
-          <button type="button" (click)="owner.set('All')" aria-label="Clear owner filter">Owner: {{ owner() }} x</button>
+          <button type="button" (click)="owner.set('All')" aria-label="Clear owner filter">Owner: {{ owner() }} &times;</button>
         }
         @if (priority() !== 'All') {
-          <button type="button" (click)="priority.set('All')" aria-label="Clear priority filter">Priority: {{ priority() }} x</button>
+          <button type="button" (click)="priority.set('All')" aria-label="Clear priority filter">Priority: {{ priority() }} &times;</button>
         }
       </div>
     }
   </article>
 
   @if (loading()) {
-    <section class="loading-grid" aria-label="Loading workflow queue">
+    <section class="loading-grid" role="status" aria-live="polite" aria-label="Loading workflow queue">
       @for (item of [1, 2, 3, 4]; track item) {
         <div class="skeleton-card"></div>
       }
     </section>
+  } @else if (error()) {
+    <section class="state-card" role="alert">
+      <div class="state-card__icon">!</div>
+      <h3>Unable to load workflow queue</h3>
+      <p>Retry the request to restore the latest task state.</p>
+      <button class="text-button" type="button" (click)="load()">Retry</button>
+    </section>
+  } @else if (!hasTasks()) {
+    <app-empty-state title="No workflow items yet" message="Create a task to start coordinating onboarding, renewals, incidents, and risk work." />
   } @else if (!filteredTasks().length) {
     <app-empty-state title="No workflow items found" message="Adjust owner, priority, or search filters to find matching operational work." />
+    @if (hasActiveFilters()) {
+      <div class="workflow-empty-actions"><button class="row-action" type="button" (click)="clearFilters()">Clear filters</button></div>
+    }
   } @else {
     <div class="kanban-board" cdkDropListGroup>
       @for (status of statuses; track status) {
         <section
           [class]="columnClass(status)"
+          [attr.aria-label]="status + ' lane'"
           [class.is-drop-target]="dragOverStatus() === status"
         >
           <header>
@@ -105,6 +118,8 @@
                 [class.is-high]="task.priority === 'High'"
                 [class.is-critical]="task.priority === 'Critical'"
                 tabindex="0"
+                role="button"
+                [attr.aria-label]="task.title + ', ' + task.status + ', ' + task.priority + ', due ' + task.dueDate"
                 cdkDrag
                 [cdkDragData]="task"
                 (click)="openTaskDrawer(task, $event)"
@@ -129,11 +144,11 @@
                   <time [class.is-overdue]="task.isOverdue"><span aria-hidden="true">Due</span>{{ task.dueDate | date: 'MMM d' }}</time>
                 </div>
                 <div class="task-actions" aria-label="Task quick actions">
-                  <button type="button" (click)="$event.stopPropagation(); openAssignment(task)" [attr.aria-label]="'Assign ' + task.title">Assign</button>
-                  <button type="button" (click)="$event.stopPropagation(); toggleTaskActions(task.id)" [attr.aria-label]="'More actions for ' + task.title">...</button>
+                  <button type="button" (click)="$event.stopPropagation(); openAssignment(task)" [attr.aria-expanded]="assignmentTaskId() === task.id" [attr.aria-label]="'Assign ' + task.title">Assign</button>
+                  <button type="button" (click)="$event.stopPropagation(); toggleTaskActions(task.id)" [attr.aria-expanded]="actionsTaskId() === task.id" [attr.aria-label]="'More actions for ' + task.title">More</button>
                 </div>
                 @if (assignmentTaskId() === task.id) {
-                  <div class="task-popover assignment-popover" (click)="$event.stopPropagation()">
+                  <div class="task-popover assignment-popover" role="menu" (click)="$event.stopPropagation()">
                     <strong>Assign owner</strong>
                     @for (ownerOption of owners().slice(1); track ownerOption) {
                       <button type="button" [class.is-active]="task.owner === ownerOption" (click)="assignOwner(task, ownerOption)">
@@ -143,7 +158,7 @@
                   </div>
                 }
                 @if (actionsTaskId() === task.id) {
-                  <div class="task-popover actions-popover" (click)="$event.stopPropagation()">
+                  <div class="task-popover actions-popover" role="menu" (click)="$event.stopPropagation()">
                     <button type="button" class="is-danger" (click)="deleteTask(task)">Delete task</button>
                   </div>
                 }
@@ -217,7 +232,7 @@
               [attr.aria-expanded]="drawerActionsOpen()"
               (click)="toggleDrawerActions()"
             >
-              ...
+              More
             </button>
             @if (drawerActionsOpen()) {
               <div class="drawer-actions-popover" (click)="$event.stopPropagation()">
@@ -225,7 +240,7 @@
               </div>
             }
           </div>
-          <button #taskDrawerClose class="icon-button" type="button" aria-label="Close task details" (click)="closeTaskDrawer()">x</button>
+          <button #taskDrawerClose class="icon-button" type="button" aria-label="Close task details" (click)="closeTaskDrawer()">?</button>
         </div>
       </header>
 
@@ -367,7 +382,7 @@
         </label>
       </div>
       @if (taskDraftError()) {
-        <p class="form-error">{{ taskDraftError() }}</p>
+        <p class="form-error" aria-live="polite">{{ taskDraftError() }}</p>
       }
       <div class="task-form-actions">
         <button class="row-action" type="button" (click)="closeCreateTask()">Cancel</button>
