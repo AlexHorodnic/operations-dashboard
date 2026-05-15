@@ -1600,6 +1600,14 @@ tbody tr:hover .row-action {
   border-bottom: 1px solid var(--border-subtle);
 }
 
+.kanban-column header > div {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
 .kanban-column header h3 {
   display: flex;
   align-items: center;
@@ -2833,6 +2841,10 @@ tbody tr:hover .row-action {
 }
 
 @media (max-width: 720px) {
+  .export-feedback {
+    display: none;
+  }
+
   .content-stack {
     gap: var(--space-5);
     width: calc(100% - 2rem);
