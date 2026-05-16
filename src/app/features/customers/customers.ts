@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, computed, inject, isDevMode, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, isDevMode, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { CircleAlert, Download, LucideAngularModule } from 'lucide-angular';
@@ -48,6 +48,7 @@ export class Customers {
   readonly Download = Download;
   private readonly data = inject(DashboardDataService);
   private readonly destroyRef = inject(DestroyRef);
+  private lockedScrollY = 0;
 
   readonly loading = signal(true);
   readonly error = signal(false);
@@ -121,6 +122,10 @@ export class Customers {
 
   constructor() {
     this.load();
+    effect(() => {
+      this.setBodyScrollLock(this.selectedCustomer() !== null || this.addAccountOpen());
+    });
+    this.destroyRef.onDestroy(() => this.setBodyScrollLock(false));
   }
 
   load(shouldFail = false): void {
@@ -153,7 +158,7 @@ export class Customers {
       return '';
     }
 
-    return this.sortDirection() === 'asc' ? '?' : '?';
+    return this.sortDirection() === 'asc' ? '↑' : '↓';
   }
 
   ariaSort(key: SortKey): 'ascending' | 'descending' | null {
@@ -362,5 +367,35 @@ export class Customers {
       renewalDate: '2026-12-31',
       notes: '',
     };
+  }
+
+  private setBodyScrollLock(locked: boolean): void {
+    if (locked) {
+      if (document.body.classList.contains('is-account-drawer-open')) {
+        return;
+      }
+
+      this.lockedScrollY = window.scrollY;
+      document.body.classList.add('is-account-drawer-open');
+      document.body.style.top = `-${this.lockedScrollY}px`;
+      return;
+    }
+
+    if (!document.body.classList.contains('is-account-drawer-open')) {
+      return;
+    }
+
+    document.body.classList.remove('is-account-drawer-open');
+    document.body.style.top = '';
+    this.restoreScrollPosition();
+  }
+
+  private restoreScrollPosition(): void {
+    const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = 'auto';
+    window.scrollTo({ top: this.lockedScrollY, behavior: 'auto' });
+    window.requestAnimationFrame(() => {
+      document.documentElement.style.scrollBehavior = previousScrollBehavior;
+    });
   }
 }

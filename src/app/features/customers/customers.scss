@@ -23,12 +23,17 @@
 .account-link {
   display: grid;
   gap: 0.32rem;
-  width: 100%;
+  width: fit-content;
+  max-width: 100%;
   border: 0;
   background: transparent;
   color: inherit;
   padding: 0;
   text-align: left;
+}
+
+.accounts-table .primary-cell {
+  cursor: default;
 }
 
 .account-link strong {
@@ -52,6 +57,32 @@
 }
 
 @media (max-width: 900px) {
+  .panel-actions {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .panel-actions .text-button {
+    flex: 1 1 0;
+    justify-content: center;
+  }
+
+  .bulk-toolbar {
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .bulk-toolbar strong {
+    flex: 1 1 100%;
+  }
+
+  .bulk-toolbar .row-action {
+    flex: 1 1 0;
+    white-space: nowrap;
+  }
+
   .accounts-table,
   .accounts-table thead,
   .accounts-table tbody,
@@ -141,6 +172,20 @@
   .mobile-sort label {
     display: grid;
     gap: 0.45rem;
+  }
+
+  .accounts-table tbody tr:active {
+    border-color: var(--border-subtle);
+    background: var(--surface-card);
+    transform: none;
+  }
+
+  .accounts-table tbody tr:hover td {
+    background: transparent;
+  }
+
+  .mobile-sort .row-action {
+    min-height: 2.5rem;
   }
 
   .table-wrap {

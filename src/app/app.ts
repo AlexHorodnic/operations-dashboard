@@ -1,7 +1,7 @@
 import { Component, HostListener, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { BarChart3, Bell, ChevronLeft, ChevronRight, CircleAlert, CircleCheck, Clock, LayoutDashboard, ListTodo, LucideAngularModule, Search, UsersRound, X } from 'lucide-angular';
+import { BarChart3, Bell, ChevronLeft, ChevronRight, CircleAlert, CircleCheck, Clock, LayoutDashboard, ListTodo, LucideAngularModule, Menu, Search, UsersRound, X } from 'lucide-angular';
 import { filter } from 'rxjs';
 import { VercelAnalyticsService } from './core/services/vercel-analytics.service';
 import { CommandPalette } from './shared/ui/command-palette/command-palette';
@@ -26,6 +26,7 @@ export class App {
   private readonly analytics = inject(VercelAnalyticsService);
   protected readonly commandOpen = signal(false);
   protected readonly notificationsOpen = signal(false);
+  protected readonly mobileMenuOpen = signal(false);
   private readonly notificationsKey = 'operations-dashboard-notifications';
   private readonly sidebarCollapsedKey = 'operations-dashboard-sidebar-collapsed';
   protected readonly sidebarCollapsed = signal(this.readSidebarCollapsed());
@@ -34,6 +35,7 @@ export class App {
   protected readonly ChevronLeft = ChevronLeft;
   protected readonly ChevronRight = ChevronRight;
   protected readonly Search = Search;
+  protected readonly Menu = Menu;
   protected readonly CircleAlert = CircleAlert;
   protected readonly CircleCheck = CircleCheck;
   protected readonly Clock = Clock;
@@ -137,6 +139,7 @@ export class App {
     if (event.key === 'Escape') {
       this.commandOpen.set(false);
       this.notificationsOpen.set(false);
+      this.mobileMenuOpen.set(false);
     }
   }
 
@@ -144,13 +147,17 @@ export class App {
   protected closeCommandPaletteOnOutsideClick(event: MouseEvent): void {
     const target = event.target as HTMLElement | null;
 
-    if (this.commandOpen() && !target?.closest('.topbar__search')) {
+    if (this.commandOpen() && !target?.closest('.topbar__search') && !target?.closest('.mobile-command-trigger')) {
       this.commandOpen.set(false);
     }
 
     if (this.notificationsOpen() && !target?.closest('.notification-menu')) {
       this.notificationsOpen.set(false);
     }
+  }
+
+  protected closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
   }
 
   private readNotifications(): AppNotification[] | null {

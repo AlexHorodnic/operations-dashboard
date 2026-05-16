@@ -28,8 +28,17 @@
 @media (max-width: 720px) {
   .section__actions {
     width: 100%;
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .section__actions .timestamp {
+    order: 1;
+  }
+
+  .section__actions .create-task-button {
+    order: 2;
   }
 
   .workflow-kpi-grid {
@@ -49,6 +58,10 @@
     margin-top: 0.65rem;
     opacity: 1;
     pointer-events: auto;
+  }
+
+  .task-actions .mobile-move-task {
+    display: inline-flex !important;
   }
 
   .workflow-card:hover .task-card__footer time,
@@ -106,6 +119,23 @@
 .create-task-button {
   justify-content: center;
   line-height: 1;
+  min-height: 2.35rem;
+  border-color: rgb(106 166 255 / 48%);
+  background:
+    linear-gradient(135deg, rgb(106 166 255 / 18%), rgb(106 166 255 / 8%)),
+    var(--surface-2);
+  color: var(--text);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 5%),
+    0 6px 16px rgb(0 0 0 / 18%);
+}
+
+.create-task-button:hover,
+.create-task-button:focus-visible {
+  border-color: rgb(106 166 255 / 68%);
+  background:
+    linear-gradient(135deg, rgb(106 166 255 / 24%), rgb(106 166 255 / 10%)),
+    var(--surface-3);
 }
 
 .create-task-button lucide-icon {

@@ -147,8 +147,10 @@ export class Tasks {
   ]);
   private readonly fallbackAccount: RelatedAccount = { company: 'Related account', plan: 'Growth', contractValue: '$24.0K ARR', health: 'Healthy · 82', context: 'No upcoming renewal milestone', openIssues: 'No open issues' };
   private lastFocusedTaskCard: HTMLElement | null = null;
+  private lastMoveSheetTrigger: HTMLElement | null = null;
   private lockedScrollY = 0;
   private readonly drawerCloseButton = viewChild<ElementRef<HTMLButtonElement>>('taskDrawerClose');
+  private readonly moveSheetCloseButton = viewChild<ElementRef<HTMLButtonElement>>('moveSheetClose');
 
   readonly loading = signal(true);
   readonly error = signal(false);
@@ -165,6 +167,8 @@ export class Tasks {
   readonly actionsTaskId = signal<number | null>(null);
   readonly drawerActionsOpen = signal(false);
   readonly createTaskOpen = signal(false);
+  readonly moveSheetTaskId = signal<number | null>(null);
+  readonly isMobileWorkflow = signal(typeof window !== 'undefined' && window.innerWidth <= 720);
   readonly taskDraft = signal<TaskDraft>(this.createTaskDraft());
   readonly taskDraftError = signal('');
   readonly statuses: TaskStatus[] = ['Queued', 'In progress', 'Blocked', 'Done'];
@@ -247,6 +251,7 @@ export class Tasks {
     ];
   });
   readonly selectedTask = computed(() => this.workflowTasks().find((task) => task.id === this.selectedTaskId()) ?? null);
+  readonly moveSheetTask = computed(() => this.workflowTasks().find((task) => task.id === this.moveSheetTaskId()) ?? null);
   readonly selectedTaskDetails = computed<TaskDetailRecord | null>(() => {
     const task = this.selectedTask();
     if (!task) {
@@ -271,7 +276,7 @@ export class Tasks {
   constructor() {
     this.load();
     effect(() => {
-      const drawerOpen = this.selectedTaskId() !== null || this.createTaskOpen();
+      const drawerOpen = this.selectedTaskId() !== null || this.createTaskOpen() || this.moveSheetTaskId() !== null;
       this.setBodyScrollLock(drawerOpen);
     });
     this.destroyRef.onDestroy(() => this.setBodyScrollLock(false));
@@ -363,6 +368,28 @@ export class Tasks {
     }
 
     this.dragOverStatus.set(null);
+  }
+
+  openMoveSheet(task: WorkflowTask, event: Event): void {
+    this.lastMoveSheetTrigger = event.currentTarget as HTMLElement | null;
+    this.moveSheetTaskId.set(task.id);
+    this.assignmentTaskId.set(null);
+    this.actionsTaskId.set(null);
+    window.setTimeout(() => this.moveSheetCloseButton()?.nativeElement.focus());
+  }
+
+  closeMoveSheet(): void {
+    this.moveSheetTaskId.set(null);
+    window.setTimeout(() => this.lastMoveSheetTrigger?.focus());
+  }
+
+  moveTaskToStatus(task: WorkflowTask, status: TaskStatus): void {
+    if (status !== task.status) {
+      this.tasks.set(this.data.updateTask(task.id, { status }));
+      this.recordStatusUpdate(task.id, task.status, status);
+    }
+
+    this.closeMoveSheet();
   }
 
   endDrag(): void {
@@ -466,9 +493,19 @@ export class Tasks {
 
   @HostListener('document:keydown.escape')
   protected closeTaskDrawerOnEscape(): void {
+    if (this.moveSheetTaskId() !== null) {
+      this.closeMoveSheet();
+      return;
+    }
+
     if (this.selectedTaskId() !== null) {
       this.closeTaskDrawer();
     }
+  }
+
+  @HostListener('window:resize')
+  protected syncMobileWorkflowBreakpoint(): void {
+    this.isMobileWorkflow.set(window.innerWidth <= 720);
   }
 
   @HostListener('document:click', ['$event'])
@@ -598,6 +635,15 @@ export class Tasks {
 
     document.body.classList.remove('is-task-drawer-open');
     document.body.style.top = '';
-    window.scrollTo({ top: this.lockedScrollY });
+    this.restoreScrollPosition();
+  }
+
+  private restoreScrollPosition(): void {
+    const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = 'auto';
+    window.scrollTo({ top: this.lockedScrollY, behavior: 'auto' });
+    window.requestAnimationFrame(() => {
+      document.documentElement.style.scrollBehavior = previousScrollBehavior;
+    });
   }
 }

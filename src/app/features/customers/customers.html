@@ -185,7 +185,13 @@
       <div><span>Owner</span><strong>{{ customer.owner }}</strong></div>
       <div><span>Region</span><strong>{{ customer.region }}</strong></div>
       <div><span>Seats</span><strong>{{ customer.seats }}</strong></div>
-      <div><span>Health</span><strong>{{ customer.healthScore }}</strong></div>
+      <div>
+        <span>Health</span>
+        <strong class="account-health-inline">
+          <span>{{ customer.healthScore }}</span>
+          <span class="health-bar" aria-hidden="true"><i [style.width.%]="customer.healthScore"></i></span>
+        </strong>
+      </div>
       <div><span>Created</span><strong>{{ customer.createdAt | date: 'MMM d, y' }}</strong></div>
       <div><span>Renewal</span><strong>{{ customer.renewalDate | date: 'MMM d, y' }}</strong></div>
     </div>

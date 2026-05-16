@@ -33,17 +33,100 @@
   </aside>
 
   <main class="dashboard-main">
-    <nav class="mobile-nav" aria-label="Primary navigation">
-      @for (item of navItems; track item.route) {
-        <a [routerLink]="item.route" routerLinkActive="is-active">
-          {{ item.label }}
-        </a>
-      }
-    </nav>
+    <header class="mobile-appbar">
+      <div class="mobile-appbar__workspace">
+        <strong>Acme Operations</strong>
+        <span>Team workspace</span>
+      </div>
+      <div class="mobile-appbar__actions">
+        <button class="icon-button mobile-command-trigger" type="button" aria-label="Open command palette" (click)="commandOpen.set(true)">
+          <lucide-icon [img]="Search" size="16" aria-hidden="true"></lucide-icon>
+        </button>
+        <div class="mobile-command-host">
+          <app-command-palette [open]="commandOpen()" (closed)="commandOpen.set(false)" />
+        </div>
+        <div class="notification-menu">
+          <button
+            class="icon-button notification-trigger"
+            type="button"
+            [class.has-dot]="unreadNotifications()"
+            [attr.aria-expanded]="notificationsOpen()"
+            aria-haspopup="dialog"
+            aria-label="Open notifications"
+            (click)="toggleNotifications()"
+          >
+            <lucide-icon [img]="Bell" size="16" aria-hidden="true"></lucide-icon>
+          </button>
+          @if (notificationsOpen()) {
+            <section class="notifications-popover" role="dialog" aria-label="Notifications">
+              <header>
+                <div>
+                  <h2>Notifications</h2>
+                  <span>{{ unreadNotifications() }} unread</span>
+                </div>
+                <button class="icon-button" type="button" aria-label="Close notifications" (click)="notificationsOpen.set(false)">
+                  <lucide-icon [img]="X" size="14" aria-hidden="true"></lucide-icon>
+                </button>
+              </header>
+              <div class="notification-list">
+                @for (notification of notifications(); track notification.id) {
+                  <button type="button" [class.is-unread]="!notification.read" (click)="markNotificationRead(notification.id)">
+                    <span [class]="'notification-icon notification-icon--' + notification.tone">
+                      <lucide-icon [img]="notificationIcon(notification.tone)" size="15" aria-hidden="true"></lucide-icon>
+                    </span>
+                    <span>
+                      <strong>{{ notification.title }}</strong>
+                      <small>{{ notification.detail }}</small>
+                      <time>{{ notification.time }}</time>
+                    </span>
+                  </button>
+                }
+              </div>
+              <footer>
+                <button class="row-action" type="button" (click)="markAllNotificationsRead()">Mark all read</button>
+              </footer>
+            </section>
+          }
+        </div>
+        <button
+          class="icon-button mobile-menu-trigger"
+          type="button"
+          [attr.aria-expanded]="mobileMenuOpen()"
+          aria-haspopup="dialog"
+          aria-label="Open navigation menu"
+          (click)="mobileMenuOpen.set(true)"
+        >
+          <lucide-icon [img]="Menu" size="17" aria-hidden="true"></lucide-icon>
+        </button>
+      </div>
+    </header>
+
+    @if (mobileMenuOpen()) {
+      <div class="mobile-menu-backdrop" (click)="closeMobileMenu()" aria-hidden="true"></div>
+      <aside class="mobile-menu-sheet" role="dialog" aria-modal="true" aria-label="Navigation menu">
+        <div class="mobile-menu-sheet__handle" aria-hidden="true"></div>
+        <header>
+          <a class="mobile-menu-sheet__brand" routerLink="/overview" aria-label="Operations dashboard home" (click)="closeMobileMenu()">
+            <span>OD</span>
+            <strong>Operations</strong>
+          </a>
+          <button class="icon-button" type="button" aria-label="Close navigation menu" (click)="closeMobileMenu()">
+            <lucide-icon [img]="X" size="14" aria-hidden="true"></lucide-icon>
+          </button>
+        </header>
+        <nav aria-label="Mobile navigation">
+          @for (item of navItems; track item.route) {
+            <a [routerLink]="item.route" routerLinkActive="is-active" (click)="closeMobileMenu()">
+              <lucide-icon [img]="item.icon" size="16" aria-hidden="true"></lucide-icon>
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        </nav>
+      </aside>
+    }
 
     <header class="topbar" [class.is-mobile-hidden]="mobileTopbarHidden()">
       <div class="topbar__identity">
-        <a class="mobile-brand" routerLink="/overview" aria-label="Operations dashboard home">OD</a>
         <div class="workspace-select">
           <span>Acme Operations</span>
           <strong>Team workspace</strong>
@@ -58,7 +141,7 @@
         <app-command-palette [open]="commandOpen()" (closed)="commandOpen.set(false)" />
       </div>
 
-      <div class="topbar__actions">
+      <div class="topbar__actions desktop-topbar-actions">
         <div class="notification-menu">
           <button
             class="icon-button notification-trigger"
