@@ -82,6 +82,11 @@
   .task-form-grid label:last-child {
     grid-column: auto;
   }
+
+  .task-form-grid input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+  }
 }
 
 
