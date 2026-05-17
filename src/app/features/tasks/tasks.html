@@ -408,7 +408,9 @@
         <span>Workflow queue</span>
         <h2>Create task</h2>
       </div>
-      <button class="icon-button" type="button" aria-label="Close create task" (click)="closeCreateTask()">×</button>
+      <button class="icon-button" type="button" aria-label="Close create task" (click)="closeCreateTask()">
+        <lucide-icon [img]="X" size="14" aria-hidden="true"></lucide-icon>
+      </button>
     </header>
     <div class="task-drawer__body">
       <div class="task-form-grid">
