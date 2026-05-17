@@ -317,7 +317,7 @@
         <section class="task-drawer__section">
           <h3>Activity</h3>
           <div class="task-timeline">
-            @for (event of details.timeline; track event.time + event.title) {
+            @for (event of details.timeline; track $index) {
               <article>
                 <time>{{ event.time }}</time>
                 <strong>{{ event.title }}</strong>
@@ -330,7 +330,7 @@
         <section class="task-drawer__section">
           <h3>Comments</h3>
           <div class="task-comments">
-            @for (comment of details.comments; track comment.author + comment.time) {
+            @for (comment of details.comments; track $index) {
               <article>
                 <span>{{ comment.initials }}</span>
                 <div>
@@ -341,10 +341,29 @@
               </article>
             }
           </div>
-          <label class="task-comment-composer">
-            <span class="sr-only">Add comment</span>
-            <input type="text" placeholder="Add comment…" />
-          </label>
+          <div class="task-comment-composer">
+            <div>
+              <textarea
+                #taskCommentInput
+                id="task-comment-input"
+                rows="1"
+                placeholder="Add comment…"
+                aria-label="Add comment"
+                [ngModel]="commentDraft()"
+                (ngModelChange)="updateCommentDraft($event)"
+                (keydown)="submitCommentOnEnter($event, task)"
+              ></textarea>
+              <button
+                class="text-button"
+                type="button"
+                [disabled]="!commentDraft().trim()"
+                aria-label="Add comment"
+                (click)="submitComment(task)"
+              >
+                Send
+              </button>
+            </div>
+          </div>
         </section>
 
         <section class="task-drawer__section">

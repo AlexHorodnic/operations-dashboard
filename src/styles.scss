@@ -2539,21 +2539,53 @@ tbody tr:hover .row-action {
 .task-comments article div {
   display: grid;
   gap: 0.12rem;
+  min-width: 0;
+}
+
+.task-comments p,
+.task-timeline p {
+  overflow-wrap: anywhere;
 }
 
 .task-comment-composer {
-  display: block;
-  margin-top: 0.85rem;
+  display: grid;
+  margin-top: 1rem;
+  scroll-margin-bottom: 6rem;
 }
 
-.task-comment-composer input {
-  min-height: 2.55rem;
+.task-comment-composer > div {
+  display: flex;
+  align-items: end;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.task-comment-composer textarea {
+  min-width: 0;
+  min-height: 2.75rem;
   border-color: var(--border-subtle);
   background: rgb(255 255 255 / 1.4%);
+  line-height: 1.4;
+  resize: none;
 }
 
-.task-comment-composer input::placeholder {
+.task-comment-composer textarea:focus,
+.task-comment-composer textarea:focus-visible {
+  border-color: var(--border-subtle);
+  outline: none;
+}
+
+.task-comment-composer textarea::placeholder {
   color: var(--faint);
+}
+
+.task-comment-composer button {
+  min-width: 4rem;
+  min-height: 2.75rem;
+}
+
+.task-comment-composer button:disabled {
+  opacity: 0.45;
 }
 
 .task-account-panel {
@@ -3638,6 +3670,18 @@ tbody tr:hover .row-action {
 
   .task-drawer__overview {
     grid-template-columns: 1fr;
+  }
+
+  .task-comment-composer > div {
+    flex-wrap: wrap;
+  }
+
+  .task-comment-composer textarea {
+    flex: 1 1 14rem;
+  }
+
+  .task-comment-composer button {
+    flex: 0 0 auto;
   }
 
   .task-toast {

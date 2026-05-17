@@ -103,7 +103,7 @@ export class Tasks {
     [9, { update: 'Updated 26m ago', detail: 'Admin handoff waiting on customer' }],
     [10, { update: 'Blocked 1h ago', detail: 'Renewal memo waiting on CSM', blockedReason: 'Missing executive sponsor notes' }],
   ]);
-  private readonly taskDetails = new Map<number, TaskDetailRecord>([
+  private readonly initialTaskDetails = new Map<number, TaskDetailRecord>([
     [1, {
       timeline: [
         { time: 'May 12, 09:14', title: 'Task created', detail: 'Onboarding checklist opened from the launch workflow.' },
@@ -146,11 +146,13 @@ export class Tasks {
     }],
   ]);
   private readonly fallbackAccount: RelatedAccount = { company: 'Related account', plan: 'Growth', contractValue: '$24.0K ARR', health: 'Healthy · 82', context: 'No upcoming renewal milestone', openIssues: 'No open issues' };
+  private readonly taskDetailsKey = 'operations-dashboard-task-details';
   private lastFocusedTaskCard: HTMLElement | null = null;
   private lastMoveSheetTrigger: HTMLElement | null = null;
   private lockedScrollY = 0;
   private readonly drawerCloseButton = viewChild<ElementRef<HTMLButtonElement>>('taskDrawerClose');
   private readonly moveSheetCloseButton = viewChild<ElementRef<HTMLButtonElement>>('moveSheetClose');
+  private readonly taskCommentInput = viewChild<ElementRef<HTMLTextAreaElement>>('taskCommentInput');
 
   readonly loading = signal(true);
   readonly error = signal(false);
@@ -169,6 +171,8 @@ export class Tasks {
   readonly createTaskOpen = signal(false);
   readonly moveSheetTaskId = signal<number | null>(null);
   readonly isMobileWorkflow = signal(typeof window !== 'undefined' && window.innerWidth <= 720);
+  readonly taskDetails = signal(this.readTaskDetails());
+  readonly commentDraft = signal('');
   readonly taskDraft = signal<TaskDraft>(this.createTaskDraft());
   readonly taskDraftError = signal('');
   readonly statuses: TaskStatus[] = ['Queued', 'In progress', 'Blocked', 'Done'];
@@ -258,19 +262,7 @@ export class Tasks {
       return null;
     }
 
-    return this.taskDetails.get(task.id) ?? {
-      blockerDetail: task.blockedReason,
-      timeline: [
-        { time: 'Created recently', title: 'Task created', detail: `${task.type} workflow item created for ${task.customer}.` },
-        { time: task.update, title: `Moved to ${task.status.toLowerCase()}`, detail: task.detail },
-      ],
-      comments: [
-        { author: task.owner, initials: task.owner.slice(0, 1), time: 'Recently', message: task.detail },
-        { author: 'Ops', initials: 'O', time: 'Earlier', message: 'Monitoring progress and next customer action.' },
-      ],
-      account: { ...this.fallbackAccount, company: task.customer },
-      resources: [],
-    };
+    return this.taskDetails().get(task.id) ?? this.createFallbackTaskDetails(task);
   });
 
   constructor() {
@@ -481,12 +473,14 @@ export class Tasks {
 
     this.lastFocusedTaskCard = event.currentTarget as HTMLElement | null;
     this.selectedTaskId.set(task.id);
+    this.commentDraft.set('');
     this.drawerActionsOpen.set(false);
     window.setTimeout(() => this.drawerCloseButton()?.nativeElement.focus());
   }
 
   closeTaskDrawer(): void {
     this.selectedTaskId.set(null);
+    this.commentDraft.set('');
     this.drawerActionsOpen.set(false);
     window.setTimeout(() => this.lastFocusedTaskCard?.focus());
   }
@@ -502,6 +496,58 @@ export class Tasks {
       this.closeTaskDrawer();
     }
   }
+
+  updateCommentDraft(value: string): void {
+    this.commentDraft.set(value);
+  }
+
+  submitComment(task: WorkflowTask): void {
+    const message = this.commentDraft().trim();
+    if (!message) {
+      return;
+    }
+
+    const currentDetails = this.taskDetails().get(task.id) ?? this.createFallbackTaskDetails(task);
+    const nextDetails: TaskDetailRecord = {
+      ...currentDetails,
+      comments: [
+        ...currentDetails.comments,
+        {
+          author: 'You',
+          initials: 'Y',
+          time: 'Just now',
+          message,
+        },
+      ],
+      timeline: [
+        ...currentDetails.timeline,
+        {
+          time: 'Just now',
+          title: 'Comment added',
+          detail: message,
+        },
+      ],
+    };
+
+    this.taskDetails.update((details) => {
+      const next = new Map(details);
+      next.set(task.id, nextDetails);
+      return next;
+    });
+    this.writeTaskDetails();
+    this.commentDraft.set('');
+    window.setTimeout(() => this.taskCommentInput()?.nativeElement.focus());
+  }
+
+  submitCommentOnEnter(event: KeyboardEvent, task: WorkflowTask): void {
+    if (event.key !== 'Enter' || event.shiftKey) {
+      return;
+    }
+
+    event.preventDefault();
+    this.submitComment(task);
+  }
+
 
   @HostListener('window:resize')
   protected syncMobileWorkflowBreakpoint(): void {
@@ -636,6 +682,60 @@ export class Tasks {
     document.body.classList.remove('is-task-drawer-open');
     document.body.style.top = '';
     this.restoreScrollPosition();
+  }
+
+  private createFallbackTaskDetails(task: WorkflowTask): TaskDetailRecord {
+    return {
+      blockerDetail: task.blockedReason,
+      timeline: [
+        { time: 'Created recently', title: 'Task created', detail: `${task.type} workflow item created for ${task.customer}.` },
+        { time: task.update, title: `Moved to ${task.status.toLowerCase()}`, detail: task.detail },
+      ],
+      comments: [
+        { author: task.owner, initials: task.owner.slice(0, 1), time: 'Recently', message: task.detail },
+        { author: 'Ops', initials: 'O', time: 'Earlier', message: 'Monitoring progress and next customer action.' },
+      ],
+      account: { ...this.fallbackAccount, company: task.customer },
+      resources: [],
+    };
+  }
+
+  private readTaskDetails(): Map<number, TaskDetailRecord> {
+    try {
+      const raw = sessionStorage.getItem(this.taskDetailsKey);
+      const parsed: unknown = raw ? JSON.parse(raw) : null;
+      if (!Array.isArray(parsed)) {
+        return new Map(this.initialTaskDetails);
+      }
+
+      const details = new Map<number, TaskDetailRecord>();
+      for (const entry of parsed) {
+        if (!this.isStoredTaskDetailEntry(entry)) {
+          return new Map(this.initialTaskDetails);
+        }
+        details.set(entry[0], entry[1]);
+      }
+      return details;
+    } catch {
+      return new Map(this.initialTaskDetails);
+    }
+  }
+
+  private writeTaskDetails(): void {
+    try {
+      sessionStorage.setItem(this.taskDetailsKey, JSON.stringify([...this.taskDetails().entries()]));
+    } catch {
+      // Session persistence is best-effort for local mock data.
+    }
+  }
+
+  private isStoredTaskDetailEntry(value: unknown): value is [number, TaskDetailRecord] {
+    if (!Array.isArray(value) || value.length !== 2 || typeof value[0] !== 'number') {
+      return false;
+    }
+
+    const detail = value[1] as Partial<TaskDetailRecord> | null;
+    return !!detail && Array.isArray(detail.timeline) && Array.isArray(detail.comments) && !!detail.account && Array.isArray(detail.resources);
   }
 
   private restoreScrollPosition(): void {
