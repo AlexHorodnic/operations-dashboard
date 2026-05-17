@@ -48,6 +48,10 @@
   line-height: 1.35;
 }
 
+.account-link:active {
+  transform: none;
+}
+
 .mobile-sort {
   display: none;
 }
@@ -191,6 +195,59 @@
   .table-wrap {
     overflow: visible;
     border: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .accounts-panel {
+    overflow: visible;
+  }
+
+  .bulk-toolbar {
+    position: sticky;
+    top: calc(var(--mobile-appbar-sticky-offset) + 0.5rem);
+    z-index: 30;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.7rem;
+    background:
+      linear-gradient(180deg, rgb(106 166 255 / 10%), rgb(106 166 255 / 7%)),
+      var(--surface);
+    box-shadow: 0 0.55rem 1rem rgb(0 0 0 / 18%);
+  }
+
+  .bulk-toolbar strong {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .bulk-toolbar .row-action,
+  .bulk-assignment,
+  .bulk-assignment select {
+    min-width: 0;
+  }
+
+  .bulk-toolbar .row-action {
+    min-height: 2.75rem;
+    flex: 1 1 6.5rem;
+    padding-inline: 0.7rem;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .bulk-assignment {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+  }
+
+  .bulk-assignment select {
+    flex: 1 1 8rem;
+    min-height: 2.75rem;
   }
 }
 

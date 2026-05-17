@@ -52,12 +52,15 @@
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
+  overflow-x: clip;
+  scrollbar-gutter: stable;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   overflow-x: hidden;
+  overflow-x: clip;
   background: var(--bg);
   color: var(--text);
   font-size: 0.875rem;
@@ -66,6 +69,7 @@ body {
 body.is-task-drawer-open,
 body.is-account-drawer-open {
   position: fixed;
+  inset-inline: 0;
   width: 100%;
   overflow: hidden;
 }
@@ -81,11 +85,29 @@ button {
   cursor: pointer;
 }
 
+button,
+a,
+[role="button"],
+.icon-button,
+.text-button,
+.row-action,
+.account-link,
+.workflow-card,
+.task-card,
+.mobile-menu-sheet nav a,
+.mobile-appbar__actions button,
+.task-move-sheet__options button,
+.notification-list button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .dashboard-shell {
   width: 100%;
   max-width: 100%;
   min-height: 100dvh;
   overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .sidebar {
@@ -584,6 +606,7 @@ td span,
   display: grid;
   max-height: 20rem;
   overflow-y: auto;
+  touch-action: pan-y pinch-zoom;
   padding: 0.35rem;
 }
 
@@ -2403,6 +2426,7 @@ tbody tr:hover .row-action {
 .task-drawer__body {
   overflow-y: auto;
   overscroll-behavior: contain;
+  touch-action: pan-y pinch-zoom;
   padding: 0 1.15rem 1.25rem;
 }
 
@@ -2847,8 +2871,10 @@ tbody tr:hover .row-action {
   z-index: 50;
   display: flex;
   flex-direction: column;
-  width: min(31rem, 100%);
+  width: min(100vw, 31rem);
+  max-width: 100vw;
   height: 100dvh;
+  box-sizing: border-box;
   border-left: 1px solid var(--border);
   background: var(--surface);
   box-shadow: -18px 0 40px rgb(0 0 0 / 24%);
@@ -2864,6 +2890,18 @@ tbody tr:hover .row-action {
   border-bottom: 1px solid var(--border);
 }
 
+.drawer__header > div,
+.drawer__body,
+.drawer-summary > div,
+.detail-grid > div,
+.drawer-section,
+.activity-item > div,
+.account-form,
+.form-grid > *,
+.form-field-full {
+  min-width: 0;
+}
+
 .drawer__header span {
   color: var(--faint);
   font-size: 0.72rem;
@@ -2873,12 +2911,15 @@ tbody tr:hover .row-action {
 .drawer__header h2 {
   margin-top: 0.15rem;
   font-size: 1rem;
+  overflow-wrap: anywhere;
 }
 
 .drawer__body {
   overflow-y: auto;
   overscroll-behavior: contain;
+  touch-action: pan-y pinch-zoom;
   padding: 1rem;
+  box-sizing: border-box;
 }
 
 .drawer-summary {
@@ -2886,6 +2927,14 @@ tbody tr:hover .row-action {
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
+}
+
+.drawer-summary h3,
+.drawer-summary p,
+.detail-grid strong,
+.drawer-section p,
+.activity-item strong {
+  overflow-wrap: anywhere;
 }
 
 .drawer-summary p,
@@ -2952,6 +3001,7 @@ tbody tr:hover .row-action {
 
 .drawer-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.65rem;
   padding-top: var(--space-3);
@@ -2998,6 +3048,7 @@ tbody tr:hover .row-action {
   gap: 0.25rem;
   max-height: 22rem;
   overflow-y: auto;
+  touch-action: pan-y pinch-zoom;
   padding: 0.45rem;
 }
 
@@ -3216,7 +3267,72 @@ tbody tr:hover .row-action {
   }
 }
 
+@media (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select,
+  .command-palette input,
+  .workflow-search input {
+    font-size: 1rem;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    line-height: 1.4;
+  }
+
+  .drawer__body,
+  .task-drawer__body {
+    scroll-padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .drawer__body input,
+  .drawer__body textarea,
+  .drawer__body select,
+  .task-drawer__body input,
+  .task-drawer__body textarea,
+  .task-drawer__body select {
+    scroll-margin-block: 1rem 6rem;
+  }
+
+  .drawer {
+    width: min(100vw, 31rem);
+    max-width: 100vw;
+  }
+
+  .drawer__header,
+  .drawer__body {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .drawer-summary {
+    flex-wrap: wrap;
+  }
+
+  .drawer-summary app-badge {
+    max-width: 100%;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .activity-item {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .drawer-actions > * {
+    flex: 1 1 10rem;
+  }
+}
+
 @media (max-width: 720px) {
+  :root {
+    --mobile-appbar-sticky-offset: calc(4.15rem + env(safe-area-inset-top));
+  }
+
   .export-feedback--desktop-only {
     display: none;
   }
@@ -3234,7 +3350,7 @@ tbody tr:hover .row-action {
     justify-content: space-between;
     gap: 0.75rem;
     width: 100%;
-    min-height: calc(4.15rem + env(safe-area-inset-top));
+    min-height: var(--mobile-appbar-sticky-offset);
     padding: calc(0.75rem + env(safe-area-inset-top)) 1rem 0.75rem;
     border-bottom: 1px solid var(--border);
     background: rgb(11 13 16 / 94%);
@@ -3408,6 +3524,7 @@ tbody tr:hover .row-action {
 
   .workflow-card {
     cursor: pointer;
+    touch-action: manipulation;
   }
 
   .sparkline,
@@ -3641,10 +3758,6 @@ tbody tr:hover .row-action {
   .pagination {
     align-items: flex-start;
     flex-direction: column;
-  }
-
-  .detail-grid {
-    grid-template-columns: 1fr;
   }
 
   .form-grid {

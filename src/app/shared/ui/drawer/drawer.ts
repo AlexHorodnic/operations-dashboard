@@ -37,14 +37,14 @@ export class Drawer {
     effect(() => {
       if (this.open()) {
         this.previouslyFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-        queueMicrotask(() => this.closeButton()?.nativeElement.focus());
+        queueMicrotask(() => this.closeButton()?.nativeElement.focus({ preventScroll: true }));
         return;
       }
 
       if (this.previouslyFocusedElement) {
         const element = this.previouslyFocusedElement;
         this.previouslyFocusedElement = null;
-        queueMicrotask(() => element.focus());
+        queueMicrotask(() => element.focus({ preventScroll: true }));
       }
     });
   }
