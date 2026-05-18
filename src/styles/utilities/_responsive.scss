@@ -308,7 +308,12 @@
   }
 
   .mobile-command-host {
+    display: contents;
     position: static;
+  }
+
+  .mobile-command-host app-command-palette {
+    display: contents;
   }
 
   .mobile-command-host .command-palette {
