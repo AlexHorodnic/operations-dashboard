@@ -1,4 +1,4 @@
-import { Activity, AnalyticsPoint, Customer, Kpi, OperationTask } from '../models/dashboard.models';
+import { Activity, AnalyticsPoint, Customer, Kpi, OperationTask } from '../core/models/dashboard.models';
 
 export const kpis: Kpi[] = [
   { label: 'Recurring revenue', value: '$428.6K', trend: '+4.1%', trendDirection: 'up', detail: 'vs. April close' },

@@ -1,9 +1,9 @@
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DashboardDataService } from '../../core/services/dashboard-data.service';
-import { KpiCard } from '../../shared/kpi-card/kpi-card';
-import { EmptyState } from '../../shared/empty-state/empty-state';
-import { Activity, Kpi } from '../../models/dashboard.models';
+import { KpiCard } from '../../shared/components/kpi-card/kpi-card';
+import { EmptyState } from '../../shared/components/empty-state/empty-state';
+import { Activity, Kpi } from '../../core/models/dashboard.models';
 import { exportCsv } from '../../shared/utils/csv-export';
 import { CircleAlert, Download, LucideAngularModule } from 'lucide-angular';
 

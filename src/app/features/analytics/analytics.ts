@@ -3,8 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { CircleAlert, LucideAngularModule } from 'lucide-angular';
 import { DashboardDataService } from '../../core/services/dashboard-data.service';
-import { AnalyticsPoint } from '../../models/dashboard.models';
-import { EmptyState } from '../../shared/empty-state/empty-state';
+import { AnalyticsPoint } from '../../core/models/dashboard.models';
+import { EmptyState } from '../../shared/components/empty-state/empty-state';
 
 type AnalyticsRange = 'Last 30 days' | 'Last 90 days' | 'Last 6 months';
 

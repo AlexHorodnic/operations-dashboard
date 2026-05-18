@@ -4,7 +4,7 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { BarChart3, Bell, ChevronLeft, ChevronRight, CircleAlert, CircleCheck, Clock, LayoutDashboard, ListTodo, LucideAngularModule, Menu, Search, UsersRound, X } from 'lucide-angular';
 import { filter } from 'rxjs';
 import { VercelAnalyticsService } from './core/services/vercel-analytics.service';
-import { CommandPalette } from './shared/ui/command-palette/command-palette';
+import { CommandPalette } from './shared/components/command-palette/command-palette';
 
 interface AppNotification {
   id: number;
@@ -74,8 +74,8 @@ export class App {
   protected readonly currentPath = signal(this.router.url);
   protected readonly navItems = [
     { route: '/overview', label: 'Overview', description: 'Operating snapshot', metric: '4 core KPIs', icon: this.LayoutDashboard },
-    { route: '/customers', label: 'Accounts', description: 'Account management workspace', metric: '12 matching accounts', icon: this.UsersRound },
-    { route: '/tasks', label: 'Workflow queue', description: 'Operations coordination workspace', metric: '10 active items', icon: this.ListTodo },
+    { route: '/accounts', label: 'Accounts', description: 'Account management workspace', metric: '12 matching accounts', icon: this.UsersRound },
+    { route: '/workflow', label: 'Workflow queue', description: 'Operations coordination workspace', metric: '10 active items', icon: this.ListTodo },
     { route: '/analytics', label: 'Analytics', description: 'Revenue and conversion reporting', metric: '6 month trend', icon: this.BarChart3 },
   ];
   protected readonly activePage = computed(() => {

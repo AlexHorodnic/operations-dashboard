@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, delay, of, throwError } from 'rxjs';
-import { analytics, customers, kpis, recentActivities, tasks } from '../../data/mock-dashboard-data';
-import { Activity, AnalyticsPoint, Customer, Kpi, OperationTask } from '../../models/dashboard.models';
+import { analytics, customers, kpis, recentActivities, tasks } from '../../mock-data/mock-dashboard-data';
+import { Activity, AnalyticsPoint, Customer, Kpi, OperationTask } from '../models/dashboard.models';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardDataService {

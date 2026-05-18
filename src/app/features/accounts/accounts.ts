@@ -12,10 +12,10 @@ import {
   Customer,
   CustomerPlan,
   CustomerStatus,
-} from '../../models/dashboard.models';
-import { Badge } from '../../shared/badge/badge';
-import { EmptyState } from '../../shared/empty-state/empty-state';
-import { Drawer } from '../../shared/ui/drawer/drawer';
+} from '../../core/models/dashboard.models';
+import { Badge } from '../../shared/components/badge/badge';
+import { EmptyState } from '../../shared/components/empty-state/empty-state';
+import { Drawer } from '../../shared/components/drawer/drawer';
 import { exportCsv } from '../../shared/utils/csv-export';
 
 type SortKey = 'name' | 'company' | 'plan' | 'status' | 'revenue' | 'lastActivity' | 'healthScore';
@@ -38,12 +38,12 @@ interface AccountDraft {
 }
 
 @Component({
-  selector: 'app-customers',
+  selector: 'app-accounts',
   imports: [CommonModule, FormsModule, LucideAngularModule, Badge, EmptyState, Drawer],
-  templateUrl: './customers.html',
-  styleUrl: './customers.scss',
+  templateUrl: './accounts.html',
+  styleUrl: './accounts.scss',
 })
-export class Customers {
+export class Accounts {
   readonly CircleAlert = CircleAlert;
   readonly Download = Download;
   private readonly data = inject(DashboardDataService);

@@ -6,9 +6,9 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CircleAlert, CircleCheckBig, Clock3, ListTodo, LucideAngularModule, Plus, Search, Trash2, X } from 'lucide-angular';
 import { DashboardDataService } from '../../core/services/dashboard-data.service';
-import { CUSTOMER_OWNERS, OperationTask, TaskPriority, TaskStatus } from '../../models/dashboard.models';
-import { Badge } from '../../shared/badge/badge';
-import { EmptyState } from '../../shared/empty-state/empty-state';
+import { CUSTOMER_OWNERS, OperationTask, TaskPriority, TaskStatus } from '../../core/models/dashboard.models';
+import { Badge } from '../../shared/components/badge/badge';
+import { EmptyState } from '../../shared/components/empty-state/empty-state';
 
 interface TaskMeta {
   update: string;
@@ -80,12 +80,12 @@ interface TaskToast {
 }
 
 @Component({
-  selector: 'app-tasks',
+  selector: 'app-workflow',
   imports: [CommonModule, FormsModule, DragDropModule, LucideAngularModule, Badge, EmptyState],
-  templateUrl: './tasks.html',
-  styleUrl: './tasks.scss',
+  templateUrl: './workflow.html',
+  styleUrl: './workflow.scss',
 })
-export class Tasks {
+export class Workflow {
   private readonly data = inject(DashboardDataService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

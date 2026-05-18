@@ -46,11 +46,11 @@ export class CommandPalette {
   readonly query = signal('');
 
   private readonly actions: CommandAction[] = [
-    { label: 'Open Accounts', hint: 'Go to account management', route: '/customers' },
-    { label: 'Open Workflow Queue', hint: 'Review active operational work', route: '/tasks' },
+    { label: 'Open Accounts', hint: 'Go to account management', route: '/accounts' },
+    { label: 'Open Workflow Queue', hint: 'Review active operational work', route: '/workflow' },
     { label: 'Open Analytics', hint: 'View revenue and conversion trends', route: '/analytics' },
     { label: 'Open Overview', hint: 'Return to operating snapshot', route: '/overview' },
-    { label: 'Create Task', hint: 'Prepare a new workflow item', route: '/tasks?createTask=1' },
+    { label: 'Create Task', hint: 'Prepare a new workflow item', route: '/workflow?createTask=1' },
   ];
 
   readonly filteredActions = computed(() => {
