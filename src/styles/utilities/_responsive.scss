@@ -47,9 +47,9 @@
   }
 }
 
-@media (min-width: 1081px) and (max-width: 1200px) {
+@media (min-width: 769px) and (max-width: 1200px) {
   .topbar {
-    grid-template-columns: auto minmax(16rem, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     gap: var(--space-4);
     padding-right: 1.25rem;
   }
@@ -57,17 +57,21 @@
   .topbar__search {
     position: relative;
     left: auto;
-    width: 100%;
+    width: min(100%, 28rem);
     justify-content: stretch;
     transform: none;
   }
 
   .search-control {
-    width: 100%;
+    width: min(100%, 28rem);
+  }
+
+  .workspace-select {
+    min-width: 0;
   }
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 768px) {
   .topbar {
     grid-template-columns: 1fr;
     gap: var(--space-4);
@@ -249,7 +253,7 @@
   }
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 768px) {
   :root {
     --mobile-appbar-sticky-offset: calc(4.15rem + env(safe-area-inset-top));
   }
@@ -419,13 +423,23 @@
     color: var(--text);
   }
 
+  .topbar {
+    display: none;
+  }
+
+  .notifications-popover {
+    position: fixed;
+    top: calc(4.95rem + env(safe-area-inset-top));
+    right: 1rem;
+    left: 1rem;
+    width: auto;
+  }
+}
+
+@media (max-width: 1080px) {
   .content-stack {
     gap: var(--space-5);
     width: calc(100% - 2rem);
-  }
-
-  .topbar {
-    display: none;
   }
 
   .section__heading,
@@ -463,17 +477,14 @@
     height: 9rem;
   }
 
-  .notifications-popover {
-    position: fixed;
-    top: calc(4.95rem + env(safe-area-inset-top));
-    right: 1rem;
-    left: 1rem;
-    width: auto;
-  }
-
   .search-control {
     width: 100%;
     min-height: 2.5rem;
+  }
+
+  .topbar .search-control {
+    height: 2.375rem;
+    min-height: 2.375rem;
   }
 
   .workspace-select {

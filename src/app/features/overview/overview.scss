@@ -12,6 +12,13 @@
   border-bottom-color: var(--border-subtle);
 }
 
+@media (max-width: 1180px) {
+  .overview-section .kpi-grid,
+  .overview-section .overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 1080px) {
   .overview-activity-item {
     grid-template-columns: auto minmax(0, 1fr);
@@ -20,5 +27,4 @@
   .overview-activity-item time {
     grid-column: 2;
   }
-
 }
