@@ -3,7 +3,7 @@
     <div>
       <span class="breadcrumb">Operations / Overview</span>
       <h2>Operating snapshot</h2>
-      <p>Current performance across revenue, account health, and operational work.</p>
+      <p>Revenue, account risk, and the work currently moving through operations.</p>
     </div>
     <span class="timestamp">Updated {{ updatedAt }}</span>
   </div>
@@ -34,7 +34,7 @@
       <article class="panel panel--wide overview-revenue-card">
         <div class="panel__header revenue-card__header">
           <div>
-            <h3>Revenue momentum</h3>
+            <h3>Recurring revenue trend</h3>
             <span>{{ rangeLabel() }} recurring revenue</span>
           </div>
           <div class="export-control">
@@ -48,7 +48,7 @@
                 </button>
               }
             </div>
-            <button class="icon-button revenue-export" type="button" title="Download revenue momentum data as CSV" aria-label="Download revenue momentum data as CSV" (click)="exportRevenueMomentum()">
+            <button class="icon-button revenue-export" type="button" title="Download recurring revenue trend as CSV" aria-label="Download recurring revenue trend as CSV" (click)="exportRevenueMomentum()">
               <lucide-icon [img]="Download" size="15" aria-hidden="true"></lucide-icon>
             </button>
           </div>
@@ -93,7 +93,7 @@
           </div>
         </div>
         <table class="sr-only overview-data-table">
-          <caption>Revenue momentum data</caption>
+          <caption>Recurring revenue trend data</caption>
           <thead><tr><th scope="col">{{ periodLabel() }}</th><th scope="col">Revenue</th></tr></thead>
           <tbody>
             @for (point of chartPoints(); track point.label) {
@@ -107,8 +107,8 @@
       <article class="panel overview-feed-card">
         <div class="panel__header">
           <div>
-            <h3>Operations feed</h3>
-            <span>Recent account and workflow events</span>
+            <h3>Recent handoffs</h3>
+            <span>Latest account and queue activity</span>
           </div>
         </div>
         <div class="activity-list overview-activity-list">

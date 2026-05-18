@@ -92,60 +92,60 @@ export class Tasks {
   private readonly destroyRef = inject(DestroyRef);
   private readonly today = this.localMidnight(new Date());
   private readonly taskMeta = new Map<number, TaskMeta>([
-    [1, { update: 'Updated 2m ago', detail: 'Waiting on workspace admin' }],
-    [2, { update: 'Escalated 18m ago', detail: 'Finance sync blocked', blockedReason: 'Waiting on finance approval' }],
-    [3, { update: 'Updated 1h ago', detail: 'Draft packet in review' }],
-    [4, { update: 'Updated 34m ago', detail: 'Mapping review in progress' }],
-    [5, { update: 'Closed yesterday', detail: 'Migration accepted by customer' }],
-    [6, { update: 'Updated 45m ago', detail: 'Retention risk review queued' }],
-    [7, { update: 'Updated 3h ago', detail: 'Security team requested documents' }],
-    [8, { update: 'Completed 2d ago', detail: 'Expansion seats provisioned' }],
-    [9, { update: 'Updated 26m ago', detail: 'Admin handoff waiting on customer' }],
-    [10, { update: 'Blocked 1h ago', detail: 'Renewal memo waiting on CSM', blockedReason: 'Missing executive sponsor notes' }],
+    [1, { update: 'Updated 2m ago', detail: 'Waiting on customer SSO role approval' }],
+    [2, { update: 'Escalated 18m ago', detail: 'ERP payload replay is blocked', blockedReason: 'Finance approval required before replay' }],
+    [3, { update: 'Updated 1h ago', detail: 'Procurement redlines need revision' }],
+    [4, { update: 'Reopened 34m ago', detail: 'Duplicate contacts found in import file' }],
+    [5, { update: 'Closed yesterday', detail: 'DNS verification accepted by customer' }],
+    [6, { update: 'Updated 45m ago', detail: 'Adoption review queued after champion change' }],
+    [7, { update: 'Updated 3h ago', detail: 'Security sign-off still pending' }],
+    [8, { update: 'Completed 2d ago', detail: 'Finance workspace seats provisioned' }],
+    [9, { update: 'Updated 26m ago', detail: 'New finance owner has not accepted handoff' }],
+    [10, { update: 'Blocked 1h ago', detail: 'Risk memo waiting on sponsor notes', blockedReason: 'Executive sponsor notes missing' }],
   ]);
   private readonly initialTaskDetails = new Map<number, TaskDetailRecord>([
     [1, {
       timeline: [
-        { time: 'May 12, 09:14', title: 'Task created', detail: 'Onboarding checklist opened from the launch workflow.' },
+        { time: 'May 12, 09:14', title: 'Task created', detail: 'Launch handoff opened after implementation review.' },
         { time: 'May 12, 09:18', title: 'Assigned to Avery', detail: 'Ownership routed to the onboarding pod.' },
-        { time: 'Today, 08:42', title: 'Moved to in progress', detail: 'Workspace admin review started.' },
+        { time: 'Today, 08:42', title: 'Moved to in progress', detail: 'SSO role review started with the workspace admin.' },
       ],
       comments: [
-        { author: 'Avery', initials: 'A', time: '12m ago', message: 'Waiting for the workspace admin to confirm SSO defaults.' },
-        { author: 'Mina', initials: 'M', time: '1h ago', message: 'Billing profile is complete; onboarding can continue once admin confirms.' },
+        { author: 'Avery', initials: 'A', time: '12m ago', message: 'Waiting for the workspace admin to approve the SSO role set before handoff.' },
+        { author: 'Mina', initials: 'M', time: '1h ago', message: 'Billing profile is complete; this is the last launch blocker on our side.' },
       ],
       account: { company: 'Bluebird Finance', plan: 'Growth', contractValue: '$31.6K ARR', health: 'Healthy · 87', context: 'Renewal Aug 15, 2026' },
       resources: [{ name: 'Onboarding checklist', type: 'PDF' }],
     }],
     [2, {
-      blockerDetail: 'Finance sync API returning invalid payloads.',
+      blockerDetail: 'ERP import produced invalid billing payloads during replay.',
       timeline: [
-        { time: 'Today, 07:28', title: 'Task created', detail: 'Incident detected by finance sync monitor.' },
+        { time: 'Today, 07:28', title: 'Task created', detail: 'Incident detected after the ERP import sync failed.' },
         { time: 'Today, 07:31', title: 'Assigned to Mina', detail: 'Routed to billing operations.' },
-        { time: '18m ago', title: 'Escalated and blocked', detail: 'Finance approval required before retrying the sync.' },
+        { time: '18m ago', title: 'Escalated and blocked', detail: 'Finance approval required before replaying the failed payloads.' },
       ],
       comments: [
-        { author: 'Mina', initials: 'M', time: '18m ago', message: 'Need finance approval before we can replay the failed payloads.' },
-        { author: 'Leo', initials: 'L', time: '9m ago', message: 'I attached the latest finance notes for review.' },
+        { author: 'Mina', initials: 'M', time: '18m ago', message: 'Need finance approval before we can replay the failed ERP payloads.' },
+        { author: 'Leo', initials: 'L', time: '9m ago', message: 'Attached the finance notes and the failed payload sample for review.' },
       ],
       account: { company: 'Atlas Retail', plan: 'Enterprise', contractValue: '$68.9K ARR', health: 'At risk · 61', context: 'Renewal Jul 28, 2026', openIssues: 'Billing sync incident' },
       resources: [{ name: 'Finance notes', type: 'DOC' }, { name: 'Payload sample', type: 'JSON' }],
     }],
     [4, {
       timeline: [
-        { time: 'May 13, 10:06', title: 'Task created', detail: 'Migration workflow generated the mapping review.' },
+        { time: 'May 13, 10:06', title: 'Task created', detail: 'Migration workflow opened the import review.' },
         { time: 'May 13, 10:14', title: 'Assigned to Iris', detail: 'Ownership accepted by migration operations.' },
-        { time: '34m ago', title: 'Comment added', detail: 'Mapping review is in progress.' },
+        { time: '34m ago', title: 'Task reopened', detail: 'Duplicate finance contacts were detected in the latest CSV.' },
       ],
       comments: [
-        { author: 'Iris', initials: 'I', time: '34m ago', message: 'Two field mappings need customer confirmation before import.' },
-        { author: 'Avery', initials: 'A', time: '2h ago', message: 'CSV structure looks clean after the latest export.' },
+        { author: 'Iris', initials: 'I', time: '34m ago', message: 'The new CSV has duplicate finance contacts; I need a cleaned export before retrying import.' },
+        { author: 'Avery', initials: 'A', time: '2h ago', message: 'Original field mapping looked fine, but the contact rows need customer cleanup.' },
       ],
       account: { company: 'Cobalt Logistics', plan: 'Growth', contractValue: '$27.4K ARR', health: 'Healthy · 81', context: 'Renewal Sep 12, 2026' },
       resources: [{ name: 'Import mapping', type: 'CSV' }],
     }],
   ]);
-  private readonly fallbackAccount: RelatedAccount = { company: 'Related account', plan: 'Growth', contractValue: '$24.0K ARR', health: 'Healthy · 82', context: 'No upcoming renewal milestone', openIssues: 'No open issues' };
+  private readonly fallbackAccount: RelatedAccount = { company: 'Account context unavailable', plan: 'Growth', contractValue: '$24.0K ARR', health: 'Monitor · 72', context: 'Renewal date not loaded', openIssues: 'No linked issue record' };
   private readonly taskDetailsKey = 'operations-dashboard-task-details';
   private lastFocusedTaskCard: HTMLElement | null = null;
   private lastMoveSheetTrigger: HTMLElement | null = null;
@@ -191,7 +191,7 @@ export class Tasks {
   readonly workflowTasks = computed<WorkflowTask[]>(() =>
     this.tasks().map((task) => {
       const dueDate = new Date(`${task.dueDate}T00:00:00`);
-      const meta = this.taskMeta.get(task.id) ?? { update: 'Updated recently', detail: 'No recent update' };
+      const meta = this.taskMeta.get(task.id) ?? { update: 'Updated recently', detail: 'No operator note yet' };
       const statusUpdate = this.statusUpdates().get(task.id);
       return {
         ...task,
@@ -247,11 +247,11 @@ export class Tasks {
     }).length;
 
     return [
-      { label: 'Active work items', value: String(active), detail: 'Across open lanes', tone: 'neutral' },
-      { label: 'Blocked items', value: String(blocked), detail: 'Need intervention', tone: blocked ? 'danger' : 'success' },
-      { label: 'SLA risk', value: String(slaRisk), detail: 'Critical or past due', tone: slaRisk ? 'warning' : 'success' },
-      { label: 'Completion rate', value: `${completionRate}%`, detail: 'Closed in current cycle', tone: 'success' },
-      { label: 'Due this week', value: String(dueThisWeek), detail: 'Open items approaching due date', tone: dueThisWeek ? 'warning' : 'success' },
+      { label: 'Open work items', value: String(active), detail: 'Across active lanes', tone: 'neutral' },
+      { label: 'Blocked', value: String(blocked), detail: 'Need external follow-up', tone: blocked ? 'danger' : 'success' },
+      { label: 'SLA watch', value: String(slaRisk), detail: 'Critical or past due', tone: slaRisk ? 'warning' : 'success' },
+      { label: 'Cycle closure', value: `${completionRate}%`, detail: 'Closed in current batch', tone: 'success' },
+      { label: 'Due this week', value: String(dueThisWeek), detail: 'Still open before Friday', tone: dueThisWeek ? 'warning' : 'success' },
     ];
   });
   readonly selectedTask = computed(() => this.workflowTasks().find((task) => task.id === this.selectedTaskId()) ?? null);

@@ -3,10 +3,10 @@
     <div>
       <span class="breadcrumb">Operations / Tasks</span>
       <h2>Workflow queue</h2>
-      <p>Coordinate account operations across onboarding, renewals, incidents, and risk work.</p>
+      <p>Track implementation handoffs, renewals, incidents, and account-risk work.</p>
     </div>
     <div class="section__actions">
-      <button class="row-action create-task-button" type="button" (click)="openCreateTask()">
+      <button class="text-button primary-action create-task-button" type="button" (click)="openCreateTask()">
         <lucide-icon [img]="Plus" size="15" aria-hidden="true"></lucide-icon>
         New task
       </button>
@@ -416,7 +416,7 @@
       <div class="task-form-grid">
         <label>
           <span>Title</span>
-          <input type="text" [ngModel]="taskDraft().title" (ngModelChange)="updateTaskDraft('title', $event)" placeholder="Review onboarding checklist" />
+          <input type="text" [ngModel]="taskDraft().title" (ngModelChange)="updateTaskDraft('title', $event)" placeholder="Billing sync failed after ERP import" />
         </label>
         <label>
           <span>Customer</span>
@@ -464,7 +464,7 @@
       }
       <div class="task-form-actions">
         <button class="row-action" type="button" (click)="closeCreateTask()">Cancel</button>
-        <button class="text-button" type="button" (click)="createTask()">Create task</button>
+        <button class="text-button primary-action" type="button" (click)="createTask()">Create task</button>
       </div>
     </div>
   </aside>

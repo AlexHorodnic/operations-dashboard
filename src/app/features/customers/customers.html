@@ -3,7 +3,7 @@
     <div>
       <span class="breadcrumb">Operations / Customers</span>
       <h2>Accounts</h2>
-      <p>Manage customer health, ownership, renewals, and account operations.</p>
+      <p>Review account ownership, renewal risk, and the latest operating context.</p>
     </div>
     <span class="timestamp">{{ filteredCustomers().length }} matching accounts</span>
   </div>
@@ -12,13 +12,13 @@
     <div class="panel__header panel__header--bordered">
       <div>
         <h3>Account directory</h3>
-        <span>CRM sync preview</span>
+        <span>Renewals, health, and owner handoffs</span>
       </div>
       <div class="panel-actions">
         @if (showDemoControls) {
-          <button class="text-button" type="button" (click)="load(true)">Simulate error</button>
+          <button class="row-action" type="button" (click)="load(true)">Simulate error</button>
         }
-        <button class="text-button" type="button" (click)="openAddAccount()">Add account</button>
+        <button class="text-button primary-action" type="button" (click)="openAddAccount()">Add account</button>
       </div>
     </div>
 
@@ -295,7 +295,7 @@
 
     <footer class="drawer-actions">
       <button class="row-action" type="button" (click)="closeAddAccount()">Cancel</button>
-      <button class="text-button" type="submit">Create account</button>
+      <button class="text-button primary-action" type="submit">Create account</button>
     </footer>
   </form>
 </app-drawer>

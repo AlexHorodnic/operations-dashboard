@@ -3,7 +3,7 @@
     <div>
       <span class="breadcrumb">Operations / Analytics</span>
       <h2>Analytics</h2>
-      <p>Revenue, growth, conversion, and workload signals for operations planning.</p>
+      <p>Activation health, backlog pressure, and expansion signals for operations planning.</p>
     </div>
     <label class="range-select">
       <span>Date range</span>
@@ -33,22 +33,22 @@
   } @else {
     <div class="comparison-grid analytics-kpis" aria-label="Analytics KPI summary">
       <article class="kpi-card">
-        <p>Revenue index</p>
+        <p>Expansion attainment</p>
         <div class="kpi-card__value">{{ latest()?.revenue }}</div>
         <div class="kpi-card__footer"><span class="trend trend--up">Up {{ (latest()?.revenue ?? 0) - (previous()?.revenue ?? 0) }} pts</span><span>vs prior period</span></div>
       </article>
       <article class="kpi-card">
-        <p>Period growth</p>
+        <p>Period movement</p>
         <div class="kpi-card__value">{{ revenueGrowthRate() }}%</div>
         <div class="kpi-card__footer"><span class="trend trend--up">+{{ revenuePointGain() }} pts</span><span>from period start</span></div>
       </article>
       <article class="kpi-card">
-        <p>Conversion</p>
+        <p>On-time activation</p>
         <div class="kpi-card__value">{{ latest()?.conversion }}%</div>
-        <div class="kpi-card__footer"><span class="trend trend--up">Up {{ conversionDelta() }} pts</span><span>trial to paid</span></div>
+        <div class="kpi-card__footer"><span class="trend trend--up">Up {{ conversionDelta() }} pts</span><span>vs prior period</span></div>
       </article>
       <article class="kpi-card">
-        <p>Workload</p>
+        <p>Queue load</p>
         <div class="kpi-card__value">{{ latest()?.workload }}%</div>
         <div class="kpi-card__footer"><span class="trend trend--down">Up {{ workloadDelta() }} pts</span><span>capacity used</span></div>
       </article>
@@ -58,8 +58,8 @@
       <article class="panel panel--wide analytics-revenue-card">
         <div class="panel__header analytics-revenue__header">
           <div>
-            <h3>Revenue by month</h3>
-            <span>Indexed MRR where 100 marks the operating target</span>
+            <h3>Expansion attainment by month</h3>
+            <span>Target index where 100 marks the booked expansion plan</span>
           </div>
         </div>
         <div class="analytics-revenue__summary">
@@ -96,7 +96,7 @@
                   class="analytics-bar__value"
                   type="button"
                   [style.height.%]="(point.revenue / maxRevenue()) * 100"
-                  [attr.aria-label]="point.label + ' revenue index ' + point.revenue + ', ' + point.delta"
+                  [attr.aria-label]="point.label + ' expansion attainment ' + point.revenue + ', ' + point.delta"
                 ></button>
                 <small>{{ point.label }}</small>
               </div>
@@ -105,21 +105,21 @@
         </div>
         <table class="sr-only analytics-data-table">
           <caption>Revenue by month data</caption>
-          <thead><tr><th scope="col">Period</th><th scope="col">Revenue index</th><th scope="col">Conversion</th><th scope="col">Workload</th></tr></thead>
+          <thead><tr><th scope="col">Period</th><th scope="col">Expansion attainment</th><th scope="col">On-time activation</th><th scope="col">Queue load</th></tr></thead>
           <tbody>
             @for (point of points(); track point.label) {
               <tr><th scope="row">{{ point.label }}</th><td>{{ point.revenue }}</td><td>{{ point.conversion }}%</td><td>{{ point.workload }}%</td></tr>
             }
           </tbody>
         </table>
-        <p class="analytics-revenue__insight">Revenue stayed above the target index in the latest period, with consistent gains supporting durable MRR expansion.</p>
+        <p class="analytics-revenue__insight">Expansion recovered above plan in the latest period after a softer May, while queue load stayed elevated from delayed implementation work.</p>
       </article>
 
       <article class="panel analytics-insights-card">
         <div class="panel__header">
           <div>
-            <h3>Summary insights</h3>
-            <span>Generated from local metrics</span>
+            <h3>Operational signals</h3>
+            <span>Derived from the selected period</span>
           </div>
         </div>
         <div class="insight-list">
@@ -137,14 +137,14 @@
       <article class="panel">
         <div class="panel__header">
           <div>
-            <h3>Conversion and workload</h3>
-            <span>Recent operating signals</span>
+            <h3>Activation and queue load</h3>
+            <span>Recent implementation signals</span>
           </div>
         </div>
         <div class="metric-list">
           @for (point of points().slice(-4); track point.label) {
             <div>
-              <span>{{ point.label }} conversion</span>
+              <span>{{ point.label }} on-time activation</span>
               <strong>{{ point.conversion }}%</strong>
               <div class="meter"><i [style.width.%]="point.workload"></i></div>
             </div>
@@ -155,8 +155,8 @@
       <article class="panel">
         <div class="panel__header">
           <div>
-            <h3>Revenue mix</h3>
-            <span>Plan contribution for selected range</span>
+            <h3>Booked expansion mix</h3>
+            <span>Plan contribution for selected period</span>
           </div>
         </div>
         <div class="revenue-mix">

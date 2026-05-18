@@ -47,18 +47,18 @@ export class Overview {
     Monthly: [
       { label: 'Jan', revenue: 318000 },
       { label: 'Feb', revenue: 346000 },
-      { label: 'Mar', revenue: 371000 },
-      { label: 'Apr', revenue: 396000 },
+      { label: 'Mar', revenue: 338000 },
+      { label: 'Apr', revenue: 392000 },
       { label: 'May', revenue: 429000 },
-      { label: 'Jun', revenue: 448000 },
+      { label: 'Jun', revenue: 428600 },
     ],
     Quarterly: [
       { label: 'Q1 25', revenue: 286000 },
       { label: 'Q2 25', revenue: 314000 },
-      { label: 'Q3 25', revenue: 352000 },
+      { label: 'Q3 25', revenue: 347000 },
       { label: 'Q4 25', revenue: 381000 },
       { label: 'Q1 26', revenue: 405000 },
-      { label: 'Q2 26', revenue: 448000 },
+      { label: 'Q2 26', revenue: 428600 },
     ],
     Yearly: [
       { label: '2021', revenue: 198000 },
@@ -66,7 +66,7 @@ export class Overview {
       { label: '2023', revenue: 284000 },
       { label: '2024', revenue: 333000 },
       { label: '2025', revenue: 389000 },
-      { label: '2026', revenue: 448000 },
+      { label: '2026', revenue: 428600 },
     ],
   };
 
@@ -121,7 +121,7 @@ export class Overview {
     const first = this.firstRevenue();
     const crossedTarget = this.revenueTrend().find((point) => point.revenue >= this.revenueTarget);
     const targetCopy = crossedTarget ? `crossed the ${this.formatCurrency(this.revenueTarget)} target in ${crossedTarget.label}` : `remains below the ${this.formatCurrency(this.revenueTarget)} target`;
-    return `${this.rangeLabel()} revenue ${targetCopy} and reached ${this.formatCurrency(latest.revenue)}, up ${this.formatCurrency(latest.revenue - first.revenue)} from the start of the period.`;
+    return `${this.rangeLabel()} revenue ${targetCopy} and closed at ${this.formatCurrency(latest.revenue)}, with a temporary dip during the period before recovering.`;
   });
 
   constructor() {

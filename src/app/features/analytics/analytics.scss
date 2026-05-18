@@ -40,7 +40,7 @@
 
 .analytics-bar::before {
   max-width: min(14rem, calc(100vw - 3rem));
-  content: attr(data-value) " ? " attr(data-growth);
+  content: attr(data-value) " · " attr(data-growth);
 }
 
 .analytics-revenue__summary > div:first-child strong {

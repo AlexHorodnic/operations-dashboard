@@ -31,32 +31,32 @@ export class Analytics {
   readonly ranges: readonly AnalyticsRange[] = ['Last 30 days', 'Last 90 days', 'Last 6 months'];
   private readonly shortRangeSeries: Record<Exclude<AnalyticsRange, 'Last 6 months'>, AnalyticsPoint[]> = {
     'Last 30 days': [
-      { label: 'Wk 1', revenue: 91, conversion: 7.1, workload: 53 },
-      { label: 'Wk 2', revenue: 95, conversion: 7.4, workload: 55 },
-      { label: 'Wk 3', revenue: 100, conversion: 7.8, workload: 58 },
-      { label: 'Wk 4', revenue: 104, conversion: 8.2, workload: 61 },
+      { label: 'Wk 1', revenue: 96, conversion: 79.4, workload: 66 },
+      { label: 'Wk 2', revenue: 94, conversion: 77.8, workload: 71 },
+      { label: 'Wk 3', revenue: 99, conversion: 80.2, workload: 73 },
+      { label: 'Wk 4', revenue: 101, conversion: 81.0, workload: 69 },
     ],
     'Last 90 days': [
-      { label: 'Apr', revenue: 86, conversion: 6.6, workload: 49 },
-      { label: 'May', revenue: 96, conversion: 7.8, workload: 57 },
-      { label: 'Jun', revenue: 104, conversion: 8.2, workload: 61 },
+      { label: 'Apr', revenue: 96, conversion: 79.3, workload: 64 },
+      { label: 'May', revenue: 94, conversion: 77.6, workload: 72 },
+      { label: 'Jun', revenue: 101, conversion: 81.0, workload: 69 },
     ],
   };
   private readonly revenueMixByRange: Record<AnalyticsRange, RevenueMixItem[]> = {
     'Last 30 days': [
-      { label: 'Enterprise', value: 64 },
-      { label: 'Growth', value: 27 },
-      { label: 'Starter', value: 9 },
+      { label: 'Enterprise', value: 61 },
+      { label: 'Growth', value: 31 },
+      { label: 'Starter', value: 8 },
     ],
     'Last 90 days': [
-      { label: 'Enterprise', value: 63 },
-      { label: 'Growth', value: 27 },
-      { label: 'Starter', value: 10 },
+      { label: 'Enterprise', value: 62 },
+      { label: 'Growth', value: 29 },
+      { label: 'Starter', value: 9 },
     ],
     'Last 6 months': [
-      { label: 'Enterprise', value: 62 },
+      { label: 'Enterprise', value: 63 },
       { label: 'Growth', value: 28 },
-      { label: 'Starter', value: 10 },
+      { label: 'Starter', value: 9 },
     ],
   };
 
@@ -106,9 +106,9 @@ export class Analytics {
     const first = this.first();
     const latest = this.latest();
     if (!first || !latest) {
-      return 'No revenue data available for the selected range.';
+      return 'No expansion attainment data available for the selected range.';
     }
-    return `Revenue index rose from ${first.revenue} to ${latest.revenue}, a gain of ${this.revenuePointGain()} points across ${this.points().length} periods.`;
+    return `Expansion attainment moved from ${first.revenue} to ${latest.revenue}, a net change of ${this.revenuePointGain()} points across ${this.points().length} periods.`;
   });
 
   readonly insights = computed(() => {
@@ -119,9 +119,11 @@ export class Analytics {
     }
 
     return [
-      `Revenue index increased ${latest.revenue - previous.revenue} points versus the prior period.`,
-      `Trial conversion is ${latest.conversion}% with workload at ${latest.workload}%.`,
-      'Enterprise accounts remain the largest expansion segment this period.',
+      `Expansion attainment changed ${latest.revenue - previous.revenue} points versus the prior period.`,
+      `On-time activation is ${latest.conversion}% while queue load sits at ${latest.workload}%.`,
+      latest.workload >= 69
+        ? 'Implementation load remains elevated after delayed handoffs and reopened migration work.'
+        : 'Queue load has eased, but blocked approvals still need follow-up.',
     ];
   });
 
