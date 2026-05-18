@@ -1,0 +1,132 @@
+.kpi-grid,
+.analytics-grid,
+.overview-grid,
+.loading-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.kpi-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: var(--space-4);
+}
+
+.overview-grid,
+.analytics-grid {
+  grid-template-columns: minmax(0, 1.35fr) minmax(20rem, 0.65fr);
+  row-gap: var(--space-5);
+}
+
+.analytics-grid + .analytics-grid,
+.overview-grid + .overview-grid {
+  margin-top: var(--space-5);
+}
+
+.loading-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.panel,
+.kpi-card,
+.task-card,
+.state-card,
+.skeleton-card {
+  border: 1px solid var(--border);
+  border-radius: 0.625rem;
+  background: var(--surface-card);
+  box-shadow: var(--shadow);
+}
+
+.kpi-card,
+.task-card,
+.panel {
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.panel,
+.task-card,
+.state-card {
+  padding: 1rem;
+}
+
+.kpi-card {
+  padding: 1.05rem;
+}
+
+.kpi-card p {
+  color: var(--muted);
+}
+
+.kpi-card__value {
+  margin: 0.65rem 0 0.7rem;
+  font-size: 1.48rem;
+  font-weight: 700;
+}
+
+.kpi-card__footer {
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.kpi-card:hover {
+  border-color: rgb(106 166 255 / 36%);
+  box-shadow: var(--shadow-raised);
+  transform: translateY(-1px);
+}
+
+.comparison-grid .kpi-card:hover {
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+  transform: none;
+}
+
+.trend {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.trend--up {
+  color: var(--green);
+}
+
+.trend--down {
+  color: var(--amber);
+}
+
+.state-card {
+  display: grid;
+  min-height: 12rem;
+  place-items: center;
+  align-content: center;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  text-align: center;
+}
+
+.state-card--inline-action {
+  margin-top: var(--space-4);
+}
+
+.state-card__icon {
+  color: var(--amber);
+  font-weight: 800;
+}
+
+.skeleton-card {
+  min-height: 11rem;
+  background:
+    linear-gradient(90deg, transparent, rgb(255 255 255 / 5%), transparent),
+    var(--surface-card);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}

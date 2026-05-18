@@ -1,0 +1,38 @@
+.brand strong {
+  overflow: hidden;
+  font-size: 0.95rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+.breadcrumb {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--faint);
+  font-size: 0.72rem;
+}
+
+.section__heading p,
+.panel__header span,
+.timestamp,
+.task-card p,
+td span,
+.activity-item p,
+.state-card p {
+  color: var(--muted);
+}
+
+.section__heading {
+  margin-bottom: var(--space-4);
+}
+
+.section__heading h2 {
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.section__heading p {
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+}

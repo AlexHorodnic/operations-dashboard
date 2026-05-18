@@ -1,0 +1,112 @@
+.revenue-card__header {
+  align-items: flex-start;
+}
+
+.revenue-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.revenue-summary > div {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 9rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.65rem;
+  background:
+    linear-gradient(135deg, rgb(106 166 255 / 12%), rgb(116 214 154 / 5%)),
+    rgb(255 255 255 / 1.6%);
+}
+
+.revenue-summary strong {
+  font-size: 1rem;
+}
+
+.revenue-summary span,
+.revenue-insight {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.revenue-range button {
+  min-height: 1.95rem;
+}
+
+.revenue-export {
+  width: 1.95rem;
+  height: 1.95rem;
+  font-weight: 700;
+}
+
+.revenue-insight {
+  margin-top: 0.95rem;
+  line-height: 1.45;
+}
+
+@keyframes revenue-rise {
+  from {
+    transform: scaleY(0);
+    transform-origin: bottom;
+    opacity: 0.3;
+  }
+}
+
+.activity-list,
+.metric-list {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: var(--space-4);
+}
+
+.activity-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  align-items: start;
+  padding: 0.78rem 0.65rem;
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: 0.4rem;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+
+.activity-item:hover {
+  background: rgb(255 255 255 / 2.5%);
+  border-bottom-color: rgb(106 166 255 / 24%);
+}
+
+.activity-item strong {
+  font-size: 0.82rem;
+}
+
+.activity-item p {
+  margin-top: 0.16rem;
+}
+
+.activity-item time {
+  color: var(--faint);
+  font-size: 0.74rem;
+}
+
+.activity-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  margin-top: 0.35rem;
+  border-radius: 50%;
+}
+
+.activity-dot--success {
+  background: var(--green);
+}
+
+.activity-dot--warning {
+  background: var(--amber);
+}
+
+.activity-dot--info {
+  background: var(--blue);
+}

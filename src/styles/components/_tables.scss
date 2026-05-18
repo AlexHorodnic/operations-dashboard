@@ -1,0 +1,158 @@
+.table-wrap {
+  overflow-x: auto;
+  margin-top: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.55rem;
+}
+
+.panel-actions,
+.export-control {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bulk-toolbar {
+  margin: 0 0 var(--space-4);
+  padding: 0.7rem 0.85rem;
+  border: 1px solid rgb(106 166 255 / 24%);
+  border-radius: 0.45rem;
+  background: rgb(106 166 255 / 8%);
+}
+
+.pagination {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.pagination div {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.table-skeleton {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: var(--space-4);
+}
+
+.table-skeleton div {
+  min-height: 3.1rem;
+  border-radius: 0.4rem;
+  background:
+    linear-gradient(90deg, transparent, rgb(255 255 255 / 5%), transparent),
+    var(--surface-2);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 56rem;
+}
+
+th,
+td {
+  padding: 0.86rem 0.95rem;
+  border-top: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  color: var(--faint);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+th button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-weight: inherit;
+  padding: 0;
+}
+
+td.primary-cell {
+  display: grid;
+  gap: 0.32rem;
+  cursor: pointer;
+  line-height: 1.25;
+}
+
+td.primary-cell strong {
+  color: var(--text);
+  font-weight: 650;
+}
+
+td.primary-cell span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.health-cell {
+  display: flex;
+  width: 7rem;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.health-score {
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.health-bar {
+  flex: 1 1 auto;
+  height: 0.35rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+.health-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--amber), var(--green));
+}
+
+.account-health-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.account-health-inline .health-bar {
+  flex: 1 1 auto;
+  min-width: 3.5rem;
+}
+
+tbody tr {
+  transition: background-color 140ms ease;
+}
+
+tbody tr:hover td {
+  background: rgb(255 255 255 / 2.7%);
+}
+
+tbody tr:hover .row-action {
+  color: var(--text);
+  border-color: rgb(106 166 255 / 36%);
+}

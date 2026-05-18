@@ -1,0 +1,223 @@
+.icon-button,
+.text-button,
+.row-action {
+  border: 1px solid var(--border);
+  border-radius: 0.38rem;
+  background: var(--surface-2);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.icon-button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+}
+
+.has-dot::after {
+  position: absolute;
+  top: 0.38rem;
+  right: 0.38rem;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--coral);
+  content: "";
+}
+
+.notification-menu {
+  position: relative;
+}
+
+.notification-trigger lucide-icon,
+.icon-button lucide-icon {
+  display: grid;
+  color: currentColor;
+}
+
+.notifications-popover {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  right: 0;
+  z-index: 60;
+  width: min(24rem, calc(100vw - 2rem));
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface-card);
+  box-shadow: 0 22px 54px rgb(0 0 0 / 34%);
+  animation: popover-in 120ms ease-out;
+}
+
+.notifications-popover header,
+.notifications-popover footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0.85rem;
+}
+
+.notifications-popover header {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.notifications-popover footer {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.notifications-popover h2 {
+  font-size: 0.9rem;
+}
+
+.notifications-popover header span {
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.notification-list {
+  display: grid;
+  max-height: 20rem;
+  overflow-y: auto;
+  touch-action: pan-y pinch-zoom;
+  padding: 0.35rem;
+}
+
+.notification-list button {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.7rem;
+  border: 1px solid transparent;
+  border-radius: 0.55rem;
+  background: transparent;
+  color: var(--text);
+  padding: 0.65rem;
+  text-align: left;
+}
+
+.notification-list button:hover,
+.notification-list button:focus-visible {
+  border-color: rgb(106 166 255 / 20%);
+  background: rgb(255 255 255 / 3%);
+}
+
+.notification-list button.is-unread {
+  background: rgb(106 166 255 / 6%);
+}
+
+.notification-icon {
+  display: grid;
+  width: 1.8rem;
+  height: 1.8rem;
+  place-items: center;
+  border-radius: 0.45rem;
+  background: var(--surface-2);
+  color: var(--blue);
+}
+
+.notification-icon lucide-icon {
+  display: block;
+  line-height: 0;
+}
+
+.notification-icon--danger {
+  background: rgb(255 127 115 / 12%);
+  color: var(--coral);
+}
+
+.notification-icon--warning {
+  background: rgb(229 186 88 / 12%);
+  color: var(--amber);
+}
+
+.notification-icon--success {
+  background: rgb(116 214 154 / 11%);
+  color: var(--green);
+}
+
+.notification-list strong,
+.notification-list small,
+.notification-list time {
+  display: block;
+}
+
+.notification-list strong {
+  font-size: 0.8rem;
+}
+
+.notification-list small {
+  margin-top: 0.16rem;
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
+.notification-list time {
+  margin-top: 0.35rem;
+  color: var(--faint);
+  font-size: 0.7rem;
+}
+
+.icon-button:hover,
+.text-button:hover,
+.row-action:hover {
+  border-color: rgb(106 166 255 / 45%);
+  background: var(--surface-3);
+}
+
+.text-button,
+.row-action {
+  min-height: 1.9rem;
+  padding: 0 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.row-action {
+  background: transparent;
+  color: var(--muted);
+}
+
+.primary-action {
+  border-color: rgb(106 166 255 / 48%);
+  background:
+    linear-gradient(135deg, rgb(106 166 255 / 18%), rgb(106 166 255 / 8%)),
+    var(--surface-2);
+  color: var(--text);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 5%),
+    0 6px 16px rgb(0 0 0 / 18%);
+}
+
+.primary-action:hover,
+.primary-action:focus-visible {
+  border-color: rgb(106 166 255 / 68%);
+  background:
+    linear-gradient(135deg, rgb(106 166 255 / 24%), rgb(106 166 255 / 10%)),
+    var(--surface-3);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgb(106 166 255 / 52%);
+  outline-offset: 2px;
+}
+
+

@@ -1,0 +1,185 @@
+.chart-shell {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.overview-revenue-card,
+.analytics-revenue-card {
+  display: grid;
+}
+
+.overview-chart-shell,
+.analytics-chart-shell,
+.overview-chart-shell .sparkline,
+.analytics-chart-shell .bar-chart {
+  min-width: 0;
+}
+
+.overview-data-table,
+.analytics-data-table {
+  border-collapse: collapse;
+}
+
+.revenue-chart {
+  position: relative;
+}
+
+.chart-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 10rem;
+  color: var(--faint);
+  font-size: 0.68rem;
+  text-align: right;
+}
+
+.sparkline,
+.bar-chart {
+  display: flex;
+  align-items: end;
+  gap: 0.55rem;
+  height: 10rem;
+  padding-bottom: 1.25rem;
+  background:
+    linear-gradient(to bottom, var(--border-subtle) 1px, transparent 1px) 0 0 / 100% 33.333%;
+}
+
+.revenue-chart .sparkline {
+  position: relative;
+  isolation: isolate;
+}
+
+.revenue-target {
+  position: absolute;
+  top: 1.35rem;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  border-top: 1px dashed rgb(229 186 88 / 38%);
+  color: var(--amber);
+  font-size: 0.68rem;
+  line-height: 1;
+}
+
+.revenue-trend-line {
+  position: absolute;
+  inset: 0 0 1.25rem;
+  z-index: 3;
+  width: 100%;
+  height: calc(100% - 1.25rem);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.revenue-trend-line path {
+  fill: none;
+  stroke: rgb(116 214 154 / 78%);
+  stroke-linecap: round;
+  stroke-width: 3;
+  filter: drop-shadow(0 0 10px rgb(116 214 154 / 18%));
+}
+
+.sparkline .revenue-bar,
+.bar-chart__item span {
+  position: relative;
+  flex: 1;
+  min-width: 1rem;
+  border-radius: 0.25rem 0.25rem 0 0;
+  background: linear-gradient(180deg, var(--accent), rgb(106 166 255 / 18%));
+  transition:
+    filter 140ms ease,
+    opacity 140ms ease,
+    transform 140ms ease,
+    box-shadow 140ms ease;
+  animation: revenue-rise 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.revenue-bar:focus-visible,
+.analytics-bar__value:focus-visible {
+  outline: 2px solid rgb(106 166 255 / 52%);
+  outline-offset: 2px;
+}
+
+.revenue-bar:focus-visible::before,
+.analytics-bar:focus-within::before {
+  opacity: 1;
+  transform: translateX(50%) translateY(0);
+}
+
+.sparkline .revenue-bar:nth-of-type(3) { animation-delay: 40ms; }
+.sparkline .revenue-bar:nth-of-type(4) { animation-delay: 80ms; }
+.sparkline .revenue-bar:nth-of-type(5) { animation-delay: 120ms; }
+.sparkline .revenue-bar:nth-of-type(6) { animation-delay: 160ms; }
+.sparkline .revenue-bar:nth-of-type(7) { animation-delay: 200ms; }
+
+.sparkline .revenue-bar:hover,
+.bar-chart__item:hover span {
+  filter: brightness(1.14);
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+.sparkline .revenue-bar.is-latest {
+  background: linear-gradient(180deg, #8cc0ff, rgb(106 166 255 / 24%));
+  box-shadow: 0 0 24px rgb(106 166 255 / 18%);
+}
+
+.sparkline .revenue-bar.is-best::after {
+  position: absolute;
+  top: -0.58rem;
+  right: 50%;
+  width: 0.42rem;
+  height: 0.42rem;
+  transform: translateX(50%);
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 4px rgb(116 214 154 / 12%);
+  content: "";
+}
+
+.sparkline .revenue-bar::before,
+.bar-chart__item::before {
+  position: absolute;
+  right: 50%;
+  bottom: calc(100% + 0.45rem);
+  transform: translateX(50%) translateY(0.2rem);
+  z-index: 2;
+  border: 1px solid var(--border);
+  border-radius: 0.32rem;
+  background: #090c10;
+  color: var(--text);
+  content: attr(data-value) " · " attr(data-growth) " · " attr(data-change);
+  font-size: 0.68rem;
+  opacity: 0;
+  padding: 0.2rem 0.38rem;
+  pointer-events: none;
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+  white-space: nowrap;
+}
+
+.sparkline .revenue-bar:hover::before,
+.bar-chart__item:hover::before {
+  opacity: 1;
+  transform: translateX(50%) translateY(0);
+}
+
+.sparkline .revenue-bar small {
+  position: absolute;
+  right: 50%;
+  bottom: -1.2rem;
+  transform: translateX(50%);
+  color: var(--faint);
+  font-size: 0.68rem;
+}
+
+.revenue-insight {
+  margin-top: 0.95rem;
+  line-height: 1.45;
+}

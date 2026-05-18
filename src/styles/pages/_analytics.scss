@@ -1,0 +1,180 @@
+.chart-shell--bars .chart-axis,
+.bar-chart {
+  height: 12rem;
+}
+
+.analytics-revenue__header {
+  align-items: flex-start;
+}
+
+.analytics-revenue__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.analytics-revenue__summary > div {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 9rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.65rem;
+  background: rgb(255 255 255 / 1.8%);
+}
+
+.analytics-revenue__summary strong {
+  font-size: 1rem;
+}
+
+.analytics-revenue__summary span,
+.analytics-revenue__insight {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.chart-shell--bars .bar-chart {
+  position: relative;
+  isolation: isolate;
+}
+
+.analytics-target-zone {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 4;
+  height: 32%;
+  border-bottom: 1px solid rgb(116 214 154 / 26%);
+  background:
+    linear-gradient(180deg, rgb(116 214 154 / 11%), rgb(116 214 154 / 5%)),
+    repeating-linear-gradient(
+      135deg,
+      rgb(116 214 154 / 4%) 0,
+      rgb(116 214 154 / 4%) 0.45rem,
+      transparent 0.45rem,
+      transparent 0.9rem
+    );
+  color: var(--green);
+  font-size: 0.68rem;
+  pointer-events: none;
+}
+
+.analytics-target-zone::after {
+  position: absolute;
+  top: 0.45rem;
+  left: 0.45rem;
+  right: auto;
+  z-index: 4;
+  border: 1px solid rgb(116 214 154 / 22%);
+  border-radius: 999px;
+  background: rgb(19 24 32 / 92%);
+  padding: 0.18rem 0.45rem;
+  font-weight: 650;
+  content: "Target zone";
+}
+
+.analytics-baseline {
+  position: absolute;
+  top: 31.5%;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  border-top: 1px solid rgb(106 166 255 / 28%);
+}
+
+.analytics-trend-line {
+  position: absolute;
+  inset: 0 0 1.25rem;
+  z-index: 3;
+  width: 100%;
+  height: calc(100% - 1.25rem);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.analytics-trend-line path {
+  fill: none;
+  stroke: rgb(128 168 255 / 52%);
+  stroke-linecap: round;
+  stroke-width: 2.5;
+}
+
+.bar-chart__item {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-items: end;
+  flex: 1;
+  gap: 0.65rem;
+  height: 100%;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.bar-chart__item::before {
+  bottom: calc(100% - 0.8rem);
+}
+
+.analytics-bar span {
+  background: linear-gradient(180deg, rgb(128 168 255 / 92%), rgb(106 166 255 / 18%));
+}
+
+.analytics-bar.is-latest span {
+  background: linear-gradient(180deg, #9ac7ff, rgb(128 168 255 / 24%));
+  box-shadow: 0 0 22px rgb(106 166 255 / 16%);
+}
+
+.analytics-bar::before {
+  content: attr(data-value) " · " attr(data-growth);
+}
+
+.analytics-revenue__insight {
+  margin-top: 0.95rem;
+  line-height: 1.45;
+}
+
+.metric-list > div {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.65rem;
+}
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.insight-list {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: var(--space-4);
+}
+
+.revenue-mix {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.revenue-mix div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.revenue-mix div span {
+  height: 0.5rem;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, var(--accent) var(--size), var(--surface-2) var(--size));
+}
+
+.revenue-mix small {
+  color: var(--muted);
+}

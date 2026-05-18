@@ -1,0 +1,47 @@
+:root {
+  color-scheme: dark;
+  --bg: #0b0d10;
+  --sidebar: #0d1014;
+  --surface: #11151a;
+  --surface-2: #161b22;
+  --surface-3: #1b2129;
+  --surface-card: #131820;
+  --border: #272d36;
+  --border-subtle: #1d232b;
+  --text: #edf0f3;
+  --muted: #9aa3ad;
+  --faint: #717b87;
+  --accent: #6aa6ff;
+  --green: #74d69a;
+  --amber: #e5ba58;
+  --coral: #ff7f73;
+  --blue: #80a8ff;
+  --priority-low-base: #6b7280;
+  --priority-low-text: #a1a1aa;
+  --priority-low-bg: rgb(107 114 128 / 16%);
+  --priority-low-border: rgb(161 161 170 / 16%);
+  --priority-medium-base: #8b7cf6;
+  --priority-medium-text: #b2a8ff;
+  --priority-medium-bg: rgb(139 124 246 / 16%);
+  --priority-medium-border: rgb(178 168 255 / 22%);
+  --priority-high-base: #c58b47;
+  --priority-high-text: #e2b36c;
+  --priority-high-bg: rgb(197 139 71 / 16%);
+  --priority-high-border: rgb(226 179 108 / 22%);
+  --priority-critical-base: #c35a7b;
+  --priority-critical-text: #f08aa8;
+  --priority-critical-bg: rgb(195 90 123 / 14%);
+  --priority-critical-border: rgb(240 138 168 / 22%);
+  --shadow: 0 1px 2px rgb(0 0 0 / 34%);
+  --shadow-raised: 0 8px 22px rgb(0 0 0 / 18%);
+  --content-max: 96rem;
+  --sidebar-width: 15rem;
+  --sidebar-collapsed-width: 5.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
