@@ -25,7 +25,7 @@
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 1080px) {
   .workflow-section .section__heading {
     gap: 1.15rem;
   }
@@ -66,6 +66,19 @@
 
   .task-actions button {
     min-height: 2.75rem;
+  }
+
+  .task-actions .task-delete-trigger {
+    width: 2.75rem;
+    min-width: 2.75rem;
+    height: 2.75rem;
+    padding-inline: 0;
+  }
+
+  .task-drawer__actions .task-delete-trigger {
+    width: 2.75rem;
+    min-width: 2.75rem;
+    height: 2.75rem;
   }
 
   .task-actions .mobile-move-task {
@@ -113,6 +126,14 @@
   width: 2rem;
   min-width: 2rem;
   padding-inline: 0;
+}
+
+@media (max-width: 1080px) {
+  .task-drawer__actions .task-delete-trigger {
+    width: 2.75rem;
+    min-width: 2.75rem;
+    height: 2.75rem;
+  }
 }
 
 

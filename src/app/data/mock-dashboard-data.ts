@@ -259,10 +259,10 @@ export const tasks: OperationTask[] = [
 ];
 
 export const analytics: AnalyticsPoint[] = [
-  { label: 'Jan', revenue: 88, conversion: 78.4, workload: 57 },
-  { label: 'Feb', revenue: 92, conversion: 80.1, workload: 61 },
-  { label: 'Mar', revenue: 90, conversion: 76.8, workload: 68 },
-  { label: 'Apr', revenue: 96, conversion: 79.3, workload: 64 },
-  { label: 'May', revenue: 94, conversion: 77.6, workload: 72 },
-  { label: 'Jun', revenue: 101, conversion: 81.0, workload: 69 },
+  { label: 'Jan', revenue: 92, conversion: 78.4, workload: 57 },
+  { label: 'Feb', revenue: 98, conversion: 80.1, workload: 61 },
+  { label: 'Mar', revenue: 95, conversion: 76.8, workload: 68 },
+  { label: 'Apr', revenue: 103, conversion: 79.3, workload: 64 },
+  { label: 'May', revenue: 88, conversion: 77.6, workload: 72 },
+  { label: 'Jun', revenue: 105, conversion: 81.0, workload: 69 },
 ];

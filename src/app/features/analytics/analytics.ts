@@ -97,7 +97,7 @@ export class Analytics {
   readonly chartPoints = computed(() =>
     this.points().map((point, index, points) => ({
       ...point,
-      delta: index === 0 ? 'Baseline period' : `${point.revenue - points[index - 1].revenue > 0 ? '+' : ''}${point.revenue - points[index - 1].revenue} vs prior period`,
+      delta: index === 0 ? 'Baseline month' : `${point.revenue - points[index - 1].revenue > 0 ? '+' : ''}${point.revenue - points[index - 1].revenue} vs previous month`,
       isLatest: index === points.length - 1,
     })),
   );
@@ -119,7 +119,7 @@ export class Analytics {
     }
 
     return [
-      `Expansion attainment changed ${latest.revenue - previous.revenue} points versus the prior period.`,
+      `Expansion attainment changed ${latest.revenue - previous.revenue} points versus the previous month.`,
       `On-time activation is ${latest.conversion}% while queue load sits at ${latest.workload}%.`,
       latest.workload >= 69
         ? 'Implementation load remains elevated after delayed handoffs and reopened migration work.'

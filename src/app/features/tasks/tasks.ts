@@ -170,7 +170,7 @@ export class Tasks {
   readonly drawerActionsOpen = signal(false);
   readonly createTaskOpen = signal(false);
   readonly moveSheetTaskId = signal<number | null>(null);
-  readonly isMobileWorkflow = signal(typeof window !== 'undefined' && window.innerWidth <= 720);
+  readonly isMobileWorkflow = signal(typeof window !== 'undefined' && window.innerWidth <= 1080);
   readonly taskDetails = signal(this.readTaskDetails());
   readonly commentDraft = signal('');
   readonly taskDraft = signal<TaskDraft>(this.createTaskDraft());
@@ -551,7 +551,7 @@ export class Tasks {
 
   @HostListener('window:resize')
   protected syncMobileWorkflowBreakpoint(): void {
-    this.isMobileWorkflow.set(window.innerWidth <= 720);
+    this.isMobileWorkflow.set(window.innerWidth <= 1080);
   }
 
   @HostListener('document:click', ['$event'])

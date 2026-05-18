@@ -2792,20 +2792,21 @@ tbody tr:hover .row-action {
   top: 0;
   right: 0;
   left: 0;
-  z-index: 0;
+  z-index: 4;
   height: 32%;
-  border-bottom: 1px solid rgb(116 214 154 / 34%);
+  border-bottom: 1px solid rgb(116 214 154 / 26%);
   background:
-    linear-gradient(180deg, rgb(116 214 154 / 15%), rgb(116 214 154 / 7%)),
+    linear-gradient(180deg, rgb(116 214 154 / 11%), rgb(116 214 154 / 5%)),
     repeating-linear-gradient(
       135deg,
-      rgb(116 214 154 / 7%) 0,
-      rgb(116 214 154 / 7%) 0.45rem,
+      rgb(116 214 154 / 4%) 0,
+      rgb(116 214 154 / 4%) 0.45rem,
       transparent 0.45rem,
       transparent 0.9rem
     );
   color: var(--green);
   font-size: 0.68rem;
+  pointer-events: none;
 }
 
 .analytics-target-zone::after {
@@ -2813,6 +2814,7 @@ tbody tr:hover .row-action {
   top: 0.45rem;
   left: 0.45rem;
   right: auto;
+  z-index: 4;
   border: 1px solid rgb(116 214 154 / 22%);
   border-radius: 999px;
   background: rgb(19 24 32 / 92%);
@@ -3265,6 +3267,26 @@ tbody tr:hover .row-action {
   }
 }
 
+@media (min-width: 1081px) and (max-width: 1200px) {
+  .topbar {
+    grid-template-columns: auto minmax(16rem, 1fr) auto;
+    gap: var(--space-4);
+    padding-right: 1.25rem;
+  }
+
+  .topbar__search {
+    position: relative;
+    left: auto;
+    width: 100%;
+    justify-content: stretch;
+    transform: none;
+  }
+
+  .search-control {
+    width: 100%;
+  }
+}
+
 @media (max-width: 1080px) {
   .topbar {
     grid-template-columns: 1fr;
@@ -3447,7 +3469,7 @@ tbody tr:hover .row-action {
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 1080px) {
   :root {
     --mobile-appbar-sticky-offset: calc(4.15rem + env(safe-area-inset-top));
   }
