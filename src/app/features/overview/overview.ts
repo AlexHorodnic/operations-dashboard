@@ -50,27 +50,44 @@ export class Overview {
       { label: 'Mar', revenue: 338000 },
       { label: 'Apr', revenue: 392000 },
       { label: 'May', revenue: 429000 },
-      { label: 'Jun', revenue: 428600 },
+      { label: 'Jun', revenue: 421800 },
     ],
     Quarterly: [
       { label: 'Q1 25', revenue: 286000 },
-      { label: 'Q2 25', revenue: 314000 },
-      { label: 'Q3 25', revenue: 347000 },
-      { label: 'Q4 25', revenue: 381000 },
-      { label: 'Q1 26', revenue: 405000 },
-      { label: 'Q2 26', revenue: 428600 },
+      { label: 'Q2 25', revenue: 319000 },
+      { label: 'Q3 25', revenue: 341000 },
+      { label: 'Q4 25', revenue: 376000 },
+      { label: 'Q1 26', revenue: 397000 },
+      { label: 'Q2 26', revenue: 448200 },
     ],
     Yearly: [
       { label: '2021', revenue: 198000 },
-      { label: '2022', revenue: 236000 },
-      { label: '2023', revenue: 284000 },
-      { label: '2024', revenue: 333000 },
-      { label: '2025', revenue: 389000 },
-      { label: '2026', revenue: 428600 },
+      { label: '2022', revenue: 229000 },
+      { label: '2023', revenue: 291000 },
+      { label: '2024', revenue: 326000 },
+      { label: '2025', revenue: 407000 },
+      { label: '2026', revenue: 476900 },
     ],
   };
 
   readonly revenueTrend = computed(() => this.revenueSeries[this.revenueRange()]);
+  readonly overviewKpis = computed<Kpi[]>(() => {
+    const [revenueKpi, ...snapshotKpis] = this.kpis();
+    if (!revenueKpi) {
+      return [];
+    }
+
+    return [
+      {
+        ...revenueKpi,
+        value: this.formatCurrency(this.latestRevenue().revenue),
+        trend: this.revenueGrowthPercent(),
+        trendDirection: this.latestRevenue().revenue >= this.firstRevenue().revenue ? 'up' : 'down',
+        detail: `${this.rangeLabel().toLowerCase()} range`,
+      },
+      ...snapshotKpis,
+    ];
+  });
   readonly hasOverviewData = computed(() => this.kpis().length > 0 || this.activities().length > 0);
   readonly latestRevenue = computed(() => this.revenueTrend().at(-1)!);
   readonly firstRevenue = computed(() => this.revenueTrend()[0]);
@@ -99,9 +116,13 @@ export class Overview {
     });
   });
   readonly revenueGrowth = computed(() => {
+    return `${this.revenueGrowthPercent()} over period`;
+  });
+  readonly revenueGrowthPercent = computed(() => {
     const first = this.firstRevenue().revenue;
     const latest = this.latestRevenue().revenue;
-    return `+${Math.round(((latest - first) / first) * 100)}% over period`;
+    const growth = Math.round(((latest - first) / first) * 100);
+    return `${growth >= 0 ? '+' : ''}${growth}%`;
   });
   readonly targetLineTop = computed(() => 100 - ((this.revenueTarget - this.minRevenue()) / Math.max(this.maxRevenue() - this.minRevenue(), 1)) * 100);
   readonly chartPath = computed(() => this.buildChartPath(this.chartPoints().map((point) => point.height)));
@@ -146,9 +167,14 @@ export class Overview {
 
   exportRevenueMomentum(): void {
     const range = this.revenueRange().toLowerCase();
-    exportCsv(`revenue-momentum-${range}.csv`, this.revenueTrend(), [
+    exportCsv(`recurring-revenue-trend-${range}.csv`, this.chartPoints(), [
       { header: this.periodLabel(), value: (point) => point.label },
       { header: 'Revenue', value: (point) => point.revenue },
+      { header: 'Formatted revenue', value: (point) => point.value },
+      { header: 'Growth', value: (point) => point.growth },
+      { header: 'Change', value: (point) => point.change },
+      { header: 'Target', value: () => this.revenueTarget },
+      { header: 'Formatted target', value: () => this.formatCurrency(this.revenueTarget) },
     ]);
     this.exportMessage.set('CSV exported');
     window.setTimeout(() => this.exportMessage.set(''), 2400);

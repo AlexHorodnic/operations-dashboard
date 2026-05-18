@@ -25,7 +25,7 @@
     <app-empty-state title="No overview data available" message="Refresh once workspace metrics are available." />
   } @else {
     <div class="kpi-grid">
-      @for (kpi of kpis(); track kpi.label) {
+      @for (kpi of overviewKpis(); track kpi.label) {
         <app-kpi-card [kpi]="kpi" />
       }
     </div>

@@ -244,12 +244,21 @@ export class Accounts {
       { header: 'Company', value: (customer) => customer.company },
       { header: 'Plan', value: (customer) => customer.plan },
       { header: 'Status', value: (customer) => customer.status },
-      { header: 'HealthScore', value: (customer) => customer.healthScore },
+      { header: 'Health score', value: (customer) => customer.healthScore },
       { header: 'Revenue', value: (customer) => customer.revenue },
+      { header: 'Formatted revenue', value: (customer) => this.formatCurrency(customer.revenue) },
       { header: 'Owner', value: (customer) => customer.owner },
       { header: 'Region', value: (customer) => customer.region },
-      { header: 'LastActivity', value: (customer) => customer.lastActivity },
-      { header: 'RenewalDate', value: (customer) => customer.renewalDate },
+      { header: 'Seats', value: (customer) => customer.seats },
+      { header: 'Phone', value: (customer) => customer.phone },
+      { header: 'Last activity', value: (customer) => this.formatDate(customer.lastActivity) },
+      { header: 'Last activity ISO', value: (customer) => customer.lastActivity },
+      { header: 'Created', value: (customer) => this.formatDate(customer.createdAt) },
+      { header: 'Created ISO', value: (customer) => customer.createdAt },
+      { header: 'Renewal date', value: (customer) => this.formatDate(customer.renewalDate) },
+      { header: 'Renewal date ISO', value: (customer) => customer.renewalDate },
+      { header: 'Notes', value: (customer) => customer.notes },
+      { header: 'Recent activity', value: (customer) => customer.recentActivity.join(' | ') },
     ]);
 
     this.exportMessage.set(selectedIds.size ? 'Selected accounts exported' : 'Accounts exported');
@@ -344,6 +353,23 @@ export class Accounts {
 
   private nextCustomerId(): number {
     return Math.max(...this.customers().map((customer) => customer.id), 0) + 1;
+  }
+
+  private formatCurrency(value: number): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0,
+    }).format(value);
+  }
+
+  private formatDate(value: string): string {
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      timeZone: 'UTC',
+    }).format(new Date(value));
   }
 
   private resetFilteredView(): void {
