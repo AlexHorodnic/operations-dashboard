@@ -1,40 +1,300 @@
-# Operations Dashboard
+﻿# Operations Dashboard
 
-Dark SaaS operations dashboard built with Angular for account management, workflow coordination, and revenue analytics.
+A responsive Angular operations platform for account management, workflow coordination, onboarding visibility, and revenue operations reporting.
 
-Live site: `https://operations.alexhorodnic.com`
+Live site: [`https://operations.alexhorodnic.com`](https://operations.alexhorodnic.com)
 
-## Development server
+---
 
-To start a local development server, run:
+## Overview
 
-```bash
-ng serve
+Operations Dashboard is a production-inspired internal SaaS/admin interface built with Angular. It models the type of workspace an operations, customer success, or revenue operations team might use to monitor account health, coordinate implementation work, track operational blockers, and review business performance.
+
+The project focuses on realistic enterprise frontend patterns: responsive layouts, drawers, workflow boards, operational activity feeds, filters, mobile-friendly interactions, and a maintainable feature-first Angular structure.
+
+---
+
+## Project Goals
+
+This project was built to demonstrate:
+
+- Production-style Angular frontend architecture
+- Realistic internal SaaS UX patterns
+- Responsive enterprise dashboard design
+- Maintainable feature-based project organization
+- Clean component reuse without overengineering
+- Mobile and desktop interaction polish
+- Believable operational data presentation
+
+---
+
+## Key Features
+
+### Dashboard Overview
+
+- Operating snapshot with account, revenue, and workflow KPIs
+- Revenue trend visualization
+- Operational activity feed
+- Loading, empty, and error states
+- Responsive card and chart layouts
+
+### Account Operations
+
+- Account directory with filtering, sorting, and search
+- Desktop table and responsive account card views
+- Account detail drawer
+- Bulk account selection actions
+- Owner assignment workflow
+- CSV export support
+- Mobile sticky action behavior
+
+### Workflow Queue
+
+- Kanban-style workflow board for desktop
+- Task status columns for queued, in-progress, blocked, and completed work
+- Angular CDK drag-and-drop support
+- Mobile-friendly stacked workflow layout
+- Task detail drawer with overview, activity, comments, and related account context
+- Task creation flow
+- Undoable task deletion notification
+
+### Analytics
+
+- Revenue and operational analytics panels
+- Responsive chart cards
+- Tooltip and hover interactions
+- More realistic, uneven operational data patterns
+- SaaS-style dark analytics presentation
+
+### Mobile UX
+
+- Sticky mobile app bar
+- Mobile navigation sheet
+- Mobile-friendly drawers and modals
+- Safe-area spacing support
+- Touch-friendly controls
+- Reduced accidental overflow and layout shifting
+- Improved input behavior for mobile browsers
+
+---
+
+## Tech Stack
+
+- **Angular**
+- **TypeScript**
+- **SCSS**
+- **RxJS**
+- **Angular CDK**
+- **Angular Router**
+- **Angular Forms**
+- **Lucide Angular** for icons
+- **Vercel Analytics**
+- **Vitest / Angular test tooling**
+- **Vercel** deployment
+
+---
+
+## Frontend Architecture
+
+The project uses a feature-first Angular structure designed to stay easy to navigate for a solo developer while still feeling scalable.
+
+```text
+src/app/
+  core/
+    models/
+    services/
+
+  features/
+    accounts/
+    analytics/
+    overview/
+    workflow/
+
+  mock-data/
+
+  shared/
+    components/
+      badge/
+      command-palette/
+      drawer/
+      empty-state/
+      kpi-card/
+    utils/
 ```
 
-Once the server is running, open `http://localhost:4200/`.
+### Structure Notes
 
-## Building
+- `features/` contains route-level product areas.
+- `core/` contains shared application models and services.
+- `shared/components/` contains reusable UI components.
+- `mock-data/` contains realistic demo data used by the frontend.
+- `shared/utils/` contains small reusable utilities such as CSV export logic.
 
-To build the project run:
+The architecture intentionally avoids unnecessary enterprise layering. Folder names are kept direct and product-oriented so the codebase remains easy to understand months later.
 
-```bash
-ng build
+---
+
+## Styling Architecture
+
+Global styling is organized into SCSS partials for readability and maintainability.
+
+```text
+src/styles/
+  base/
+  layout/
+  components/
+  pages/
+  utilities/
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+This keeps design tokens, reset styles, layout rules, reusable component styling, page-specific styles, and responsive utilities separated without introducing excessive abstraction.
 
-## Running unit tests
+---
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Responsive Design
+
+The interface is built to support desktop, tablet, and mobile layouts with behavior tailored to each context.
+
+Responsive work includes:
+
+- Desktop sidebar navigation
+- Mobile sticky app bar
+- Mobile navigation sheet
+- Responsive tables and account cards
+- Workflow board adaptation for smaller screens
+- Drawer and modal sizing fixes
+- Safe-area spacing for modern mobile devices
+- Touch target improvements
+- Mobile input sizing to reduce browser zoom issues
+- Horizontal overflow prevention across major layouts
+
+Tested responsive widths include common mobile, tablet, desktop, and wide desktop breakpoints.
+
+---
+
+## UX Highlights
+
+- Dark SaaS dashboard interface
+- Realistic account and workflow data
+- Operational activity and blocker states
+- Drawer-based detail views
+- Keyboard-accessible controls
+- Hover, focus, and active states
+- Sticky mobile actions where useful
+- CSV export interactions
+- Loading, error, and empty states
+- Responsive charts and cards
+- Mobile-aware workflow interactions
+
+---
+
+## Development Setup
+
+Clone the repository and install dependencies:
 
 ```bash
-ng test
+npm install
 ```
 
-## Highlights
+Start the local development server:
 
-- Responsive desktop/mobile shell with persistent navigation
-- Account directory with filtering, sorting, bulk assignment, export, and drawers
-- Workflow board with drag-and-drop, task details, and undoable deletion
-- Analytics views with range switching and revenue visualizations
+```bash
+npm start
+```
+
+Open:
+
+```text
+http://localhost:4200/
+```
+
+---
+
+## Scripts
+
+```bash
+npm start
+```
+
+Runs the Angular development server.
+
+```bash
+npm run build
+```
+
+Creates a production build in the `dist/` directory.
+
+```bash
+npm run watch
+```
+
+Runs Angular build in watch mode using the development configuration.
+
+```bash
+npm test
+```
+
+Runs the Angular test command.
+
+```bash
+npx tsc --noEmit
+```
+
+Runs a TypeScript typecheck without emitting files.
+
+---
+
+## Build & Deployment
+
+Create a production build:
+
+```bash
+npm run build
+```
+
+The compiled output is generated in:
+
+```text
+dist/
+```
+
+The project is deployed on Vercel.
+
+Live site:
+
+```text
+https://operations.alexhorodnic.com
+```
+
+---
+
+## Screenshots
+
+### Overview
+
+![Operations Dashboard overview page](docs/screenshots/overview.png)
+
+### Accounts
+
+![Accounts page with account operations table and controls](docs/screenshots/accounts.png)
+
+### Workflow Queue
+
+![Workflow queue kanban board](docs/screenshots/workflow.png)
+
+### Analytics
+
+![Analytics page with revenue and operational charts](docs/screenshots/analytics.png)
+
+### Mobile Layout
+
+![Mobile layout with sticky app bar](docs/screenshots/mobile.png)
+
+---
+
+
+## Notes
+
+This project uses mock data and frontend-managed state to model realistic product behavior. It does not currently include a real backend, authentication system, or production customer data.
+
+---
