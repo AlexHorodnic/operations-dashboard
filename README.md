@@ -129,6 +129,7 @@ src/app/
 ### Structure Notes
 
 - `features/` contains route-level product areas.
+- Route-level features are lazy-loaded so their code is downloaded only when visited.
 - `core/` contains shared application models and services.
 - `shared/components/` contains reusable UI components.
 - `mock-data/` contains realistic demo data used by the frontend.
