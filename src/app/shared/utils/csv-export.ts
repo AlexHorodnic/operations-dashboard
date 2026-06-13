@@ -3,7 +3,11 @@ export interface CsvColumn<T> {
   value: (row: T) => string | number;
 }
 
-export function exportCsv<T>(filename: string, rows: readonly T[], columns: readonly CsvColumn<T>[]): void {
+export function exportCsv<T>(
+  filename: string,
+  rows: readonly T[],
+  columns: readonly CsvColumn<T>[],
+): void {
   const csv = [
     columns.map((column) => escapeCsvCell(column.header)).join(','),
     ...rows.map((row) => columns.map((column) => escapeCsvCell(column.value(row))).join(',')),
@@ -18,7 +22,7 @@ export function exportCsv<T>(filename: string, rows: readonly T[], columns: read
   URL.revokeObjectURL(url);
 }
 
-function escapeCsvCell(value: string | number): string {
+export function escapeCsvCell(value: string | number): string {
   const cell = String(value);
   return /[",\r\n]/.test(cell) ? `"${cell.replaceAll('"', '""')}"` : cell;
 }

@@ -1,8 +1,12 @@
 ﻿# Operations Dashboard
 
+[![CI](https://github.com/AlexHorodnic/operations-dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexHorodnic/operations-dashboard/actions/workflows/ci.yml)
+
 A responsive Angular operations platform for account management, workflow coordination, onboarding visibility, and revenue operations reporting.
 
 Live site: [`https://operations.alexhorodnic.com`](https://operations.alexhorodnic.com)
+
+Portfolio case study: [`alexhorodnic.com/projects/operations-dashboard`](https://www.alexhorodnic.com/projects/operations-dashboard)
 
 ---
 
@@ -234,13 +238,34 @@ Runs Angular build in watch mode using the development configuration.
 npm test
 ```
 
-Runs the Angular test command.
+Runs the Angular test command in watch mode.
 
 ```bash
-npx tsc --noEmit
+npm run test:ci
+```
+
+Runs the complete test suite once for CI.
+
+```bash
+npm run typecheck
 ```
 
 Runs a TypeScript typecheck without emitting files.
+
+---
+
+## Test Strategy
+
+The focused test suite covers behavior with the highest regression risk:
+
+- Local persistence and CRUD behavior in `DashboardDataService`
+- Account search, combined filters, sorting, pagination, and page selection
+- Workflow filtering, status transitions, deletion, and undo restoration
+- Analytics range changes and derived performance metrics
+- CSV escaping and browser download behavior
+- Application shell and route rendering
+
+GitHub Actions runs typechecking, the test suite, and a production build for every push and pull request to `master`.
 
 ---
 
@@ -291,7 +316,6 @@ https://operations.alexhorodnic.com
 ![Mobile layout with sticky app bar](docs/screenshots/mobile.png)
 
 ---
-
 
 ## Notes
 
